@@ -44,6 +44,7 @@
 #include <linux/semaphore.h>
 #include <linux/io.h>
 #include <linux/wakelock.h>
+#include <linux/cpufreq.h>
 
 #include <asm/io.h>
 #include <asm/page.h>
@@ -3068,6 +3069,10 @@ void s3c_camif_unregister_sensor(camif_cis_t *cis)
 	cis->init_sensor = 0;
 
 	__TRACE_CAMERA_DRV(printk("[CAM-DRV] -s3c_camif_unregister_sensor\n"));
+/*
+ * Antibyte's fix
+ */
+	int ret = cpufreq_set_policy(0, "conservative");
 }
 
 module_init(s3c_camif_register);
