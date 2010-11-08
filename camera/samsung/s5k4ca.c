@@ -1158,22 +1158,26 @@ static int s5k4ca_sensor_exif_read(struct i2c_client *client, exif_data_t *exif_
 
     int ret = 0;
 
-//	unsigned short lux = 0;
+    unsigned short lux = 0;
     unsigned short extime = 0;
 
     s5k4ca_sensor_write(client, 0xFCFC, 0xD000);	/// exposure time
     s5k4ca_sensor_write(client, 0x002C, 0x7000);
     s5k4ca_sensor_write(client, 0x002E, 0x1C3C);
-//	msleep(100);
+	msleep(100);
     s5k4ca_sensor_read(client, 0x0F12, &extime);
 
-//	msleep(10);
+	msleep(10);
 
-    /*	s5k4ca_sensor_write(client, 0xFCFC, 0xD000);	/// Incident Light value
+    	s5k4ca_sensor_write(client, 0xFCFC, 0xD000);	/// Incident Light value
     	s5k4ca_sensor_write(client, 0x002C, 0x7000);
     	s5k4ca_sensor_write(client, 0x002E, 0x12FE);
     	msleep(100);
-    	s5k4ca_sensor_read(client, 0x0F12, &lux);*/
+    	s5k4ca_sensor_read(client, 0x0F12, &lux);
+
+    printk("[CAM-SENSOR] lux=%d\n", lux);
+
+    lux_value = lux;
 
     exif_data->exposureTime = extime / 100;
     exif_data->lux = lux_value;
