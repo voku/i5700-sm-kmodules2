@@ -1,7 +1,7 @@
-/*
 /* g2d/s3c_g2d_driver.c
  *
- * Copyright (c) 2008 Samsung Electronics
+ * Copyright (c)	2008 Samsung Electronics
+ *			2010 Tomasz Figa
  *
  * Samsung S3C G2D driver
  *
@@ -19,45 +19,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
- 
-#include <linux/init.h>
 
-#include <linux/moduleparam.h>
-#include <linux/timer.h>
-#include <linux/platform_device.h>
-#include <linux/interrupt.h>
-#include <linux/clk.h>
-#include <asm/uaccess.h>
-#include <linux/errno.h> /* error codes */
-#include <asm/div64.h>
-#include <linux/tty.h>
-#include <asm/uaccess.h>
-#include <linux/miscdevice.h>
-
-#include <linux/version.h>
-#include <linux/module.h>
-#include <linux/delay.h>
-#include <linux/errno.h>
 #include <linux/fs.h>
-#include <linux/kernel.h>
-#include <linux/major.h>
-#include <linux/slab.h>
+#include <linux/io.h>
+#include <linux/clk.h>
+#include <linux/irq.h>
 #include <linux/poll.h>
-#include <linux/signal.h>
-#include <linux/ioport.h>
+#include <linux/delay.h>
 #include <linux/sched.h>
-#include <linux/types.h>
+#include <linux/uaccess.h>
+#include <linux/hrtimer.h>
+#include <linux/workqueue.h>
 #include <linux/interrupt.h>
-#include <linux/kmod.h>
-#include <linux/vmalloc.h>
-#include <linux/init.h>
-#include <linux/semaphore.h>
+#include <linux/completion.h>
+#include <linux/miscdevice.h>
+#include <linux/platform_device.h>
 
-#include <asm/io.h>
-#include <asm/page.h>
-#include <asm/irq.h>
-#include <linux/mm.h>
-#include <linux/moduleparam.h>
+#ifdef CONFIG_ANDROID_PMEM
+#include <linux/android_pmem.h>
+#endif
 
 #include <mach/hardware.h>
 #include <mach/map.h>
@@ -65,870 +45,982 @@
 #include <plat/power-clock-domain.h>
 #include <plat/pm.h>
 
-#include "regs_s3c_g2d.h"
-#include "s3c_g2d_driver.h"
+#include "g2d_regs.h"
+#include "s3c_g2d.h"
 
 #ifdef CONFIG_S3C64XX_DOMAIN_GATING
-/* 
- * 2009/09/30 Kang hui sung
- * Disabling using G2D domain gating temporally.
- */
-/* #define USE_G2D_DOMAIN_GATING */
+#define USE_G2D_DOMAIN_GATING
 #endif
 
-//#define USE_G2D_MMAP
-#define G2D_CHECK_FIFO_COUNT 100
+/* Driver information */
+#define DRIVER_DESC		"S3C G2D Device Driver"
+#define DRIVER_NAME		"s3c-g2d"
 
-static struct clk *s3c_g2d_clock;
-static int s3c_g2d_irq_num = NO_IRQ;
-static struct resource *s3c_g2d_mem;
-static void __iomem *s3c_g2d_base;
-static wait_queue_head_t waitq_g2d;
+/* Various definitions */
+#define G2D_FIFO_SIZE		32
+#define G2D_SFR_SIZE		0x1000
+#define G2D_TIMEOUT		100
+#define G2D_RESET_TIMEOUT	1000
+#define G2D_MINOR		220
+#define G2D_IDLE_TIME_SECS	10
+
+/* Driver data (shared) */
+struct g2d_drvdata {
+	void __iomem		*base;	// registers base address
+	
+	struct mutex		mutex;	// mutex
+	struct completion	completion; // completion
+	struct work_struct	work;	// work
+	wait_queue_head_t	waitq;	// poll waitqueue
+
+	int			irq;	// interrupt number
+	struct resource 	*mem;	// memory resource
+	struct clk		*clock;	// device clock
 
 #ifdef USE_G2D_DOMAIN_GATING
-static int          g_flag_clk_enable = 0;
-#endif /* USE_G2D_DOMAIN_GATING */
-static int          g_num_of_g2d_object;
-static int          g_num_of_nonblock_object = 0;
+	struct hrtimer		timer;	// idle timer
+	int			state;	// power state
+#endif
+};
 
-#ifdef USE_G2D_DOMAIN_GATING
-#define USE_G2D_TIMER_FOR_CLK
+static struct g2d_drvdata *drvdata;
 
-#ifdef USE_G2D_TIMER_FOR_CLK
-static struct timer_list  g_g2d_domain_timer;
-static int g2d_pwr_off_flag = 0;
-static int g_flag_timer = 0;
-DEFINE_SPINLOCK(g2d_domain_lock);
+/* Context data (unique) */
+struct g2d_context
+{
+	struct g2d_drvdata	*data;	// driver data
+	struct s3c_g2d_req	*blit;	// blit request
+	struct s3c_g2d_fillrect	*fill;	// fillrect request
+	uint32_t		blend;	// blending mode
+	uint32_t		alpha;	// plane alpha value
+	uint32_t		rot;	// rotation mode
+	uint32_t		rop;	// raster operation
+	struct file		*srcf;	// source file (for PMEM)
+	struct file		*dstf;	// destination file (for PMEM)
+};
+
+/* Logging */
+//#define G2D_DEBUG
+#ifdef G2D_DEBUG
+#define DBG(format, args...) printk(KERN_DEBUG "%s: " format, DRIVER_NAME, ## args)
 #else
-static struct mutex g_g2d_clk_mutex;
-#endif /* USE_G2D_TIMER_FOR_CLK */
-#endif /* USE_G2D_DOMAIN_GATING */
-static struct mutex *h_rot_mutex;
+#define DBG(format, args...)
+#endif
+#define ERR(format, args...) printk(KERN_ERR "%s: " format, DRIVER_NAME, ## args)
+#define WARNING(format, args...) printk(KERN_WARNING "%s: " format, DRIVER_NAME, ## args)
+#define INFO(format, args...) printk(KERN_INFO "%s: " format, DRIVER_NAME, ## args)
 
-static u16 s3c_g2d_poll_flag = 0;
-
-int shift_x,shift_y;
-
-int s3c_g2d_check_fifo(int empty_fifo)
-{
-	int count = 0;
-
-//	while((__raw_readl(s3c_g2d_base + S3C_G2D_FIFO_STAT_REG)&0x3f) > (FIFO_NUM - empty_fifo) );
-//	while((((__raw_readl(s3c_g2d_base + S3C_G2D_FIFO_STAT_REG)&0x7e) >> 1)) > (FIFO_NUM - empty_fifo) );
-
-	while((((__raw_readl(s3c_g2d_base + S3C_G2D_FIFO_STAT_REG)&0x7e) >> 1)) > (FIFO_NUM - empty_fifo) && count < G2D_CHECK_FIFO_COUNT)
-		count++;
-	if (count == G2D_CHECK_FIFO_COUNT)
-		return false;
-	return true;
-}
-static int s3c_g2d_init_regs(s3c_g2d_params *params)
-{
-	u32 	bpp_mode_dst;
-	u32 	bpp_mode_src;
-	u32 alpha_reg = 0;
-	u32	tmp_reg;
-	s3c_g2d_check_fifo(32);
-	bpp_mode_src = __raw_readl(s3c_g2d_base + S3C_G2D_SRC_COLOR_MODE);
-	bpp_mode_src &= 0xfffffff8;
-	bpp_mode_dst = __raw_readl(s3c_g2d_base + S3C_G2D_DST_COLOR_MODE);
-	bpp_mode_dst &= 0xfffffff8;
-	
-	bpp_mode_dst |=
-				(params->bpp_dst == G2D_RGB16)   ? S3C_G2D_COLOR_RGB_565 :
-				(params->bpp_dst == G2D_RGBA16) ? S3C_G2D_COLOR_RGBA_5551 :
-				(params->bpp_dst == G2D_ARGB16) ? S3C_G2D_COLOR_ARGB_1555 :	
-				(params->bpp_dst == G2D_RGBA32) ? S3C_G2D_COLOR_RGBA_8888 :	
-				(params->bpp_dst == G2D_ARGB32) ? S3C_G2D_COLOR_ARGB_8888 :
-				(params->bpp_dst == G2D_XRGB32) ? S3C_G2D_COLOR_XRGB_8888 :	
-				(params->bpp_dst == G2D_RGBX32) ? S3C_G2D_COLOR_RGBX_8888 : S3C_G2D_COLOR_RGB_565;
-
-	bpp_mode_src |= 
-				(params->bpp_src == G2D_RGB16)   ? S3C_G2D_COLOR_RGB_565 :
-				(params->bpp_src == G2D_RGBA16) ? S3C_G2D_COLOR_RGBA_5551 :
-				(params->bpp_src == G2D_ARGB16) ? S3C_G2D_COLOR_ARGB_1555 :	
-				(params->bpp_src == G2D_RGBA32) ? S3C_G2D_COLOR_RGBA_8888 :	
-				(params->bpp_src == G2D_ARGB32) ? S3C_G2D_COLOR_ARGB_8888 :
-				(params->bpp_src == G2D_XRGB32) ? S3C_G2D_COLOR_XRGB_8888 :	
-				(params->bpp_src == G2D_RGBX32) ? S3C_G2D_COLOR_RGBX_8888 : S3C_G2D_COLOR_RGB_565;
-				
-	/*set register for soruce image ===============================*/
-	__raw_writel(params->src_base_addr,  s3c_g2d_base + S3C_G2D_SRC_BASE_ADDR);
-	__raw_writel(params->src_full_width, s3c_g2d_base + S3C_G2D_HORI_RES_REG);
-	__raw_writel(params->src_full_height, s3c_g2d_base + S3C_G2D_VERT_RES_REG);
-	__raw_writel(((params->src_full_height<<16)|(params->src_full_width)), s3c_g2d_base+S3C_G2D_SRC_RES_REG);
-	__raw_writel(bpp_mode_src, s3c_g2d_base + S3C_G2D_SRC_COLOR_MODE);
-
-	if(params->bpp_src == G2D_RGBA32)
-		__raw_writel(1, s3c_g2d_base + 0x350);
-	else
-		__raw_writel(0, s3c_g2d_base + 0x350);
-	
-	/*set register for destination image =============================*/
-	__raw_writel(params->dst_base_addr,  s3c_g2d_base + S3C_G2D_DST_BASE_ADDR);
-	__raw_writel(params->dst_full_width, s3c_g2d_base + S3C_G2D_SC_HORI_REG);
-	__raw_writel(params->dst_full_height, s3c_g2d_base + S3C_G2D_SC_VERT_REG);
-	__raw_writel(((params->dst_full_height<<16)|(params->dst_full_width)), s3c_g2d_base+S3C_G2D_SC_HORI_REG);
-	__raw_writel(bpp_mode_dst, s3c_g2d_base + S3C_G2D_DST_COLOR_MODE);
-
-	/*set register for clipping window===============================*/
-	__raw_writel(params->cw_x1, s3c_g2d_base + S3C_G2D_CW_LT_X_REG);
-	__raw_writel(params->cw_y1, s3c_g2d_base + S3C_G2D_CW_LT_Y_REG);
-	__raw_writel(params->cw_x2, s3c_g2d_base + S3C_G2D_CW_RB_X_REG);
-	__raw_writel(params->cw_y2, s3c_g2d_base + S3C_G2D_CW_RB_Y_REG);
-
-	/*set register for color=======================================*/
-	__raw_writel(params->color_val[G2D_WHITE], s3c_g2d_base + S3C_G2D_FG_COLOR_REG); // set color to both font and foreground color
-	__raw_writel(params->color_val[G2D_BLACK], s3c_g2d_base + S3C_G2D_BG_COLOR_REG);
-	__raw_writel(params->color_val[G2D_BLUE], s3c_g2d_base + S3C_G2D_BS_COLOR_REG); // Set blue color to blue screen color
-
-	/*set register for ROP & Alpha==================================*/
-	alpha_reg = __raw_readl(s3c_g2d_base + S3C_G2D_ROP_REG);
-	alpha_reg = alpha_reg & 0xffffc000;
-	if(params->alpha_mode == TRUE)
-	{
-		//printk("Does Alpha Blending\n");
-		switch (bpp_mode_src)
-		{
-		case S3C_G2D_COLOR_RGBA_5551 :
-		case S3C_G2D_COLOR_ARGB_1555 :	
-		case S3C_G2D_COLOR_RGBA_8888 :	
-		case S3C_G2D_COLOR_ARGB_8888 :
-			alpha_reg |= S3C_G2D_ROP_REG_ABM_SRC_BITMAP;
-			break;
-		default:
-			break;
-		}
-		alpha_reg |= S3C_G2D_ROP_REG_ABM_REGISTER |  G2D_ROP_SRC_ONLY;
-		//__raw_writel(S3C_G2D_ROP_REG_OS_FG_COLOR | S3C_G2D_ROP_REG_ABM_REGISTER |  S3C_G2D_ROP_REG_T_OPAQUE_MODE | G2D_ROP_SRC_ONLY, s3c_g2d_base + S3C_G2D_ROP_REG);
-		if(params->alpha_val > ALPHA_VALUE_MAX){
-			printk(KERN_ALERT"s3c g2d dirver error: exceed alpha value range 0~255\n");
-               	 return -ENOENT;
-		}
-		__raw_writel(params->alpha_val, s3c_g2d_base + S3C_G2D_ALPHA_REG);		
-	}
-	else
-	{
-		//printk("No Alpha Blending\n");
-		alpha_reg |= S3C_G2D_ROP_REG_OS_FG_COLOR | S3C_G2D_ROP_REG_ABM_NO_BLENDING | S3C_G2D_ROP_REG_T_OPAQUE_MODE | G2D_ROP_SRC_ONLY;
-		//__raw_writel(alpha_reg, s3c_g2d_base + S3C_G2D_ROP_REG);
-		//__raw_writel(((0x0<<8) | (0xff<<0)), s3c_g2d_base + S3C_G2D_ALPHA_REG);
-	}
-	__raw_writel(alpha_reg, s3c_g2d_base + S3C_G2D_ROP_REG);
-
-	/*set register for color key====================================*/
-	if(params->color_key_mode == TRUE){
-		tmp_reg = __raw_readl(s3c_g2d_base + S3C_G2D_ROP_REG);
-		tmp_reg |= S3C_G2D_ROP_REG_T_TRANSP_MODE ;
-		__raw_writel(tmp_reg , s3c_g2d_base + S3C_G2D_ROP_REG);
-		__raw_writel(params->color_key_val, s3c_g2d_base + S3C_G2D_BS_COLOR_REG); 	
-	}
-
-	/*set register for rotation=====================================*/
-	/*/ New Mathew K J 27 Feb 2009 
-	s3c_g2d_check_fifo(8);
-	//__raw_writel(S3C_G2D_ROTATRE_REG_R0_0 + (S3C_G2D_ROTATRE_REG_R0_0 << 16), s3c_g2d_base + S3C_G2D_ROT_OC_REG);
-	__raw_writel(__raw_readl(s3c_g2d_base + S3C_G2D_ROT_OC_REG) & 0xf800f800, s3c_g2d_base + S3C_G2D_ROT_OC_REG);
-	__raw_writel(__raw_readl(s3c_g2d_base + S3C_G2D_ROT_OC_X_REG) & 0xfffff800, s3c_g2d_base + S3C_G2D_ROT_OC_X_REG);
-	__raw_writel(__raw_readl(s3c_g2d_base + S3C_G2D_ROT_OC_Y_REG) & 0xf800ffff, s3c_g2d_base + S3C_G2D_ROT_OC_Y_REG);
-	__raw_writel((__raw_readl(s3c_g2d_base + S3C_G2D_ROTATE_REG) & 0xffffffc0)  | S3C_G2D_ROTATRE_REG_R0_0, s3c_g2d_base + S3C_G2D_ROTATE_REG);
-	//~New Mathew K J 27 Feb 2009
-	//  */
-	
-	__raw_writel(S3C_G2D_ROTATRE_REG_R0_0, s3c_g2d_base + S3C_G2D_ROT_OC_X_REG);
-	__raw_writel(S3C_G2D_ROTATRE_REG_R0_0, s3c_g2d_base + S3C_G2D_ROT_OC_Y_REG);
-	__raw_writel(S3C_G2D_ROTATRE_REG_R0_0, s3c_g2d_base + S3C_G2D_ROTATE_REG);
-	
-	return 0;
-	
-}
-
-/* Removed temporaly becuase this code is not used */
-/*
-void s3c_2d_disable_effect(void)
-{
-	u32 val; 
-
-	val = __raw_readl(s3c_g2d_base + S3C_G2D_ROP_REG);
-	val &= ~(0x7<<10);
-	__raw_writel(val, s3c_g2d_base + S3C_G2D_ROP_REG);
-}
+/**
+	Register accessors
 */
 
-void s3c_g2d_bitblt(u16 src_x1, u16 src_y1, u16 src_x2, u16 src_y2,
-  	                  u16 dst_x1, u16 dst_y1, u16 dst_x2, u16 dst_y2)
+static inline void g2d_write(struct g2d_drvdata *d, uint32_t b, uint32_t r)
 {
-	u32 uCmdRegVal;
-	int is_stretch = FALSE;
-	// At this point, x1 and y1 are never greater than x2 and y2. Also, destination work-dimensions are never zero.
-	u16 src_work_width  = src_x2 - src_x1 + 1;
-	u16 dst_work_width  = dst_x2 - dst_x1 + 1;
-	u16 src_work_height = src_y2 - src_y1 + 1;
-	u16 dst_work_height = dst_y2 - dst_y1 + 1;
-
-	if (s3c_g2d_check_fifo(11) == false)
-	{
-		printk(KERN_ERR "%s: fail on check fifo\n", __func__);
-		return;
-	}
-   	
-	__raw_writel(src_x1, s3c_g2d_base + S3C_G2D_COORD0_X_REG);
-	__raw_writel(src_y1, s3c_g2d_base + S3C_G2D_COORD0_Y_REG);
-    	__raw_writel(src_x2, s3c_g2d_base + S3C_G2D_COORD1_X_REG);
-	__raw_writel(src_y2, s3c_g2d_base + S3C_G2D_COORD1_Y_REG);
-
-   	 __raw_writel(dst_x1, s3c_g2d_base + S3C_G2D_COORD2_X_REG);
-    	__raw_writel(dst_y1, s3c_g2d_base + S3C_G2D_COORD2_Y_REG);
-    	__raw_writel(dst_x2, s3c_g2d_base + S3C_G2D_COORD3_X_REG);
-    	__raw_writel(dst_y2, s3c_g2d_base + S3C_G2D_COORD3_Y_REG);
-
-	// Set registers for X and Y scaling============================
-	if ((src_work_width != dst_work_width) || (src_work_height != dst_work_height))
-	{
-		u32 x_inc_fixed;
-		u32 y_inc_fixed;
-		
-		is_stretch = TRUE;
-		
-		x_inc_fixed = ((src_work_width / dst_work_width) << 11)
-						+ (((src_work_width % dst_work_width) << 11) / dst_work_width);
-	
-		y_inc_fixed = ((src_work_height / dst_work_height) << 11)
-						+ (((src_work_height % dst_work_height) << 11) / dst_work_height);
-		
-		__raw_writel(x_inc_fixed, s3c_g2d_base + S3C_G2D_X_INCR_REG);
-		__raw_writel(y_inc_fixed, s3c_g2d_base + S3C_G2D_Y_INCR_REG);
-		
-	}
-	uCmdRegVal=readl(s3c_g2d_base + S3C_G2D_CMD1_REG);
-	uCmdRegVal = ~(0x3<<0);
-	uCmdRegVal |= is_stretch ? S3C_G2D_CMD1_REG_S : S3C_G2D_CMD1_REG_N;
-	__raw_writel(uCmdRegVal, s3c_g2d_base + S3C_G2D_CMD1_REG);
-		
-
+	__raw_writel(b, d->base + r);
 }
 
-
-static void s3c_g2d_rotate_with_bitblt(s3c_g2d_params *params, ROT_DEG rot_degree)
+static inline uint32_t g2d_read(struct g2d_drvdata *d, uint32_t r)
 {
-	u16 org_x=0, org_y=0;
-	u32 uRotDegree;
-	u32 src_x1, src_y1, src_x2, src_y2, dst_x1, dst_y1, dst_x2, dst_y2;
-	u32 src_x2_resized, src_y2_resized;
+	return __raw_readl(d->base + r);
+}
 
-	src_x1 = params->src_start_x;
-	src_y1 = params->src_start_y;
-	src_x2 = params->src_start_x + params->src_work_width  -1;
-	src_y2 = params->src_start_y + params->src_work_height -1;
+/**
+	Hardware operations
+*/
 
-	dst_x1 = params->dst_start_x;
-	dst_y1 = params->dst_start_y;
-	dst_x2 = params->dst_start_x + params->dst_work_width  -1;
-	dst_y2 = params->dst_start_y + params->dst_work_height -1;
+static inline uint32_t g2d_check_fifo(struct g2d_drvdata *data, uint32_t needed)
+{
+	int i;
+	u32 used;
 
-	switch(rot_degree)
-	{
-		case ROT_0:
-		case ROT_180:
-		case ROT_X_FLIP:
-		case ROT_Y_FLIP:
-			src_x2_resized = src_x1 + params->dst_work_width  -1;
-			src_y2_resized = src_y1 + params->dst_work_height -1;
+	for (i = 0; i < G2D_TIMEOUT; i++) {
+		used = (g2d_read(data, G2D_FIFO_STAT_REG) >> 1) & 0x3f;
+
+		if ((G2D_FIFO_SIZE - used) >= needed)
+			return 0;
+	}
+
+	/* timeout */
+	return 1;
+}
+
+static void g2d_soft_reset(struct g2d_drvdata *data)
+{
+	int i;
+	u32 reg;
+
+	g2d_write(data, 1, G2D_CONTROL_REG);
+
+	for(i = 0; i < G2D_RESET_TIMEOUT; i++) {
+		reg = g2d_read(data, G2D_CONTROL_REG) & 1;
+
+		if(reg == 0)
 			break;
-		
-		case ROT_90:
-		case ROT_270:
-			src_x2_resized = src_x1 + params->dst_work_height -1;
-			src_y2_resized = src_y1 + params->dst_work_width  -1;
+
+		udelay(1);
+	}
+
+	if(i == G2D_RESET_TIMEOUT)
+		ERR("soft reset timeout.\n");
+}
+
+static inline uint32_t g2d_pack_xy(uint32_t x, uint32_t y)
+{
+	return (y << 16) | x;
+}
+
+static int g2d_do_blit(struct g2d_context *ctx)
+{
+	struct g2d_drvdata *data = ctx->data;
+	struct s3c_g2d_req *req = ctx->blit;
+	uint32_t srcw, srch, dstw, dsth;
+	uint32_t xincr, yincr;
+	uint32_t stretch;
+	uint32_t blend;
+	uint32_t vdx1, vdy1, vdx2, vdy2, vsw, vsh;
+
+	srcw = req->src.r - req->src.l + 1;
+	srch = req->src.b - req->src.t + 1;
+	dstw = req->dst.r - req->dst.l + 1;
+	dsth = req->dst.b - req->dst.t + 1;
+
+	switch (ctx->rot) {
+	case G2D_ROT_90:
+		// origin : (dst_x2, dst_y1)
+		vdx1 = req->dst.r;
+		vdy1 = req->dst.t;
+		vdx2 = req->dst.r + dsth - 1;
+		vdy2 = req->dst.t + dstw - 1;
+		vsw = srch;
+		vsh = srcw;
+		break;
+	case G2D_ROT_180:
+		// origin : (dst_x2, dst_y2)
+		vdx1 = req->dst.r;
+		vdy1 = req->dst.b;
+		vdx2 = req->dst.r + dstw - 1;
+		vdy2 = req->dst.b + dsth - 1;
+		vsw = srcw;
+		vsh = srch;
+		break;
+	case G2D_ROT_270:
+		// origin : (dst_x1, dst_y2)
+		vdx1 = req->dst.l;
+		vdy1 = req->dst.b;
+		vdx2 = req->dst.l + dsth - 1;
+		vdy2 = req->dst.b + dstw - 1;
+		vsw = srch;
+		vsh = srcw;
+		break;
+	case G2D_ROT_FLIP_X:
+		// origin : (dst_x1, dst_y2)
+		vdx1 = req->dst.l;
+		vdy1 = req->dst.b;
+		vdx2 = req->dst.l + dstw - 1;
+		vdy2 = req->dst.b + dsth - 1;
+		vsw = srcw;
+		vsh = srch;
+		break;
+	case G2D_ROT_FLIP_Y:
+		// origin : (dst_x2, dst_y1)
+		vdx1 = req->dst.r;
+		vdy1 = req->dst.t;
+		vdx2 = req->dst.r + dstw - 1;
+		vdy2 = req->dst.t + dsth - 1;
+		vsw = srcw;
+		vsh = srch;
+		break;
+	default:
+		vdx1 = req->dst.l;
+		vdy1 = req->dst.t;
+		vdx2 = req->dst.r;
+		vdy2 = req->dst.b;
+		vsw = srcw;
+		vsh = srch;
+		break;
+	}
+
+	stretch = (vsw != dstw) || (vsh != dsth);
+
+	/* NOTE: Theoretically this could by skipped */
+	if (g2d_check_fifo(data, 21)) {
+		ERR("timeout while waiting for FIFO\n");
+		return -EBUSY;
+	}
+
+	if(stretch) {
+		/* Compute X scaling factor */
+		/* (division takes time, so do it now for pipelining */
+		xincr = (vsw << 11) / dstw;
+	}
+
+	/* Configure source image */
+	DBG("SRC %08x + %08x, %dx%d, fmt = %d\n", req->src.base, req->src.offs,
+					req->src.w, req->src.h, req->src.fmt);
+
+	g2d_write(data, req->src.base + req->src.offs, G2D_SRC_BASE_ADDR);
+	g2d_write(data, g2d_pack_xy(req->src.w, req->src.h), G2D_SRC_RES_REG);
+	g2d_write(data, req->src.fmt, G2D_SRC_FORMAT_REG);
+	g2d_write(data, (req->src.fmt == G2D_RGBA32), G2D_END_RDSIZE_REG);
+
+	/* Configure destination image */
+	DBG("DST %08x + %08x, %dx%d, fmt = %d\n", req->dst.base, req->dst.offs,
+					req->dst.w, req->dst.h, req->dst.fmt);
+
+	g2d_write(data, req->dst.base + req->dst.offs, G2D_DST_BASE_ADDR);
+	g2d_write(data, g2d_pack_xy(req->dst.w, req->dst.h), G2D_DST_RES_REG);
+	g2d_write(data, req->dst.fmt, G2D_DST_FORMAT_REG);
+
+	/* Configure clipping window to destination size */
+	DBG("CLIP (%d,%d) (%d,%d)\n", 0, 0, req->dst.w - 1, req->dst.h - 1);
+
+	g2d_write(data, g2d_pack_xy(0, 0), G2D_CW_LT_REG);
+	g2d_write(data, g2d_pack_xy(req->dst.w - 1, req->dst.h - 1),
+							G2D_CW_RB_REG);
+
+	if(stretch) {
+		/* Compute Y scaling factor */
+		/* (division takes time, so do it now for pipelining */
+		yincr = (vsh << 11) / dsth;
+	}
+
+	/* Configure ROP and alpha blending */
+	if(ctx->blend == G2D_PIXEL_ALPHA) {
+		switch(req->src.fmt) {
+		case G2D_ARGB16:
+		case G2D_ARGB32:
+		case G2D_RGBA32:
+			blend = G2D_ROP_REG_ABM_SRC_BITMAP;
 			break;
-		
 		default:
-			break;
+			blend = G2D_ROP_REG_ABM_REGISTER;
+		}
+	} else {
+		blend = ctx->blend << 10;
+	}
+	blend |= ctx->rop;
+	g2d_write(data, blend, G2D_ROP_REG);
+	g2d_write(data, ctx->alpha, G2D_ALPHA_REG);
+
+	/* Configure rotation */
+	g2d_write(data, ctx->rot, G2D_ROTATE_REG);
+	g2d_write(data, g2d_pack_xy(vdx1, vdy1), G2D_ROT_OC_REG);
+
+	DBG("BLEND %08x ROTATE %08x REF=(%d, %d)\n",
+			blend, ctx->rot, vdx1, vdy1);
+
+	/* Configure coordinates */
+	DBG("BLIT (%d,%d) (%d,%d) => (%d,%d) (%d,%d)\n",
+		req->src.l, req->src.t, req->src.r, req->src.b,
+		vdx1, vdy1, vdx2, vdy2);
+
+	g2d_write(data, g2d_pack_xy(req->src.l, req->src.t), G2D_COORD0_REG);
+	g2d_write(data, g2d_pack_xy(req->src.r, req->src.b), G2D_COORD1_REG);
+
+	g2d_write(data, g2d_pack_xy(vdx1, vdy1), G2D_COORD2_REG);
+	g2d_write(data, g2d_pack_xy(vdx2, vdy2), G2D_COORD3_REG);
+
+	/* Configure scaling factors */
+	DBG("SCALE X_INCR = %08x, Y_INCR = %08x\n", xincr, yincr);
+	g2d_write(data, xincr, G2D_X_INCR_REG);
+	g2d_write(data, yincr, G2D_Y_INCR_REG);
+
+	g2d_write(data, G2D_INTEN_REG_ACF, G2D_INTEN_REG);
+
+	/* Start the operation */
+	if(stretch)
+		g2d_write(data, G2D_CMD1_REG_S, G2D_CMD1_REG);
+	else
+		g2d_write(data, G2D_CMD1_REG_N, G2D_CMD1_REG);
+
+	return 0;
+}
+
+static int g2d_do_fillrect(struct g2d_context *ctx)
+{
+	struct g2d_drvdata *data = ctx->data;
+	struct s3c_g2d_fillrect *req = ctx->fill;
+
+	/* NOTE: Theoretically this could by skipped */
+	if (g2d_check_fifo(data, 19)) {
+		ERR("timeout while waiting for FIFO\n");
+		return -EBUSY;
 	}
 
-	s3c_g2d_get_rotation_origin(src_x1, src_y1, src_x2_resized, src_y2_resized, dst_x1, dst_y1, rot_degree, &org_x, &org_y);
-	
-	s3c_g2d_check_fifo(8);
+	/* Configure images */
+	DBG("DST %08x + %08x, %dx%d, fmt = %d\n", req->dst.base, req->dst.offs,
+					req->dst.w, req->dst.h, req->dst.fmt);
 
-	__raw_writel(org_x, s3c_g2d_base + S3C_G2D_ROT_OC_X_REG);
-	__raw_writel(org_y, s3c_g2d_base + S3C_G2D_ROT_OC_Y_REG);
-	
-	/*/ New Mathew K J 27 Feb 2009 
-	
-	__raw_writel((__raw_readl(s3c_g2d_base + S3C_G2D_ROT_OC_REG) & 0xf800f800) | (org_x + (org_y << 16)), s3c_g2d_base + S3C_G2D_ROT_OC_REG);
-	__raw_writel((__raw_readl(s3c_g2d_base + S3C_G2D_ROT_OC_X_REG) & 0xfffff800) | org_x, s3c_g2d_base + S3C_G2D_ROT_OC_X_REG);
-	__raw_writel((__raw_readl(s3c_g2d_base + S3C_G2D_ROT_OC_Y_REG) & 0xf800ffff) |org_y, s3c_g2d_base + S3C_G2D_ROT_OC_Y_REG);
-	//__raw_writel(org_x + (org_y << 16), s3c_g2d_base + S3C_G2D_ROT_OC_REG);
-	//~New Mathew K J 27 Feb 2009 
-	//  */
+	g2d_write(data, req->dst.base + req->dst.offs, G2D_SRC_BASE_ADDR);
+	g2d_write(data, req->dst.base + req->dst.offs, G2D_DST_BASE_ADDR);
+	g2d_write(data, g2d_pack_xy(req->dst.w, req->dst.h), G2D_SRC_RES_REG);
+	g2d_write(data, g2d_pack_xy(req->dst.w, req->dst.h), G2D_DST_RES_REG);
+	g2d_write(data, req->dst.fmt, G2D_SRC_FORMAT_REG);
+	g2d_write(data, req->dst.fmt, G2D_DST_FORMAT_REG);
+	g2d_write(data, (req->dst.fmt == G2D_RGBA32), G2D_END_RDSIZE_REG);
 
-	uRotDegree =
-		(rot_degree == ROT_0) ? S3C_G2D_ROTATRE_REG_R0_0 :
-		(rot_degree == ROT_90) ? S3C_G2D_ROTATRE_REG_R1_90 :
-		(rot_degree == ROT_180) ? S3C_G2D_ROTATRE_REG_R2_180 : 
-		(rot_degree == ROT_270) ? S3C_G2D_ROTATRE_REG_R3_270 :
-		(rot_degree == ROT_X_FLIP) ? S3C_G2D_ROTATRE_REG_FX : S3C_G2D_ROTATRE_REG_FY;
+	/* Configure clipping window to destination size */
+	DBG("CLIP (%d,%d) (%d,%d)\n", 0, 0, req->dst.w - 1, req->dst.h - 1);
 
-       __raw_writel(uRotDegree, s3c_g2d_base + S3C_G2D_ROTATE_REG);
-	//  __raw_writel((__raw_readl(s3c_g2d_base + S3C_G2D_ROTATE_REG) & 0xffffffc0)  | uRotDegree, s3c_g2d_base + S3C_G2D_ROTATE_REG);
-	__raw_writel(S3C_G2D_INTEN_REG_CCF, s3c_g2d_base + S3C_G2D_INTEN_REG);
+	g2d_write(data, g2d_pack_xy(0, 0), G2D_CW_LT_REG);
+	g2d_write(data, g2d_pack_xy(req->dst.w - 1, req->dst.h - 1),
+							G2D_CW_RB_REG);
 
-	switch(rot_degree)
-	{
-		case ROT_0:
-		case ROT_X_FLIP:
-		case ROT_Y_FLIP:
-			s3c_g2d_bitblt(src_x1, src_y1, src_x2, src_y2, dst_x1 , dst_y1 , dst_x2, dst_y2);
-			break;
-			
-		case ROT_90:
-		case ROT_270:
-		case ROT_180:
-			s3c_g2d_bitblt(src_x1, src_y1, src_x2, src_y2, 
-							src_x1+shift_x, src_y1+shift_y, src_x2_resized+shift_x, src_y2_resized+shift_y);
-			break;
+	/* Configure ROP and alpha blending */
+	g2d_write(data, G2D_ROP_REG_OS_FG_COLOR | G2D_ROP_3RD_OPRND_ONLY,
+								G2D_ROP_REG);
+	g2d_write(data, req->alpha, G2D_ALPHA_REG);
 
-		default:
-			break;
+	/* Configure fill color */
+	g2d_write(data, req->color, G2D_FG_COLOR_REG);
+
+	/* Configure rotation */
+	g2d_write(data, G2D_ROTATE_REG_R0_0, G2D_ROTATE_REG);
+
+	/* Configure coordinates */
+	DBG("FILL %08x => (%d,%d) (%d,%d)\n", req->color, req->dst.l,
+					req->dst.t, req->dst.r, req->dst.b);
+
+	g2d_write(data, g2d_pack_xy(req->dst.l, req->dst.t), G2D_COORD0_REG);
+	g2d_write(data, g2d_pack_xy(req->dst.r, req->dst.b), G2D_COORD1_REG);
+
+	g2d_write(data, g2d_pack_xy(req->dst.l, req->dst.t), G2D_COORD2_REG);
+	g2d_write(data, g2d_pack_xy(req->dst.r, req->dst.b), G2D_COORD3_REG);
+
+	g2d_write(data, G2D_INTEN_REG_ACF, G2D_INTEN_REG);
+
+	/* Start the operation */
+	g2d_write(data, G2D_CMD1_REG_N, G2D_CMD1_REG);
+
+	return 0;
+}
+
+/**
+	PMEM support
+*/
+
+static inline int get_img(struct s3c_g2d_image *img, struct file** filep)
+{
+	unsigned long vstart, start, len;
+
+#ifdef CONFIG_ANDROID_PMEM
+	if(!get_pmem_file(img->fd, &start, &vstart, &len, filep)) {
+		img->base = start;
+		return 0;
 	}
-	
-}
-
-static void s3c_g2d_get_rotation_origin(u16 src_x1, u16 src_y1, u16 src_x2, u16 src_y2, u16 dst_x1, u16 dst_y1,  ROT_DEG rot_degree, u16* org_x, u16* org_y)
-{
-	//s3c_g2d_check_fifo(17);
-	switch(rot_degree)
-	{
-		case ROT_0:
-			return;
-		case ROT_90:
-
-			// workaround : if (org position < 0)
-			if((int)dst_x1 - (int)dst_y1 + (int)src_x1 + (int)src_y2 >=0)	shift_x = 0;
-			else shift_x = (int)dst_y1 - ((int)dst_x1 + (int)src_x1 + (int)src_y2);
-
-			// workaround : if org position is float.
-			shift_y = (int)(((int)dst_x1 - ((int)dst_y1 - shift_x) + (int)src_x1 + (int)src_y2))&0x1;	
-
-			*org_x = ((int)(((int)dst_x1 - ((int)dst_y1 - shift_x) + (int)src_x1 + (int)(src_y2+shift_y)))>>1);
-			*org_y = ((int)(((int)dst_x1 + ((int)dst_y1 - shift_x) - (int)src_x1 + (int)(src_y2+shift_y)))>>1);
-
-			break;
-		case ROT_180:
-		case ROT_X_FLIP:
-		case ROT_Y_FLIP:
-			shift_x = (dst_x1 + src_x2)&0x1;
-			shift_y = (dst_y1 + src_y2)&0x1;
-
-			*org_x = ((dst_x1 + src_x2)>>1)+shift_x;
-			*org_y = ((dst_y1 + src_y2)>>1)+shift_y;
-
-			break;
-		case ROT_270:
-			shift_x = (int)(((int)dst_x1 + (int)dst_y1 + (int)src_x2 - (int)src_y1+shift_y))&0x1;
-			shift_y = 0;
-
-			*org_x = (int)(((int)dst_x1 + (int)dst_y1 + (int)(src_x2+shift_x) - (int)src_y1)>>1);
-			*org_y = (int)(((int)dst_y1 - (int)dst_x1 + (int)(src_x2+shift_x) + (int)src_y1)>>1);
-
-			break;
-			
-		default:
-			break;
-	}
-}
-
-static void s3c_g2d_rotator_start(s3c_g2d_params *params, ROT_DEG rot_degree)
-{
-
-	s3c_g2d_init_regs(params);
-	s3c_g2d_rotate_with_bitblt(params, rot_degree);
-}
-
-#if 0
-static void s3c_g2d_rotate_clear(void)
-{
-	__raw_writel(S3C_G2D_ROTATRE_REG_R0_0, s3c_g2d_base + S3C_G2D_ROTATE_REG); // Initialize Rotation Mode Register
-}
-
-static void s3c_g2d_bitblt_start(s3c_g2d_params *params)
-{
-	u32 src_x1 = params->src_start_x;
-	u32 src_y1 = params->src_start_y;
-	u32 src_x2 = params->src_start_x + params->src_work_width  -1;
-	u32 src_y2 = params->src_start_y + params->src_work_height -1;
-	u32 dst_x1 = params->dst_start_x;
-	u32 dst_y1 = params->dst_start_y;
-	u32 dst_x2 = params->dst_start_x + params->dst_work_width  -1;
-	u32 dst_y2 = params->dst_start_y + params->dst_work_height -1;
-
-	s3c_g2d_bitblt(src_x1, src_y1, src_x2, src_y2, dst_x1, dst_y1, dst_x2, dst_y2);
-}
-
-static void s3c_g2d_set_alpha_blending(s3c_g2d_params *params)
-{
-	u32 val;
-	val = __raw_readl(s3c_g2d_base + S3C_G2D_ROP_REG);
-	val |= S3C_G2D_ROP_REG_ABM_REGISTER;
-	__raw_writel(val , s3c_g2d_base + S3C_G2D_ROP_REG);
-	__raw_writel( (params->alpha_val <<0), s3c_g2d_base + S3C_G2D_ALPHA_REG);
-}
-
-static void s3c_g2d_set_transparent(s3c_g2d_params *params)
-{
-	u32 val;
-	val = __raw_readl(s3c_g2d_base + S3C_G2D_ROP_REG);
-	val |= (S3C_G2D_ROP_REG_T_TRANSP_MODE |S3C_G2D_ROP_REG_B_BS_MODE_OFF| S3C_G2D_ROP_REG_ABM_NO_BLENDING |G2D_ROP_SRC_ONLY) ;
-	__raw_writel(val , s3c_g2d_base + S3C_G2D_ROP_REG);
-
-	__raw_writel(params->color_key_val, s3c_g2d_base + S3C_G2D_BS_COLOR_REG); 
-}
 #endif
 
-irqreturn_t s3c_g2d_irq(int irq, void *dev_id)
+	return -1;
+}
+
+static inline void put_img(struct file *file)
 {
-#ifdef USE_G2D_DOMAIN_GATING
-	if (g_flag_clk_enable == 1)
+#ifdef CONFIG_ANDROID_PMEM
+	if (file)
+		put_pmem_file(file);
 #endif
-	{
-	if(__raw_readl(s3c_g2d_base + S3C_G2D_INTC_PEND_REG) & S3C_G2D_PEND_REG_INTP_CMD_FIN){
-	    	__raw_writel ( S3C_G2D_PEND_REG_INTP_CMD_FIN, s3c_g2d_base + S3C_G2D_INTC_PEND_REG );
-		wake_up_interruptible(&waitq_g2d);
-		s3c_g2d_poll_flag = 1;
+}
+
+static inline u32 get_pixel_size(uint32_t fmt)
+{
+	switch(fmt) {
+	case G2D_RGBA32:
+	case G2D_ARGB32:
+	case G2D_XRGB32:
+	case G2D_RGBX32:
+		return 4;
+	default:
+		return 2;
 	}
+}
+
+static inline void flush_img(struct s3c_g2d_image *img, struct file *file)
+{
+#ifdef CONFIG_ANDROID_PMEM
+	u32 len;
+
+	if(file) {
+		/* flush image to memory before blit operation */
+		len = img->w * img->h * get_pixel_size(img->fmt);
+		flush_pmem_file(file, img->offs, len);
 	}
+#endif
+}
+
+/**
+	State processing
+*/
+
+static irqreturn_t g2d_handle_irq(int irq, void *dev_id)
+{
+	struct g2d_drvdata *data = (struct g2d_drvdata *)dev_id;
+	u32 stat;
+
+	stat = g2d_read(data, G2D_INTC_PEND_REG);
+	if (stat & G2D_PEND_REG_INTP_ALL_FIN) {
+		g2d_write(data, G2D_PEND_REG_INTP_ALL_FIN, G2D_INTC_PEND_REG);
+		complete(&data->completion);
+	}
+
 	return IRQ_HANDLED;
 }
 
-#ifdef USE_G2D_DOMAIN_GATING
-static int s3c_g2d_clk_enable(void)
+static void g2d_workfunc(struct work_struct *work)
 {
-	if(g_flag_clk_enable == 0)
-	{
-		s3c_set_normal_cfg(S3C64XX_DOMAIN_P, S3C64XX_ACTIVE_MODE, S3C64XX_2D);
-		if(s3c_wait_blk_pwr_ready(S3C64XX_BLK_P)) {
-			return -1;
-		}
-		clk_enable(s3c_g2d_clock);
-		g_flag_clk_enable = 1;
-	}
-
-	return 0;
-}
-
-static int s3c_g2d_clk_disable(void)
-{
-	if(    g_flag_clk_enable        == 1
-		&& g_num_of_nonblock_object == 0)
-	{
-		clk_disable(s3c_g2d_clock);
-		s3c_set_normal_cfg(S3C64XX_DOMAIN_P, S3C64XX_LP_MODE, S3C64XX_2D);
-		g_flag_clk_enable = 0;
-	}
-	return 0;
-}
-
-#ifdef USE_G2D_TIMER_FOR_CLK
-static int s3c_g2d_domain_timer(unsigned long arg)
-{
-	spin_lock(&g2d_domain_lock);
-	if(g2d_pwr_off_flag){
-		if(    g_flag_clk_enable        == 1
-                && g_num_of_nonblock_object == 0) {
-                clk_disable(s3c_g2d_clock);
-                s3c_set_normal_cfg(S3C64XX_DOMAIN_P, S3C64XX_LP_MODE, S3C64XX_2D);
-                g_flag_clk_enable = 0;
-		g_flag_timer = 0;
-            }
+	struct g2d_context *ctx =
+		(struct g2d_context *)atomic_long_read(&work->data);
+	struct g2d_drvdata *data = ctx->data;
 	
-	}
-	else {
-		if(g_flag_clk_enable        == 1
-                && g_num_of_nonblock_object == 0 
-		&& g_flag_timer == 1) {
-		  mod_timer(&g_g2d_domain_timer, jiffies + HZ);		
-		}
+	if (wait_for_completion_interruptible_timeout(
+			&data->completion, G2D_TIMEOUT) == 0) {
+		ERR("timeout while waiting for interrupt, resetting\n");
+		g2d_soft_reset(data);
 	}
 
-	spin_unlock(&g2d_domain_lock);
+#ifdef USE_G2D_DOMAIN_GATING
+	hrtimer_start(&data->timer, ktime_set(G2D_IDLE_TIME_SECS, 0),
+							HRTIMER_MODE_REL);
+#endif
+	put_img(ctx->srcf);
+	put_img(ctx->dstf);
+	mutex_unlock(&data->mutex);
+	wake_up_interruptible(&data->waitq);
 }
-#endif /* USE_G2D_TIMER_FOR_CLK */
-#endif /* USE_G2D_DOMAIN_GATING */
 
- int s3c_g2d_open(struct inode *inode, struct file *file)
+/**
+	Power management
+*/
+
+static inline int g2d_do_power_up(struct g2d_drvdata *data)
 {
-	s3c_g2d_params *params;
-	params = (s3c_g2d_params *)kmalloc(sizeof(s3c_g2d_params), GFP_KERNEL);
-	if(params == NULL){
-		printk(KERN_ERR "Instance memory allocation was failed\n");
+#ifdef CONFIG_S3C64XX_DOMAIN_GATING
+	s3c_set_normal_cfg(S3C64XX_DOMAIN_P, S3C64XX_ACTIVE_MODE, S3C64XX_2D);
+
+	if (s3c_wait_blk_pwr_ready(S3C64XX_BLK_P))
 		return -1;
-	}
-
-	memset(params, 0, sizeof(s3c_g2d_params));
-
-	file->private_data	= (s3c_g2d_params *)params;
-	
-	g_num_of_g2d_object++;
-
-	if(file->f_flags & O_NONBLOCK)
-		g_num_of_nonblock_object++;
-#ifdef USE_G2D_DOMAIN_GATING		
-#ifndef USE_G2D_TIMER_FOR_CLK
-	if(g_num_of_g2d_object == 1)
-	{
-		mutex_init(&g_g2d_clk_mutex);
-	}
 #endif
-#endif /* USE_G2D_DOMAIN_GATING */
-
-#ifdef G2D_DEBUG	
-	printk("s3c_g2d_open() <<<<<<<< NEW DRIVER >>>>>>>>>>>>>>\n"); 	
-#endif
+	clk_enable(data->clock);
+	g2d_soft_reset(data);
 
 	return 0;
 }
 
-
-int s3c_g2d_release(struct inode *inode, struct file *file)
+static inline void g2d_do_power_down(struct g2d_drvdata *data)
 {
-	s3c_g2d_params	*params;
+	clk_disable(data->clock);
+#ifdef CONFIG_S3C64XX_DOMAIN_GATING
+	s3c_set_normal_cfg(S3C64XX_DOMAIN_P, S3C64XX_LP_MODE, S3C64XX_2D);
+#endif
+}
 
-	params	= (s3c_g2d_params *)file->private_data;
-	if (params == NULL) {
-		printk(KERN_ERR "Can't release s3c_rotator!!\n");
-		return -1;
-	}
-
-	kfree(params);
-	
-	g_num_of_g2d_object--;
-
-	if(file->f_flags & O_NONBLOCK)
-		g_num_of_nonblock_object--;
 #ifdef USE_G2D_DOMAIN_GATING
-	s3c_g2d_clk_disable();
-#ifndef USE_G2D_TIMER_FOR_CLK	
+static inline int g2d_power_up(struct g2d_drvdata *data)
+{
+	int ret;
+	
+	if(data->state)
+		return 0;
 
-	if(g_num_of_g2d_object == 0)
-	{
-		mutex_destroy(&g_g2d_clk_mutex);
-	}
-#endif /* USE_G2D_TIMER_FOR_CLK */
+	INFO("Requesting power up.\n");
+
+	if((ret = g2d_do_power_up(data)) == 0)
+		data->state = 1;
+
+	return ret;
+}
+
+static inline void g2d_power_down(struct g2d_drvdata *data)
+{
+	if(!data->state)
+		return;
+	
+	INFO("Requesting power down.\n");
+	g2d_do_power_down(data);
+
+	data->state = 0;
+}
+
+static enum hrtimer_restart g2d_idle_func(struct hrtimer *t)
+{
+	struct g2d_drvdata *data = container_of(t, struct g2d_drvdata, timer);
+
+	g2d_power_down(data);
+	
+	return HRTIMER_NORESTART;
+}
 #endif /* USE_G2D_DOMAIN_GATING */
 
-#ifdef G2D_DEBUG
-	printk("s3c_g2d_release() \n"); 
-#endif
+/**
+	File operations
+*/
 
-	return 0;
-}
-
-#ifdef USE_G2D_MMAP
-int s3c_g2d_mmap(struct file* filp, struct vm_area_struct *vma) 
+static int s3c_g2d_fill(struct g2d_context *ctx, unsigned long arg, int nblock)
 {
-	unsigned long pageFrameNo=0;
-	unsigned long size;
-	
-	size = vma->vm_end - vma->vm_start;
+	struct g2d_drvdata *data = ctx->data;
+	struct file *dstf = 0;
+	struct s3c_g2d_fillrect req;
+	int ret = 0;
 
-	// page frame number of the address for a source G2D_SFR_SIZE to be stored at. 
-	//pageFrameNo = __phys_to_pfn(S3C6400_PA_G2D);
-	
-	if(size > G2D_SFR_SIZE) {
-		printk("The size of G2D_SFR_SIZE mapping is too big!\n");
-		return -EINVAL;
-	}
-	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot); 
-	
-	if((vma->vm_flags & VM_WRITE) && !(vma->vm_flags & VM_SHARED)) {
-		printk("Writable G2D_SFR_SIZE mapping must be shared !\n");
-		return -EINVAL;
-	}
-	
-	if(remap_pfn_range(vma, vma->vm_start, pageFrameNo, size, vma->vm_page_prot))
-		return -EINVAL;
-	
-	return 0;
-}
-#endif
-
-static int s3c_g2d_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
-{
-	s3c_g2d_params	*params;
-	ROT_DEG 		eRotDegree;
-	int             ret = 0;
-
-	params	= (s3c_g2d_params*)file->private_data;
-	if (copy_from_user(params, (s3c_g2d_params*)arg, sizeof(s3c_g2d_params)))
-	{
-		return -EFAULT;
+	if(!mutex_trylock(&data->mutex)) {
+		if(nblock)
+			return -EWOULDBLOCK;
+		else
+			mutex_lock(&data->mutex);
 	}
 
-	if((params->src_work_width <= 1) || (params->src_work_height <= 1)|| 
-	  (params->dst_work_width <= 1) || (params->dst_work_height <= 1))
-	{
-#if 0
-		printk("#####%s::src_work_width %d src_work_height %d dst_work_width %d dst_work_height %d cmd %d\n",
-				__FUNCTION__, params->src_work_width, params->src_work_height, params->dst_work_width, params->dst_work_height, cmd);
-#endif
-		return -EFAULT;
+	if (unlikely(copy_from_user(&req, (struct s3c_g2d_fillrect*)arg,
+					sizeof(struct s3c_g2d_fillrect)))) {
+		ERR("copy_from_user failed\n");
+		ret = -EFAULT;
+		goto err_noput;
 	}
-	
-	mutex_lock(h_rot_mutex);
+
+	if (unlikely((req.dst.w <= 1) || (req.dst.h <= 1))) {
+		ERR("invalid destination resolution\n");
+		ret = -EINVAL;
+		goto err_noput;
+	}
+
+	if (unlikely(req.dst.base == 0) && unlikely(get_img(&req.dst, &dstf))) {
+		ERR("could not retrieve dst image from memory\n");
+		ret = -EINVAL;
+		goto err_noput;
+	}
+
+	ctx->srcf = 0;
+	ctx->dstf = dstf;
+	ctx->fill = &req; // becomes invalid after leaving this function!
+
 #ifdef USE_G2D_DOMAIN_GATING
-#ifndef USE_G2D_TIMER_FOR_CLK
-	mutex_lock(&g_g2d_clk_mutex);
-	ret = s3c_g2d_clk_enable();
-#else
-	spin_lock(&g2d_domain_lock);
-	g2d_pwr_off_flag = 0;	
-	ret = s3c_g2d_clk_enable();
-	spin_unlock(&g2d_domain_lock);
-#endif	
+	hrtimer_cancel(&data->timer);
+	ret = g2d_power_up(data);
+	if (ret != 0) {
+		ERR("G2D power up failed\n");
+		ret = -EFAULT;
+		goto err_cmd;
+	}
 #endif /* USE_G2D_DOMAIN_GATING */
-	if(ret != 0){
-		printk(KERN_ERR "\n%s: Waiting for g2d domain-on is timed-out\n", __FUNCTION__);
-		return -EINVAL;
+
+	flush_img(&req.dst, dstf);
+
+	ret = g2d_do_fillrect(ctx);
+	if(ret != 0) {
+		ERR("Failed to start G2D operation (%d)\n", ret);
+		g2d_soft_reset(data);
+		goto err_cmd;
 	}
-	switch(cmd)
-	{
-		case S3C_G2D_ROTATOR_0:
-			eRotDegree = ROT_0;
-			s3c_g2d_rotator_start(params, eRotDegree);
-			break;
-			
-		case S3C_G2D_ROTATOR_90:
-			eRotDegree = ROT_90;
-			s3c_g2d_rotator_start(params, eRotDegree);
-			break;
 
-		case S3C_G2D_ROTATOR_180:
-			eRotDegree = ROT_180;
-			s3c_g2d_rotator_start(params, eRotDegree);
-			break;
-			
-		case S3C_G2D_ROTATOR_270:
-			eRotDegree = ROT_270;
-			s3c_g2d_rotator_start(params, eRotDegree);
-			break;
-
-		case S3C_G2D_ROTATOR_X_FLIP:
-			eRotDegree = ROT_X_FLIP;
-			s3c_g2d_rotator_start(params, eRotDegree);
-			break;
-
-		case S3C_G2D_ROTATOR_Y_FLIP:
-			eRotDegree = ROT_Y_FLIP;
-			s3c_g2d_rotator_start(params, eRotDegree);
-			break;
-
-		
-		default:
-			ret = -EINVAL;
-			goto err_cmd;
-	}
-	
 	// block mode
-	if(!(file->f_flags & O_NONBLOCK))
-	{
-		if (interruptible_sleep_on_timeout(&waitq_g2d, G2D_TIMEOUT) == 0)
-		{
-			printk(KERN_ERR "\n%s: Waiting for interrupt is timeout\n", __FUNCTION__);
-			ret = -EFAULT;
-		}
+	if (nblock) {
+		atomic_long_set(&data->work.data, (long)ctx);
+		schedule_work(&data->work);
+		return 0;
+	} else if (!wait_for_completion_interruptible_timeout(&data->completion,
+								G2D_TIMEOUT)) {
+		ERR("Timeout while waiting for interrupt, resetting\n");
+		g2d_soft_reset(data);
+		ret = -EFAULT;
 	}
 
 err_cmd:
-
 #ifdef USE_G2D_DOMAIN_GATING
-#ifdef USE_G2D_TIMER_FOR_CLK
-		spin_lock(&g2d_domain_lock);
-		g2d_pwr_off_flag = 1;
-		g_flag_timer = 1;
-		mod_timer(&g_g2d_domain_timer, jiffies + HZ);	
-		spin_unlock(&g2d_domain_lock);
-#else
-		s3c_g2d_clk_disable();
-		mutex_unlock(&g_g2d_clk_mutex);
-#endif /* USE_G2D_TIMER_FOR_CLK */
+	hrtimer_start(&data->timer, ktime_set(G2D_IDLE_TIME_SECS, 0),
+							HRTIMER_MODE_REL);
 #endif /* USE_G2D_DOMAIN_GATING */
-	mutex_unlock(h_rot_mutex);
+	put_img(dstf);
+err_noput:
+	mutex_unlock(&data->mutex);
 
 	return ret;
-	
+}
+
+static int s3c_g2d_blit(struct g2d_context *ctx, unsigned long arg, int nblock)
+{
+	struct g2d_drvdata *data = ctx->data;
+	struct file *srcf = 0, *dstf = 0;
+	struct s3c_g2d_req req;
+	int ret = 0;
+
+	if(!mutex_trylock(&data->mutex)) {
+		if(nblock)
+			return -EWOULDBLOCK;
+		else
+			mutex_lock(&data->mutex);
+	}
+
+	if (unlikely(copy_from_user(&req, (struct s3c_g2d_req*)arg,
+					sizeof(struct s3c_g2d_req)))) {
+		ERR("copy_from_user failed\n");
+		ret = -EFAULT;
+		goto err_noput;
+	}
+
+	if (unlikely((req.src.w <= 1) || (req.src.h <= 1))) {
+		ERR("invalid source resolution\n");
+		ret = -EINVAL;
+		goto err_noput;
+	}
+
+	if (unlikely((req.dst.w <= 1) || (req.dst.h <= 1))) {
+		ERR("invalid destination resolution\n");
+		ret = -EINVAL;
+		goto err_noput;
+	}
+
+	/* do this first so that if this fails, the caller can always
+	 * safely call put_img */
+	if (likely(req.src.base == 0) && unlikely(get_img(&req.src, &srcf))) {
+		ERR("could not retrieve src image from memory\n");
+		ret = -EINVAL;
+		goto err_noput;
+	}
+
+	if (unlikely(req.dst.base == 0) && unlikely(get_img(&req.dst, &dstf))) {
+		ERR("could not retrieve dst image from memory\n");
+		put_img(srcf);
+		ret = -EINVAL;
+		goto err_noput;
+	}
+
+	ctx->srcf = srcf;
+	ctx->dstf = dstf;
+	ctx->blit = &req; // becomes invalid after leaving this function!
+
+#ifdef USE_G2D_DOMAIN_GATING
+	hrtimer_cancel(&data->timer);
+	ret = g2d_power_up(data);
+	if (ret != 0) {
+		ERR("G2D power up failed\n");
+		ret = -EFAULT;
+		goto err_cmd;
+	}
+#endif /* USE_G2D_DOMAIN_GATING */
+
+	flush_img(&req.src, srcf);
+	flush_img(&req.dst, dstf);
+
+	ret = g2d_do_blit(ctx);
+	if(ret != 0) {
+		ERR("Failed to start G2D operation (%d)\n", ret);
+		g2d_soft_reset(data);
+		goto err_cmd;
+	}
+
+	// block mode
+	if (nblock) {
+		atomic_long_set(&data->work.data, (long)ctx);
+		schedule_work(&data->work);
+		return 0;
+	} else if (!wait_for_completion_interruptible_timeout(&data->completion,
+								G2D_TIMEOUT)) {
+		ERR("Timeout while waiting for interrupt, resetting\n");
+		g2d_soft_reset(data);
+		ret = -EFAULT;
+	}
+
+err_cmd:
+#ifdef USE_G2D_DOMAIN_GATING
+	hrtimer_start(&data->timer, ktime_set(G2D_IDLE_TIME_SECS, 0),
+							HRTIMER_MODE_REL);
+#endif /* USE_G2D_DOMAIN_GATING */
+	put_img(srcf);
+	put_img(dstf);
+err_noput:
+	mutex_unlock(&data->mutex);
+
+	return ret;
+}
+
+static int s3c_g2d_ioctl(struct inode *inode, struct file *file,
+				unsigned int cmd, unsigned long arg)
+{
+	struct g2d_context *ctx = (struct g2d_context *)file->private_data;
+	int nblock = file->f_flags & O_NONBLOCK;
+
+	switch (cmd) {
+	/* Proceed to the operation */
+	case S3C_G2D_BITBLT:
+		return s3c_g2d_blit(ctx, arg, nblock);
+	case S3C_G2D_FILLRECT:
+		return s3c_g2d_fill(ctx, arg, nblock);
+	/* Set the parameter and return */
+	case S3C_G2D_SET_TRANSFORM:
+		ctx->rot = arg;
+		return 0;
+	case S3C_G2D_SET_ALPHA_VAL:
+		ctx->alpha = (arg > ALPHA_VALUE_MAX) ? 255 : arg;
+		return 0;
+	case S3C_G2D_SET_RASTER_OP:
+		ctx->rop = arg & 0xff;
+		return 0;
+	case S3C_G2D_SET_BLENDING:
+		ctx->blend = arg;
+		return 0;
+	/* Invalid IOCTL call */
+	default:
+		return -EINVAL;
+	}
 }
 
 static unsigned int s3c_g2d_poll(struct file *file, poll_table *wait)
 {
+	struct g2d_context *ctx = (struct g2d_context *)file->private_data;
+	struct g2d_drvdata *data = ctx->data;
 	unsigned int mask = 0;
 
-	poll_wait(file, &waitq_g2d, wait);
-	if(s3c_g2d_poll_flag == 1)
-	{
+	poll_wait(file, &data->waitq, wait);
+
+	if(!mutex_is_locked(&data->mutex))
 		mask = POLLOUT|POLLWRNORM;
-		s3c_g2d_poll_flag = 0;
-	}
 
 	return mask;
 }
- struct file_operations s3c_g2d_fops = {
-	.owner 	= THIS_MODULE,
-	.open 	= s3c_g2d_open,
-	.release 	= s3c_g2d_release,
-#ifdef USE_G2D_MMAP
-	.mmap 	= s3c_g2d_mmap,
-#endif
-	.ioctl		=s3c_g2d_ioctl,
-	.poll		=s3c_g2d_poll,
-};
 
+static int s3c_g2d_open(struct inode *inode, struct file *file)
+{
+	struct g2d_context *ctx;
+	
+	ctx = kmalloc(sizeof(struct g2d_context), GFP_KERNEL);
+	if (ctx == NULL) {
+		ERR("Context allocation failed\n");
+		return -ENOMEM;
+	}
+
+	memset(ctx, 0, sizeof(struct g2d_context));
+	ctx->data	= drvdata;
+	ctx->rot	= G2D_ROT_0;
+	ctx->alpha	= ALPHA_VALUE_MAX;
+	ctx->rop	= G2D_ROP_SRC_ONLY;
+
+	file->private_data = ctx;
+
+	DBG("device opened\n");
+
+	return 0;
+}
+
+static int s3c_g2d_release(struct inode *inode, struct file *file)
+{
+	struct g2d_context *ctx = (struct g2d_context *)file->private_data;
+
+	kfree(ctx);
+
+	DBG("device released\n");
+
+	return 0;
+}
+
+static struct file_operations s3c_g2d_fops = {
+	.owner		= THIS_MODULE,
+	.open		= s3c_g2d_open,
+	.release	= s3c_g2d_release,
+	.ioctl		= s3c_g2d_ioctl,
+	.poll		= s3c_g2d_poll,
+};
 
 static struct miscdevice s3c_g2d_dev = {
 	.minor		= G2D_MINOR,
-	.name		= "s3c-g2d",
+	.name		= DRIVER_NAME,
 	.fops		= &s3c_g2d_fops,
 };
 
-int s3c_g2d_probe(struct platform_device *pdev)
-{
+/**
+	Platform device operations
+*/
 
+static int s3c_g2d_probe(struct platform_device *pdev)
+{
 	struct resource *res;
+	struct g2d_drvdata *data;
 	int ret;
 
-#ifdef G2D_DEBUG
-	printk(KERN_ALERT"s3c_g2d_probe called\n");
-#endif
-
-	/* find the IRQs */
-	s3c_g2d_irq_num = platform_get_irq(pdev, 0);
-	if(s3c_g2d_irq_num <= 0) {
-		printk(KERN_ERR "failed to get irq resouce\n");
-                return -ENOENT;
+	data = kmalloc(sizeof(struct g2d_drvdata), GFP_KERNEL);
+	if(data == NULL) {
+		ERR("failed to allocate driver data.\n");
+		return -ENOMEM;
 	}
 
-	ret = request_irq(s3c_g2d_irq_num, s3c_g2d_irq, IRQF_DISABLED, pdev->name, NULL);
-	if (ret) {
-		printk("request_irq(g2d) failed.\n");
-		return ret;
+	/* get the clock */
+	data->clock = clk_get(&pdev->dev, "hclk_g2d");
+	if (data->clock == NULL) {
+		ERR("failed to find g2d clock source\n");
+		ret = -ENOENT;
+		goto err_clock;
 	}
-
 
 	/* get the memory region */
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	if(res == NULL) {
-			printk(KERN_ERR "failed to get memory region resouce\n");
-			return -ENOENT;
+	if (res == NULL) {
+		ERR("failed to get memory region resource.\n");
+		ret = -ENOENT;
+		goto err_mem;
 	}
 
-	s3c_g2d_mem = request_mem_region(res->start, res->end-res->start+1, pdev->name);
-	if(s3c_g2d_mem == NULL) {
-		printk(KERN_ERR "failed to reserve memory region\n");
-                return -ENOENT;
+	/* reserve the memory */
+	data->mem = request_mem_region(res->start, resource_size(res),
+								pdev->name);
+	if (data->mem == NULL) {
+		ERR("failed to reserve memory region\n");
+		ret = -ENOENT;
+		goto err_mem;
 	}
 
-
-	s3c_g2d_base = ioremap(s3c_g2d_mem->start, s3c_g2d_mem->end - res->start + 1);
-	if(s3c_g2d_base == NULL) {
-		printk(KERN_ERR "failed ioremap\n");
-                return -ENOENT;
+	/* map the memory */
+	data->base = ioremap(data->mem->start, resource_size(data->mem));
+	if (data->base == NULL) {
+		ERR("ioremap failed\n");
+		ret = -ENOENT;
+		goto err_ioremap;
 	}
 
-	s3c_g2d_clock = clk_get(&pdev->dev, "hclk_g2d");
-	if (IS_ERR(s3c_g2d_clock)) {
-			printk(KERN_ERR "failed to find g2d clock source\n");
-			return -ENOENT;
+	/* get the IRQ */
+	data->irq = platform_get_irq(pdev, 0);
+	if (data->irq <= 0) {
+		ERR("failed to get irq resource (%d).\n", data->irq);
+		ret = data->irq;
+		goto err_irq;
 	}
 
-	init_waitqueue_head(&waitq_g2d);
+	/* request the IRQ */
+	ret = request_irq(data->irq, g2d_handle_irq, 0, pdev->name, data);
+	if (ret) {
+		ERR("request_irq failed (%d).\n", ret);
+		goto err_irq;
+	}
+
+	mutex_init(&data->mutex);
+	init_completion(&data->completion);
+	INIT_WORK(&data->work, g2d_workfunc);
+	init_waitqueue_head(&data->waitq);
+
+#ifdef USE_G2D_DOMAIN_GATING
+	hrtimer_init(&data->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+	data->timer.function = g2d_idle_func;
+	data->state = 0;
+#else
+	if (g2d_do_power_up(data)) {
+		ERR("G2D power up failed\n");
+		ret = -EFAULT;
+		goto err_pm;
+	}
+#endif
+
+	platform_set_drvdata(pdev, data);
+	drvdata = data;
 
 	ret = misc_register(&s3c_g2d_dev);
 	if (ret) {
-		printk (KERN_ERR "cannot register miscdev on minor=%d (%d)\n",
-			G2D_MINOR, ret);
-		return ret;
+		ERR("cannot register miscdev (%d)\n", ret);
+		goto err_misc_register;
 	}
 
-	h_rot_mutex = (struct mutex *)kmalloc(sizeof(struct mutex), GFP_KERNEL);
-	if (h_rot_mutex == NULL)
-		return -1;
-	
-	mutex_init(h_rot_mutex);
-#ifdef USE_G2D_DOMAIN_GATING
-#ifdef USE_G2D_TIMER_FOR_CLK
-        init_timer(&g_g2d_domain_timer);
-        g_g2d_domain_timer.function = s3c_g2d_domain_timer;
-#endif /* USE_G2D_TIMER_FOR_CLK */
-#endif /* USE_G2D_DOMAIN_GATING */
+	INFO("Driver loaded succesfully\n");
 
-#ifdef G2D_DEBUG
-	printk(KERN_ALERT" s3c_g2d_probe Success\n");
+	return 0;
+
+err_misc_register:
+#ifndef USE_G2D_DOMAIN_GATING
+	g2d_do_power_down(data);
+err_pm:
+#endif
+	free_irq(data->irq, pdev);
+err_irq:
+	iounmap(data->base);
+err_ioremap:
+	release_resource(data->mem);
+err_mem:
+err_clock:
+	kfree(data);
+
+	return ret;
+}
+
+static int s3c_g2d_remove(struct platform_device *pdev)
+{
+	struct g2d_drvdata *data = platform_get_drvdata(pdev);
+
+#ifdef USE_G2D_DOMAIN_GATING
+	if(!hrtimer_cancel(&data->timer))
+		g2d_power_down(data);
+#else
+	g2d_do_power_down(data);
 #endif
 
-	return 0;  
-}
-
-static int s3c_g2d_remove(struct platform_device *dev)
-{
-	printk(KERN_INFO "s3c_g2d_remove called !\n");
-
-	free_irq(s3c_g2d_irq_num, NULL);
-	
-	if (s3c_g2d_mem != NULL) {   
-		printk(KERN_INFO "S3C G2D  Driver, releasing resource\n");
-		iounmap(s3c_g2d_base);
-		release_resource(s3c_g2d_mem);
-		kfree(s3c_g2d_mem);
-	}
-	
 	misc_deregister(&s3c_g2d_dev);
-	printk(KERN_INFO "s3c_g2d_remove Success !\n");
+	free_irq(data->irq, data);
+	iounmap(data->base);
+	release_resource(data->mem);
+	kfree(data);
+
+	INFO("Driver unloaded succesfully.\n");
+
 	return 0;
 }
 
-static int s3c_g2d_suspend(struct platform_device *dev, pm_message_t state)
+static int s3c_g2d_suspend(struct platform_device *pdev, pm_message_t state)
 {
-//	clk_disable(s3c_g2d_clock);
+	struct g2d_drvdata *data = dev_get_drvdata(&pdev->dev);
+#ifdef USE_G2D_DOMAIN_GATING
+	if(!hrtimer_cancel(&data->timer))
+		g2d_power_down(data);
+#else
+	g2d_do_power_down(data);
+#endif
 	return 0;
 }
+
 static int s3c_g2d_resume(struct platform_device *pdev)
 {
-//	clk_enable(s3c_g2d_clock);
+#ifndef USE_G2D_DOMAIN_GATING
+	struct g2d_drvdata *data = dev_get_drvdata(&pdev->dev);
+
+	if(g2d_do_power_up(data) < 0) {
+		ERR("G2D power up failed\n");
+		return -EFAULT;
+	}
+#endif
 	return 0;
 }
 
-
 static struct platform_driver s3c_g2d_driver = {
-       .probe          = s3c_g2d_probe,
-       .remove         = s3c_g2d_remove,
-       .suspend        = s3c_g2d_suspend,
-       .resume         = s3c_g2d_resume,
-       .driver		= {
+	.probe          = s3c_g2d_probe,
+	.remove         = s3c_g2d_remove,
+	.suspend        = s3c_g2d_suspend,
+	.resume         = s3c_g2d_resume,
+	.driver		= {
 		.owner	= THIS_MODULE,
-		.name	= "s3c-g2d",
+		.name	= DRIVER_NAME,
 	},
 };
 
+/**
+	Module operations
+*/
+
 int __init  s3c_g2d_init(void)
 {
- 	if(platform_driver_register(&s3c_g2d_driver)!=0)
-  	{
-   		printk("platform device register Failed \n");
-   		return -1;
-  	}
-	printk(" S3C G2D  Init : Done\n");
-       	return 0;
+	int ret;
+
+	if ((ret = platform_driver_register(&s3c_g2d_driver)) != 0) {
+		ERR("Platform device register failed (%d).\n", ret);
+		return ret;
+	}
+
+	INFO("Module initialized.\n");
+
+	return 0;
 }
 
 void  s3c_g2d_exit(void)
 {
 	platform_driver_unregister(&s3c_g2d_driver);
-	mutex_destroy(h_rot_mutex);
- 	printk("S3C: G2D module exit\n");
+
+	INFO("Module exited.\n");
 }
 
 module_init(s3c_g2d_init);
 module_exit(s3c_g2d_exit);
 
-MODULE_AUTHOR("");
-MODULE_DESCRIPTION("S3C G2D Device Driver");
+MODULE_AUTHOR("Tomasz Figa <tomasz.figa@gmail.com>");
+MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE("GPL");
