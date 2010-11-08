@@ -1,6 +1,5 @@
 #!/bin/sh
 
-cd ~/i5700.2/modules
 cd mfc
 ../_mm1
 cd ..
