@@ -1,4 +1,4 @@
 #!/bin/sh
 
-make KDIR=/usr/src/kernel/i5700-leshak-kernel CFLAGS=-O3
-cp *.ko /usr/src/kernel/i5700-leshak-initramfs-froyo/lib/modules
+make KDIR=/home/ch33kybutt/kernel/i5700-kernel CFLAGS=-O3
+cp *.ko /home/ch33kybutt/kernel/i5700-initramfs-froyo-2.6.29.6/lib/modules
