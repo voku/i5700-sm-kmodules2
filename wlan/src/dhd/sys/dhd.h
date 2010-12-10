@@ -80,6 +80,21 @@ enum dhd_bus_state {
 	DHD_BUS_DATA		/* Ready for frame transfers */
 };
 
+enum dhd_bus_wake_state {
+	WAKE_LOCK_OFF,
+	WAKE_LOCK_PRIV,
+	WAKE_LOCK_DPC,
+	WAKE_LOCK_IOCTL,
+	WAKE_LOCK_DOWNLOAD,
+	WAKE_LOCK_TMOUT,
+	WAKE_LOCK_WATCHDOG,
+	WAKE_LOCK_LINK_DOWN_TMOUT,
+	WAKE_LOCK_SOFTAP_SET,
+	WAKE_LOCK_SOFTAP_STOP,
+	WAKE_LOCK_SOFTAP_START,
+	WAKE_LOCK_MAX
+};
+
 /* Common structure for module and instance linkage */
 typedef struct dhd_pub {
 	/* Linkage ponters */

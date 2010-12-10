@@ -497,6 +497,10 @@ _dhd_set_mac_address(dhd_info_t *dhd, int ifidx, struct ether_addr *addr)
 	return ret;
 }
 
+#ifdef SOFTAP
+extern struct net_device *ap_net_dev;
+#endif
+
 static void
 dhd_op_if(dhd_if_t *ifp)
 {
@@ -527,8 +531,20 @@ dhd_op_if(dhd_if_t *ifp)
 			if (dhd_net_attach(&dhd->pub, ifp->idx) != 0) {
 				DHD_ERROR(("%s: dhd_net_attach failed\n", __FUNCTION__));
 				ret = -EOPNOTSUPP;
-			} else
+			} else {
+#ifdef SOFTAP
+				 /* semaphore that the soft AP CODE waits on */
+				extern struct semaphore  ap_eth_sema;
+
+				/* save ptr to wl0.1 netdev for use in wl_iw.c  */
+				ap_net_dev = ifp->net;
+				 /* signal to the SOFTAP 'sleeper' thread, wl0.1 is ready */
+				up(&ap_eth_sema);
+#endif
+				DHD_TRACE(("\n ==== pid:%x, net_device for if:%s created ===\n\n",
+					current->pid, ifp->net->name));
 				ifp->state = 0;
+			}
 		}
 		break;
 	case WLC_E_IF_DEL:
@@ -549,6 +565,10 @@ dhd_op_if(dhd_if_t *ifp)
 			free_netdev(ifp->net);
 		dhd->iflist[ifp->idx] = NULL;
 		MFREE(dhd->pub.osh, ifp, sizeof(*ifp));
+#ifdef SOFTAP
+		if (ifp->net == ap_net_dev)
+			ap_net_dev = NULL;     /* NULL SOFTAP global as well */
+#endif /*  SOFTAP */
 	}
 }
 
@@ -558,13 +578,38 @@ _dhd_sysioc_thread(void *data)
 	dhd_info_t *dhd = (dhd_info_t *)data;
 	int i;
 
+#ifdef SOFTAP
+	bool in_ap = FALSE;
+#endif
+
 	DAEMONIZE("dhd_sysioc");
 
 	while (down_interruptible(&dhd->sysioc_sem) == 0) {
 		for (i = 0; i < DHD_MAX_IFS; i++) {
 			if (dhd->iflist[i]) {
+#ifdef SOFTAP
+				in_ap = (ap_net_dev != NULL);
+#endif /* SOFTAP */
 				if (dhd->iflist[i]->state)
 					dhd_op_if(dhd->iflist[i]);
+#ifdef SOFTAP
+				if (dhd->iflist[i] == NULL) {
+					DHD_TRACE(("%s: interface %d just been removed!\n\n", __FUNCTION__, i));
+					continue;
+				}
+
+				if (in_ap && dhd->set_macaddress) {
+					DHD_TRACE(("attempt to set MAC for %s in AP Mode blocked.\n", dhd->iflist[i]->net->name));
+					dhd->set_macaddress = FALSE;
+					continue;
+				}
+
+				if (in_ap && dhd->set_multicast)  {
+					DHD_TRACE(("attempt to set MULTICAST list for %s in AP Mode blocked.\n", dhd->iflist[i]->net->name));
+					dhd->set_multicast = FALSE;
+					continue;
+				}
+#endif /* SOFTAP */
 				if (dhd->set_multicast) {
 					dhd->set_multicast = FALSE;
 					_dhd_set_multicast_list(dhd, i);

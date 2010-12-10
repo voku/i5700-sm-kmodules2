@@ -34,6 +34,10 @@
 #include <proto/ethernet.h>
 #include <wlioctl.h>
 
+#include <dngl_stats.h>
+#include <dhd.h>
+#include <dhdioctl.h>
+
 
 #define	WL_IW_RSSI_MINVAL		-200	
 #define	WL_IW_RSSI_NO_SIGNAL	-91	
@@ -53,6 +57,16 @@
 #define WL_IW_GET_CURR_MACADDR	(SIOCIWFIRSTPRIV+9)
 #define WL_IW_SET_STOP				(SIOCIWFIRSTPRIV+11)
 #define WL_IW_SET_START			(SIOCIWFIRSTPRIV+13)
+
+#define WL_SET_AP_CFG           (SIOCIWFIRSTPRIV+15)
+#define WL_AP_STA_LIST          (SIOCIWFIRSTPRIV+17)
+#define WL_AP_MAC_FLTR	        (SIOCIWFIRSTPRIV+19)
+#define WL_AP_BSS_START         (SIOCIWFIRSTPRIV+21)
+#define AP_LPB_CMD              (SIOCIWFIRSTPRIV+23)
+#define WL_AP_STOP              (SIOCIWFIRSTPRIV+25)
+#define WL_FW_RELOAD            (SIOCIWFIRSTPRIV+27)
+#define WL_COMBO_SCAN           (SIOCIWFIRSTPRIV+29)
+#define WL_AP_SPARE3            (SIOCIWFIRSTPRIV+31)
 
 #define 		G_SCAN_RESULTS 8*1024
 #define 		WE_ADD_EVENT_FIX	0x80
@@ -106,6 +120,36 @@ typedef struct wl_iw_ss_cache_ctrl {
 	uint m_cons_br_scan_cnt;	
 	struct timer_list *m_timer;	
 } wl_iw_ss_cache_ctrl_t;
+
+#ifdef SOFTAP
+#define SSID_LEN	33
+#define SEC_LEN		16
+#define KEY_LEN		65
+#define PROFILE_OFFSET	32
+struct ap_profile {
+	uint8	ssid[SSID_LEN];
+	uint8	sec[SEC_LEN];
+	uint8	key[KEY_LEN];
+	uint32	channel;
+	uint32	preamble;
+	uint32	max_scb;
+};
+
+
+#define MACLIST_MODE_DISABLED	0
+#define MACLIST_MODE_ENABLED	1
+#define MACLIST_MODE_ALLOW	2
+struct mflist {
+	uint count;
+	struct ether_addr ea[16];
+};
+
+struct mac_list_set {
+	uint32	mode;
+	struct mflist white_list;
+	struct mflist black_list;
+};
+#endif
 
 #if WIRELESS_EXT > 12
 #include <net/iw_handler.h>

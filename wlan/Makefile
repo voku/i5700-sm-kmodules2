@@ -15,6 +15,9 @@ EXTRA_CFLAGS += -DBCMWAPI_WPI
 #   WAPI-CERT [To Disable Power save option.]    ****DEPENDENCY ==> WAPI
 #EXTRA_CFLAGS += -DBCMDISABLE_PM
 
+#   SOFTAP
+EXTRA_CFLAGS += -DSOFTAP
+
 ###########################################################################################################################################################################
 ifeq ($(CONFIG_BCM_EMBED_FW),y)
 	EXTRA_CFLAGS		+= -I$(src)/src/dongle/rte/wl/builds/4325b0/sdio-g-cdc-reclaim-wme/
