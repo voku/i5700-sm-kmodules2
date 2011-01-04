@@ -1,0 +1,1 @@
+cmd_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/param/param.ko := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-ld -EL -r   -o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/param/param.ko /home/ch33kybutt/kernel/i5700-leshak-kmodules2/param/param.o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/param/param.mod.o

@@ -1,0 +1,1 @@
+cmd_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/g2d/s3c_g2d_driver.ko := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-ld -EL -r   -o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/g2d/s3c_g2d_driver.ko /home/ch33kybutt/kernel/i5700-leshak-kmodules2/g2d/s3c_g2d_driver.o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/g2d/s3c_g2d_driver.mod.o

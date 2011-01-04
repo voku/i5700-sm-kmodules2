@@ -6,7 +6,7 @@
 
 obj-m	:= param.o crc32.o
 
-EXTRA_CFLAGS += -I$(PRJROOT)/modules/xsr/Inc	
+EXTRA_CFLAGS += -I/home/ch33kybutt/kernel/i5700-leshak-kmodules2/xsr/Inc	
 
 all:
 	@echo "$(MAKE) --no-print-directory -C $(KDIR) SUBDIRS=$(CURDIR) modules"

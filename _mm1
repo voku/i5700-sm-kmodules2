@@ -1,4 +1,4 @@
 #!/bin/sh
 
-make KDIR=/home/ch33kybutt/kernel/i5700-kernel CFLAGS=-O3
+make KDIR=/home/ch33kybutt/kernel/i5700-kernel CFLAGS="-O3 -marm -mfpu=vfp -mtune=arm1176jzf-s"
 cp *.ko /home/ch33kybutt/kernel/i5700-initramfs-froyo-2.6.29.6/lib/modules

@@ -1,0 +1,1 @@
+cmd_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/multipdp/multipdp.ko := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-ld -EL -r   -o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/multipdp/multipdp.ko /home/ch33kybutt/kernel/i5700-leshak-kmodules2/multipdp/multipdp.o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/multipdp/multipdp.mod.o
