@@ -1,2 +1,2 @@
-/home/ch33kybutt/kernel/i5700-leshak-kmodules2/multipdp/multipdp.ko
-/home/ch33kybutt/kernel/i5700-leshak-kmodules2/multipdp/multipdp.o
+/home/ch33kybutt/kernel/m910-kmodules2-cfs/multipdp/multipdp.ko
+/home/ch33kybutt/kernel/m910-kmodules2-cfs/multipdp/multipdp.o

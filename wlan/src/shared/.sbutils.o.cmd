@@ -1,8 +1,8 @@
-cmd_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/shared/sbutils.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/shared/.sbutils.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -I/include -I/home/ch33kybutt/kernel/i5700-kernel -DBCMDBG -DBCMDBG_MEM -Dlinux -DLINUX -DBDC -DTOE -DBCMDRIVER -DBCMDONGLEHOST -DDHDTHREAD -DBCMWPA2 -DUSE_STOCK_MMC_DRIVER -DDHD_GPL -DDHD_SCHED -DBCMSDIO -DDHD_GPL -DBCMLXSDMMC -DBCMPLATFORM_BUS -DDHD_BCMEVENTS -DSHOW_EVENTS -DDHD_DEBUG -DSRCBASE=\"/home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src\" -DANDROID_SPECIFIC -DMAX_HDR_LEN=64 -DDHD_FIRSTREAD=64 -DSDIO_ISR_THREAD -DENABLE_DEEP_SLEEP -DWRITE_MACADDR -DCONFIG_BRCM_GPIO_INTR -DBCM_HOSTWAKE -DBCMHOSTWAKE_IRQ -DBCM_PKTFILTER -DBCM_ARPO -I/home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/include/ -I/home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/dhd/sys/ -I/home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/dongle/ -I/home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/bcmsdio/sys/ -I/home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/wl/sys/ -I/home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/shared/ -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(sbutils)"  -D"KBUILD_MODNAME=KBUILD_STR(dhd)"  -c -o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/shared/sbutils.o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/shared/sbutils.c
+cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/shared/sbutils.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/shared/.sbutils.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -I/include -I/home/ch33kybutt/kernel/i5700-kernel -DBCMDBG -DBCMDBG_MEM -Dlinux -DLINUX -DBDC -DTOE -DBCMDRIVER -DBCMDONGLEHOST -DDHDTHREAD -DBCMWPA2 -DUSE_STOCK_MMC_DRIVER -DDHD_GPL -DDHD_SCHED -DBCMSDIO -DDHD_GPL -DBCMLXSDMMC -DBCMPLATFORM_BUS -DDHD_BCMEVENTS -DSHOW_EVENTS -DDHD_DEBUG -DSRCBASE=\"/home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src\" -DANDROID_SPECIFIC -DMAX_HDR_LEN=64 -DDHD_FIRSTREAD=64 -DSDIO_ISR_THREAD -DENABLE_DEEP_SLEEP -DWRITE_MACADDR -DCONFIG_BRCM_GPIO_INTR -DBCM_HOSTWAKE -DBCMHOSTWAKE_IRQ -DBCM_PKTFILTER -DBCM_ARPO -DBCMWAPI_WPI -I/home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/include/ -I/home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/dhd/sys/ -I/home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/dongle/ -I/home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/bcmsdio/sys/ -I/home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/wl/sys/ -I/home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/shared/ -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(sbutils)"  -D"KBUILD_MODNAME=KBUILD_STR(dhd)"  -c -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/shared/sbutils.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/shared/sbutils.c
 
-deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/shared/sbutils.o := \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/shared/sbutils.c \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/include/typedefs.h \
+deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/shared/sbutils.o := \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/shared/sbutils.c \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/include/typedefs.h \
   include/linux/version.h \
   include/linux/types.h \
     $(wildcard include/config/uid16.h) \
@@ -23,11 +23,11 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/shared/sbutils.o :=
   /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/posix_types.h \
   /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/types.h \
   include/asm-generic/int-ll64.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/include/bcmdefs.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/include/osl.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/include/linux_osl.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/include/bcmdefs.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/include/osl.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/include/linux_osl.h \
     $(wildcard include/config/mmc/msm7x00a.h) \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/include/linuxver.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/include/linuxver.h \
     $(wildcard include/config/net/radio.h) \
     $(wildcard include/config/wireless/ext.h) \
   include/linux/module.h \
@@ -626,19 +626,19 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/shared/sbutils.o :=
   include/linux/seq_file_net.h \
   include/linux/seq_file.h \
   include/net/dsa.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/include/bcmsdh.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/include/bcmutils.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/include/siutils.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/include/bcmdevs.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/include/hndsoc.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/include/sbconfig.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/include/bcmsdh.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/include/bcmutils.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/include/siutils.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/include/bcmdevs.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/include/hndsoc.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/include/sbconfig.h \
     $(wildcard include/config/h.h) \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/include/aidmp.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/include/sbchipc.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/include/pcicfg.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/include/sbpcmcia.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/shared/siutils_priv.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/include/aidmp.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/include/sbchipc.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/include/pcicfg.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/include/sbpcmcia.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/shared/siutils_priv.h \
 
-/home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/shared/sbutils.o: $(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/shared/sbutils.o)
+/home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/shared/sbutils.o: $(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/shared/sbutils.o)
 
-$(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/wlan/src/shared/sbutils.o):
+$(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/src/shared/sbutils.o):

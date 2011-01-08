@@ -1,2 +1,2 @@
-/home/ch33kybutt/kernel/i5700-leshak-kmodules2/xsr/xsr_debug.ko
-/home/ch33kybutt/kernel/i5700-leshak-kmodules2/xsr/debug.o
+/home/ch33kybutt/kernel/m910-kmodules2-cfs/xsr/xsr_debug.ko
+/home/ch33kybutt/kernel/m910-kmodules2-cfs/xsr/debug.o

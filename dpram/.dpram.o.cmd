@@ -1,7 +1,7 @@
-cmd_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/dpram/dpram.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/i5700-leshak-kmodules2/dpram/.dpram.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -I/modules/include -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(dpram)"  -D"KBUILD_MODNAME=KBUILD_STR(dpram)"  -c -o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/dpram/dpram.o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/dpram/dpram.c
+cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/dpram/dpram.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/m910-kmodules2-cfs/dpram/.dpram.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -I/modules/include -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(dpram)"  -D"KBUILD_MODNAME=KBUILD_STR(dpram)"  -c -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/dpram/dpram.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/dpram/dpram.c
 
-deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/dpram/dpram.o := \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/dpram/dpram.c \
+deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/dpram/dpram.o := \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/dpram/dpram.c \
     $(wildcard include/config/event/logging.h) \
     $(wildcard include/config/proc/fs.h) \
   include/linux/module.h \
@@ -554,14 +554,14 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/dpram/dpram.o := \
   include/linux/wakelock.h \
     $(wildcard include/config/has/wakelock.h) \
     $(wildcard include/config/wakelock/stat.h) \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/dpram/dpram.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/dpram/BML.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/dpram/LLD.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/dpram/XsrTypes.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/dpram/OCLDReg.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/dpram/OCLD.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/dpram/dpram.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/dpram/BML.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/dpram/LLD.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/dpram/XsrTypes.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/dpram/OCLDReg.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/dpram/OCLD.h \
   arch/arm/mach-s3c6400/include/mach/param.h \
 
-/home/ch33kybutt/kernel/i5700-leshak-kmodules2/dpram/dpram.o: $(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/dpram/dpram.o)
+/home/ch33kybutt/kernel/m910-kmodules2-cfs/dpram/dpram.o: $(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/dpram/dpram.o)
 
-$(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/dpram/dpram.o):
+$(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/dpram/dpram.o):

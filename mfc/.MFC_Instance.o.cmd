@@ -1,12 +1,12 @@
-cmd_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MFC_Instance.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/.MFC_Instance.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DLINUX -DDIVX_ENABLE -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(MFC_Instance)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_mfc)"  -c -o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MFC_Instance.o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MFC_Instance.c
+cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MFC_Instance.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/.MFC_Instance.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DLINUX -DDIVX_ENABLE -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(MFC_Instance)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_mfc)"  -c -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MFC_Instance.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MFC_Instance.c
 
-deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MFC_Instance.o := \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MFC_Instance.c \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/Mfc.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MFC_Instance.h \
+deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MFC_Instance.o := \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MFC_Instance.c \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/Mfc.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MFC_Instance.h \
     $(wildcard include/config/phy/outbuf.h) \
     $(wildcard include/config/out/position.h) \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcTypes.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcTypes.h \
   include/linux/types.h \
     $(wildcard include/config/uid16.h) \
     $(wildcard include/config/lbd.h) \
@@ -26,11 +26,11 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MFC_Instance.o := \
   /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/posix_types.h \
   /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/types.h \
   include/asm-generic/int-ll64.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMemory.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/DataBuf.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/FramBufMgr.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/LogMsg.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcConfig.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMemory.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/DataBuf.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/FramBufMgr.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/LogMsg.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcConfig.h \
     $(wildcard include/config/h//.h) \
   include/linux/version.h \
   /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/memory.h \
@@ -128,9 +128,9 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MFC_Instance.o := \
   include/asm-generic/cmpxchg.h \
   /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/setup.h \
     $(wildcard include/config/arch/lh7a40x.h) \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcSfr.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/BitProcBuf.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MFC_Inst_Pool.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSfr.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/BitProcBuf.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MFC_Inst_Pool.h \
   /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/io.h \
   /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/byteorder.h \
   include/linux/byteorder/little_endian.h \
@@ -419,6 +419,6 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MFC_Instance.o := \
   include/linux/delay.h \
   /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/delay.h \
 
-/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MFC_Instance.o: $(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MFC_Instance.o)
+/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MFC_Instance.o: $(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MFC_Instance.o)
 
-$(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MFC_Instance.o):
+$(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MFC_Instance.o):

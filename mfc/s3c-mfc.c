@@ -1,24 +1,3 @@
-/* mfc/s3c-mfc.c
- *
- * Copyright (c) 2008 Samsung Electronics
- *
- * Samsung S3C MFC driver
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
- 
 #include <linux/version.h>
 #include <linux/module.h>
 #include <linux/delay.h>
@@ -253,19 +232,6 @@ static irqreturn_t s3c_mfc_irq(int irq, void *dev_id, struct pt_regs *regs)
 	return IRQ_HANDLED;
 }
 
-#ifdef CONFIG_MACH_SATURN
-/* SEC AMOLED 
-   If device use AMOLED as display module, gamma setting have to be changed when video playing or camera preview
- */
-typedef enum {
-	LCD_IDLE = 0,
-	LCD_VIDEO,
-	LCD_CAMERA
-} lcd_gamma_status;
-
-extern void lcd_gamma_change(lcd_gamma_status gamma_status);
-#endif /* CONFIG_MACH_SATURN */
-
 static int s3c_mfc_open(struct inode *inode, struct file *file)
 {
 	MFC_HANDLE		*handle;
@@ -366,9 +332,6 @@ static int s3c_mfc_release(struct inode *inode, struct file *file)
 	int			ret;
 
 	MFC_Mutex_Lock();
-#ifdef CONFIG_MACH_SATURN
-	lcd_gamma_change(LCD_IDLE); // when finishing playing video, AMOLED gamma change to idle mode
-#endif
 
 	handle = (MFC_HANDLE *)file->private_data;
 	if (handle->mfc_inst == NULL) {
@@ -562,9 +525,6 @@ static int s3c_mfc_ioctl(struct inode *inode, struct file *file, unsigned
 		case IOCTL_MFC_H263_DEC_INIT:
 		case IOCTL_MFC_VC1_DEC_INIT:
 			MFC_Mutex_Lock();
-#ifdef CONFIG_MACH_SATURN
-			lcd_gamma_change(LCD_VIDEO); // when decoder init to start playing video, AMOLED gamma set to video mode
-#endif
 
 			Copy_From_User(&args.dec_init, (MFC_DEC_INIT_ARG *)arg, sizeof(MFC_DEC_INIT_ARG));
 			

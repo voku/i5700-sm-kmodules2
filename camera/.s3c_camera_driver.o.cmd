@@ -1,7 +1,7 @@
-cmd_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/s3c_camera_driver.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/.s3c_camera_driver.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DCONFIG_VIDEO_SAMSUNG_S5K4CA -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(s3c_camera_driver)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_camera)"  -c -o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/s3c_camera_driver.o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/s3c_camera_driver.c
+cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/s3c_camera_driver.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/.s3c_camera_driver.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DCONFIG_VIDEO_SAMSUNG_S5K4CA -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(s3c_camera_driver)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_camera)"  -c -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/s3c_camera_driver.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/s3c_camera_driver.c
 
-deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/s3c_camera_driver.o := \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/s3c_camera_driver.c \
+deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/s3c_camera_driver.o := \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/s3c_camera_driver.c \
     $(wildcard include/config/s3c64xx/domain/gating.h) \
     $(wildcard include/config/video/samsung/ce131.h) \
     $(wildcard include/config/video/samsung/s5k4ca.h) \
@@ -578,7 +578,7 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/s3c_camera_driver.o :
   include/media/v4l2-ioctl.h \
     $(wildcard include/config/video/v4l1/compat.h) \
   include/linux/videodev.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/s3c_camif.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/s3c_camif.h \
     $(wildcard include/config/mach/bonanza.h) \
   include/linux/i2c.h \
     $(wildcard include/config/i2c/boardinfo.h) \
@@ -590,8 +590,8 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/s3c_camera_driver.o :
     $(wildcard include/config/log/buf/shift.h) \
   /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/setup.h \
     $(wildcard include/config/arch/lh7a40x.h) \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/videodev2_s3c.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/videodev2_s3c.h \
 
-/home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/s3c_camera_driver.o: $(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/s3c_camera_driver.o)
+/home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/s3c_camera_driver.o: $(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/s3c_camera_driver.o)
 
-$(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/s3c_camera_driver.o):
+$(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/s3c_camera_driver.o):

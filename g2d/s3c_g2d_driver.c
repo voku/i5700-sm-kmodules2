@@ -1,25 +1,17 @@
 /*
-/* g2d/s3c_g2d_driver.c
+ * Copyright  2008 Samsung Electronics Co, Ltd. All Rights Reserved. 
  *
- * Copyright (c) 2008 Samsung Electronics
+ * This software is the confidential and proprietary information
+ * of Samsung Electronics  ("Confidential Information").   
+ * you shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with Samsung Electronics 
  *
- * Samsung S3C G2D driver
+ * This file implements s3c-g2d driver.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * @name G2D DRIVER MODULE Module (s3c_g2d_driver.c)
+ * @date 2008-12-05
  */
- 
 #include <linux/init.h>
 
 #include <linux/moduleparam.h>
@@ -106,6 +98,7 @@ static struct mutex g_g2d_clk_mutex;
 static struct mutex *h_rot_mutex;
 
 static u16 s3c_g2d_poll_flag = 0;
+static u16 g2d_timeout = 0;
 
 int shift_x,shift_y;
 
@@ -663,16 +656,6 @@ static int s3c_g2d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 	{
 		return -EFAULT;
 	}
-
-	if((params->src_work_width <= 1) || (params->src_work_height <= 1)|| 
-	  (params->dst_work_width <= 1) || (params->dst_work_height <= 1))
-	{
-#if 0
-		printk("#####%s::src_work_width %d src_work_height %d dst_work_width %d dst_work_height %d cmd %d\n",
-				__FUNCTION__, params->src_work_width, params->src_work_height, params->dst_work_width, params->dst_work_height, cmd);
-#endif
-		return -EFAULT;
-	}
 	
 	mutex_lock(h_rot_mutex);
 #ifdef USE_G2D_DOMAIN_GATING
@@ -731,10 +714,9 @@ static int s3c_g2d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 	// block mode
 	if(!(file->f_flags & O_NONBLOCK))
 	{
-		if (interruptible_sleep_on_timeout(&waitq_g2d, G2D_TIMEOUT) == 0)
+		if (interruptible_sleep_on_timeout(&waitq_g2d,g2d_timeout) == 0)
 		{
 			printk(KERN_ERR "\n%s: Waiting for interrupt is timeout\n", __FUNCTION__);
-			ret = -EFAULT;
 		}
 	}
 
@@ -798,7 +780,8 @@ int s3c_g2d_probe(struct platform_device *pdev)
 #ifdef G2D_DEBUG
 	printk(KERN_ALERT"s3c_g2d_probe called\n");
 #endif
-
+	g2d_timeout = msecs_to_jiffies(G2D_TIMEOUT);
+	
 	/* find the IRQs */
 	s3c_g2d_irq_num = platform_get_irq(pdev, 0);
 	if(s3c_g2d_irq_num <= 0) {

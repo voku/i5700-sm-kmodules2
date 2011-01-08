@@ -1,7 +1,7 @@
-cmd_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/jpeg/s3c-jpeg.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/i5700-leshak-kmodules2/jpeg/.s3c-jpeg.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(s3c_jpeg)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_jpeg)"  -c -o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/jpeg/s3c-jpeg.o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/jpeg/s3c-jpeg.c
+cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/s3c-jpeg.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/.s3c-jpeg.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(s3c_jpeg)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_jpeg)"  -c -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/s3c-jpeg.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/s3c-jpeg.c
 
-deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/jpeg/s3c-jpeg.o := \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/jpeg/s3c-jpeg.c \
+deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/s3c-jpeg.o := \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/s3c-jpeg.c \
     $(wildcard include/config/s3c64xx/domain/gating.h) \
   include/linux/version.h \
   include/linux/module.h \
@@ -482,9 +482,9 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/jpeg/s3c-jpeg.o := \
   arch/arm/plat-s3c64xx/include/plat/power-clock-domain.h \
   arch/arm/plat-s3c64xx/include/plat/pm.h \
   include/linux/sysdev.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/jpeg/s3c-jpeg.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/jpeg/JPGMem.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/jpeg/JPGMisc.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/s3c-jpeg.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGMem.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGMisc.h \
   arch/arm/mach-s3c6400/include/mach/hardware.h \
     $(wildcard include/config/mach/spica.h) \
   arch/arm/mach-s3c6400/include/mach/spica.h \
@@ -534,9 +534,9 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/jpeg/s3c-jpeg.o := \
     $(wildcard include/config/log/buf/shift.h) \
   /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/setup.h \
     $(wildcard include/config/arch/lh7a40x.h) \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/jpeg/JPGOpr.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/jpeg/LogMsg.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGOpr.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/LogMsg.h \
 
-/home/ch33kybutt/kernel/i5700-leshak-kmodules2/jpeg/s3c-jpeg.o: $(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/jpeg/s3c-jpeg.o)
+/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/s3c-jpeg.o: $(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/s3c-jpeg.o)
 
-$(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/jpeg/s3c-jpeg.o):
+$(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/s3c-jpeg.o):

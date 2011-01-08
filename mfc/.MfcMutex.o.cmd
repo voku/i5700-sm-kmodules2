@@ -1,7 +1,7 @@
-cmd_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMutex.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/.MfcMutex.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DLINUX -DDIVX_ENABLE -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(MfcMutex)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_mfc)"  -c -o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMutex.o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMutex.c
+cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMutex.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/.MfcMutex.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DLINUX -DDIVX_ENABLE -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(MfcMutex)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_mfc)"  -c -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMutex.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMutex.c
 
-deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMutex.o := \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMutex.c \
+deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMutex.o := \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMutex.c \
   include/linux/mutex.h \
     $(wildcard include/config/debug/mutexes.h) \
     $(wildcard include/config/smp.h) \
@@ -414,7 +414,7 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMutex.o := \
   arch/arm/plat-s3c/include/mach/vmalloc.h \
   /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/pgtable-hwdef.h \
   include/asm-generic/pgtable.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcConfig.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcConfig.h \
     $(wildcard include/config/h//.h) \
   include/linux/version.h \
   arch/arm/mach-s3c6400/include/mach/hardware.h \
@@ -466,9 +466,9 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMutex.o := \
     $(wildcard include/config/log/buf/shift.h) \
   /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/setup.h \
     $(wildcard include/config/arch/lh7a40x.h) \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMutex.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcTypes.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMutex.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcTypes.h \
 
-/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMutex.o: $(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMutex.o)
+/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMutex.o: $(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMutex.o)
 
-$(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMutex.o):
+$(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMutex.o):

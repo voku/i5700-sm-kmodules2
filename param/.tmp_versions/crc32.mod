@@ -1,2 +1,2 @@
-/home/ch33kybutt/kernel/i5700-leshak-kmodules2/param/crc32.ko
-/home/ch33kybutt/kernel/i5700-leshak-kmodules2/param/crc32.o
+/home/ch33kybutt/kernel/m910-kmodules2-cfs/param/crc32.ko
+/home/ch33kybutt/kernel/m910-kmodules2-cfs/param/crc32.o

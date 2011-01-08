@@ -647,7 +647,6 @@ dhd_register_hwakeup(void)
 		return 0;
 	}
 
-	set_irq_type(dhd_wifi_sleep->host_wake_irq, IRQ_TYPE_EDGE_BOTH);
 	ret= request_irq(dhd_wifi_sleep->host_wake_irq, dhd_hostwakeup_isr, IRQF_DISABLED,
 			"wifi_hostwakeup", NULL);
 	if (ret) {
@@ -660,6 +659,7 @@ dhd_register_hwakeup(void)
 		DHD_INFO(("[WiFi] install HostWakeup IRQ \n"));
 	}
 
+	set_irq_type(dhd_wifi_sleep->host_wake_irq, IRQ_TYPE_EDGE_BOTH);
 
 #ifdef BCMHOSTWAKE_IRQ
         dhd_mmc_suspend_ctrl.wifiirq = dhd_wifi_sleep->host_wake_irq;

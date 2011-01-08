@@ -1646,7 +1646,9 @@ _iscan_sysioc_thread(void *data)
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
 				rtnl_unlock();
 #endif
-				mod_timer(&iscan->timer, jiffies + iscan->timer_ms*HZ/1000);
+				
+				iscan->timer.expires = jiffies + iscan->timer_ms*HZ/1000;
+				add_timer(&iscan->timer);
 				iscan->timer_on = 1;
 				break;
 			case WL_SCAN_RESULTS_SUCCESS:
@@ -1656,7 +1658,9 @@ _iscan_sysioc_thread(void *data)
 				break;
 			case WL_SCAN_RESULTS_PENDING:
 				WL_TRACE(("iscanresults pending\n"));
-				mod_timer(&iscan->timer, jiffies + iscan->timer_ms*HZ/1000);
+				
+				iscan->timer.expires = jiffies + iscan->timer_ms*HZ/1000;
+				add_timer(&iscan->timer);
 				iscan->timer_on = 1;
 				break;
 			case WL_SCAN_RESULTS_ABORTED:
@@ -3681,13 +3685,11 @@ wl_iw_set_priv(
 	if (dwrq->length && extra) {
 
 		if (g_onoff == G_WLAN_SET_OFF) {
-			if (strnicmp(extra, "START", strlen("START")) != 0){
+			wl_iw_control_wl_on(dev, info);
+			if (strnicmp(extra, "START", strlen("START")) != 0)
 				WL_TRACE(("%s, missing START, simulate START\n", __FUNCTION__));
-                goto end;
-			}else{
-				wl_iw_control_wl_on(dev, info);
+			else
 				WL_TRACE(("%s, Received regular START command\n", __FUNCTION__));
-			}
 		}
 
 	    if (strnicmp(extra, "SCAN-ACTIVE", strlen("SCAN-ACTIVE")) == 0) {
@@ -3725,7 +3727,6 @@ wl_iw_set_priv(
 
 	}
 
-end:
 	if (extra) {
 	    if (copy_to_user(dwrq->pointer, extra, dwrq->length)) {
 			kfree(extra);

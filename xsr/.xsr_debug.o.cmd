@@ -1,1 +1,1 @@
-cmd_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/xsr/xsr_debug.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-ld -EL    -r -o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/xsr/xsr_debug.o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/xsr/debug.o 
+cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/xsr/xsr_debug.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-ld -EL    -r -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/xsr/xsr_debug.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/xsr/debug.o 

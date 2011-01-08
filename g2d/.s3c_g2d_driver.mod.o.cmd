@@ -1,7 +1,7 @@
-cmd_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/g2d/s3c_g2d_driver.mod.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/i5700-leshak-kmodules2/g2d/.s3c_g2d_driver.mod.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm  -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(s3c_g2d_driver.mod)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_g2d_driver)"  -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -c -o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/g2d/s3c_g2d_driver.mod.o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/g2d/s3c_g2d_driver.mod.c
+cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/g2d/s3c_g2d_driver.mod.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/m910-kmodules2-cfs/g2d/.s3c_g2d_driver.mod.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm  -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(s3c_g2d_driver.mod)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_g2d_driver)"  -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -c -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/g2d/s3c_g2d_driver.mod.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/g2d/s3c_g2d_driver.mod.c
 
-deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/g2d/s3c_g2d_driver.mod.o := \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/g2d/s3c_g2d_driver.mod.c \
+deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/g2d/s3c_g2d_driver.mod.o := \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/g2d/s3c_g2d_driver.mod.c \
     $(wildcard include/config/module/unload.h) \
   include/linux/module.h \
     $(wildcard include/config/modules.h) \
@@ -268,6 +268,6 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/g2d/s3c_g2d_driver.mod.o := 
   include/linux/vermagic.h \
   include/linux/utsrelease.h \
 
-/home/ch33kybutt/kernel/i5700-leshak-kmodules2/g2d/s3c_g2d_driver.mod.o: $(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/g2d/s3c_g2d_driver.mod.o)
+/home/ch33kybutt/kernel/m910-kmodules2-cfs/g2d/s3c_g2d_driver.mod.o: $(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/g2d/s3c_g2d_driver.mod.o)
 
-$(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/g2d/s3c_g2d_driver.mod.o):
+$(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/g2d/s3c_g2d_driver.mod.o):

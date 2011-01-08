@@ -1,7 +1,7 @@
-cmd_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/samsung/s5k4ca.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/samsung/.s5k4ca.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DCONFIG_VIDEO_SAMSUNG_S5K4CA -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(s5k4ca)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_camera)"  -c -o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/samsung/s5k4ca.o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/samsung/s5k4ca.c
+cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/samsung/s5k4ca.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/samsung/.s5k4ca.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DCONFIG_VIDEO_SAMSUNG_S5K4CA -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(s5k4ca)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_camera)"  -c -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/samsung/s5k4ca.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/samsung/s5k4ca.c
 
-deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/samsung/s5k4ca.o := \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/samsung/s5k4ca.c \
+deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/samsung/s5k4ca.o := \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/samsung/s5k4ca.c \
     $(wildcard include/config/load/file.h) \
     $(wildcard include/config/s5k4ca/i2c/test.h) \
     $(wildcard include/config/flash/aat1271a.h) \
@@ -488,7 +488,7 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/samsung/s5k4ca.o := \
   arch/arm/plat-s3c64xx/include/plat/gpio-bank-q.h \
   arch/arm/plat-s3c/include/plat/gpio-cfg.h \
   arch/arm/plat-s3c/include/plat/egpio.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/samsung/../s3c_camif.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/samsung/../s3c_camif.h \
     $(wildcard include/config/cpu/s3c6400.h) \
     $(wildcard include/config/cpu/s3c6410.h) \
     $(wildcard include/config/cpu/s3c2443.h) \
@@ -506,10 +506,10 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/samsung/s5k4ca.o := \
     $(wildcard include/config/log/buf/shift.h) \
   /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/setup.h \
     $(wildcard include/config/arch/lh7a40x.h) \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/samsung/s5k4ca.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/samsung/s5k4ca.h \
     $(wildcard include/config/cpu/s3c24a0a.h) \
     $(wildcard include/config/video/samsung/s5k4ca.h) \
 
-/home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/samsung/s5k4ca.o: $(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/samsung/s5k4ca.o)
+/home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/samsung/s5k4ca.o: $(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/samsung/s5k4ca.o)
 
-$(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/camera/samsung/s5k4ca.o):
+$(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/camera/samsung/s5k4ca.o):

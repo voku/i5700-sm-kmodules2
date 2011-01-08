@@ -1,7 +1,7 @@
-cmd_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMemory.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/.MfcMemory.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DLINUX -DDIVX_ENABLE -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(MfcMemory)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_mfc)"  -c -o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMemory.o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMemory.c
+cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMemory.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/.MfcMemory.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DLINUX -DDIVX_ENABLE -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(MfcMemory)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_mfc)"  -c -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMemory.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMemory.c
 
-deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMemory.o := \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMemory.c \
+deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMemory.o := \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMemory.c \
   /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/io.h \
     $(wildcard include/config/mmu.h) \
   include/linux/types.h \
@@ -296,7 +296,7 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMemory.o := \
     $(wildcard include/config/cpu/s5p6440.h) \
     $(wildcard include/config/cpu/s5pc100.h) \
   arch/arm/plat-s3c/include/plat/map-base.h \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcConfig.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcConfig.h \
     $(wildcard include/config/h//.h) \
   arch/arm/mach-s3c6400/include/mach/hardware.h \
     $(wildcard include/config/mach/spica.h) \
@@ -347,8 +347,8 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMemory.o := \
     $(wildcard include/config/log/buf/shift.h) \
   /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/setup.h \
     $(wildcard include/config/arch/lh7a40x.h) \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/LogMsg.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/LogMsg.h \
 
-/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMemory.o: $(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMemory.o)
+/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMemory.o: $(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMemory.o)
 
-$(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/mfc/MfcMemory.o):
+$(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcMemory.o):

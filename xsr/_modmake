@@ -1,0 +1,71 @@
+#!/bin/sh
+
+cd btgpio
+../_mm1
+cd ..
+
+cd camera
+../_mm1
+cd ..
+
+cd cmm
+../_mm1
+cd ..
+
+cd dpram
+../_mm1
+cd ..
+
+cd g2d
+../_mm1
+cd ..
+
+cd g3d
+../_mm1
+cd ..
+
+cd jpeg
+../_mm1
+cd ..
+
+cd mfc
+../_mm1
+cd ..
+
+cd multipdp
+../_mm1
+cd ..
+
+cd param
+../_mm1
+cd ..
+
+cd pp
+../_mm1
+cd ..
+
+cd rotator
+../_mm1
+cd ..
+
+cd vibetonz
+../_mm1
+cd ..
+
+cd wlan
+../_mm1
+cd ..
+
+cd rfs
+../_mm1
+cd ..
+
+cd xsr
+../_mm1
+cd ..
+
+cp /home/ch33kybutt/kernel/i5700-kernel/drivers/net/tun.ko /home/ch33kybutt/kernel/i5700-initramfs-froyo-2.6.29.6/lib/modules
+cp /home/ch33kybutt/kernel/i5700-kernel/drivers/staging/ramzswap/ramzswap.ko /home/ch33kybutt/kernel/i5700-initramfs-froyo-2.6.29.6/lib/modules
+cp /home/ch33kybutt/kernel/i5700-kernel/drivers/input/touchscreen/qt5480.ko /home/ch33kybutt/kernel/i5700-initramfs-froyo-2.6.29.6/lib/modules
+cp /home/ch33kybutt/kernel/i5700-kernel/net/netfilter/xt_owner.ko /home/ch33kybutt/kernel/i5700-initramfs-froyo-2.6.29.6/lib/modules
+

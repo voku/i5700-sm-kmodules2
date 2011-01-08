@@ -1,22 +1,18 @@
-/* jpeg/JPGOpr.h
+/*
+ * Project Name JPEG DRIVER IN Linux
+ * Copyright  2007 Samsung Electronics Co, Ltd. All Rights Reserved. 
  *
- * Copyright (c) 2008 Samsung Electronics
+ * This software is the confidential and proprietary information
+ * of Samsung Electronics  ("Confidential Information").   
+ * you shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with Samsung Electronics 
  *
- * Samsung S3C JPEG driver
+ * This file implements JPEG driver.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * @name JPEG DRIVER MODULE Module (JPGOpr.h)
+ * @author Jiun Yu (jiun.yu@samsung.com)
+ * @date 05-07-07
  */
 
 #ifndef __JPG_OPR_H__

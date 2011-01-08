@@ -1,7 +1,7 @@
-cmd_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/btgpio/btgpio.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/i5700-leshak-kmodules2/btgpio/.btgpio.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(btgpio)"  -D"KBUILD_MODNAME=KBUILD_STR(btgpio)"  -c -o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/btgpio/btgpio.o /home/ch33kybutt/kernel/i5700-leshak-kmodules2/btgpio/btgpio.c
+cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/btgpio/btgpio.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/m910-kmodules2-cfs/btgpio/.btgpio.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(btgpio)"  -D"KBUILD_MODNAME=KBUILD_STR(btgpio)"  -c -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/btgpio/btgpio.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/btgpio/btgpio.c
 
-deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/btgpio/btgpio.o := \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/btgpio/btgpio.c \
+deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/btgpio/btgpio.o := \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/btgpio/btgpio.c \
   include/linux/kernel.h \
     $(wildcard include/config/lbd.h) \
     $(wildcard include/config/preempt/voluntary.h) \
@@ -331,6 +331,8 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/btgpio/btgpio.o := \
   arch/arm/plat-s3c64xx/include/plat/gpio-bank-o.h \
   arch/arm/plat-s3c64xx/include/plat/gpio-bank-p.h \
   arch/arm/plat-s3c64xx/include/plat/gpio-bank-q.h \
+  arch/arm/mach-s3c6400/include/mach/hardware.h \
+    $(wildcard include/config/mach/spica.h) \
   arch/arm/mach-s3c6400/include/mach/spica.h \
     $(wildcard include/config/spica/rev00.h) \
     $(wildcard include/config/spica/rev01.h) \
@@ -351,10 +353,8 @@ deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/btgpio/btgpio.o := \
   arch/arm/mach-s3c6400/include/mach/spica_rev02.h \
     $(wildcard include/config/reserved/mem/cmm/jpeg/mfc/post/camera.h) \
   arch/arm/plat-s3c/include/plat/gpio-cfg.h \
-  arch/arm/mach-s3c6400/include/mach/hardware.h \
-    $(wildcard include/config/mach/spica.h) \
-  /home/ch33kybutt/kernel/i5700-leshak-kmodules2/btgpio/btgpio.h \
+  /home/ch33kybutt/kernel/m910-kmodules2-cfs/btgpio/btgpio.h \
 
-/home/ch33kybutt/kernel/i5700-leshak-kmodules2/btgpio/btgpio.o: $(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/btgpio/btgpio.o)
+/home/ch33kybutt/kernel/m910-kmodules2-cfs/btgpio/btgpio.o: $(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/btgpio/btgpio.o)
 
-$(deps_/home/ch33kybutt/kernel/i5700-leshak-kmodules2/btgpio/btgpio.o):
+$(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/btgpio/btgpio.o):

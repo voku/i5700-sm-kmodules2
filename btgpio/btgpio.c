@@ -11,11 +11,10 @@
 #include <linux/types.h>
 #include <linux/init.h>
 #include <mach/gpio.h>	
-#include <mach/spica.h>	/*GPIO Pin mapping is done in this file*/
+#include <mach/hardware.h>	/*GPIO Pin mapping is done in this file*/
 #include <plat/gpio-cfg.h>	
 
 
-#include <mach/hardware.h>
 #include "btgpio.h"
 
 
@@ -76,7 +75,7 @@ int device_poweron ()
 	s3c_gpio_setpull(GPIO_BT_RST_N, S3C_GPIO_PULL_NONE);
 	
 	s3c_gpio_cfgpin(GPIO_BT_HOST_WAKE, S3C_GPIO_SFN(GPIO_BT_HOST_WAKE_AF));
-	s3c_gpio_setpull(GPIO_BT_HOST_WAKE, S3C_GPIO_PULL_DOWN);
+	s3c_gpio_setpull(GPIO_BT_HOST_WAKE, S3C_GPIO_PULL_NONE);
 
 	//s3c_gpio_cfgpin(GPIO_WLAN_HOST_WAKE, S3C_GPIO_SFN(GPIO_WLAN_HOST_WAKE_AF));
 	//s3c_gpio_setpull(GPIO_WLAN_HOST_WAKE, S3C_GPIO_PULL_NONE);
