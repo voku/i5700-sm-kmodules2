@@ -22,7 +22,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: aiutils.c,v 1.6.4.7 2008/08/06 03:43:25 Exp $
+ * $Id: aiutils.c,v 1.6.4.7.18.1 2010/04/24 20:30:26 Exp $
  */
 
 #include <typedefs.h>
@@ -336,6 +336,15 @@ ai_setcoreidx(si_t *sih, uint coreidx)
 		sii->curwrap = sii->common_info->wrappers[coreidx];
 		break;
 
+#if !defined(BCMDONGLEHOST)
+	case PCI_BUS:
+		/* point bar0 window */
+		OSL_PCI_WRITE_CONFIG(sii->osh, PCI_BAR0_WIN, 4, addr);
+		regs = sii->curmap;
+		/* point bar0 2nd 4KB window */
+		OSL_PCI_WRITE_CONFIG(sii->osh, PCI_BAR0_WIN2, 4, wrap);
+		break;
+#endif /* !defined(BCMDONGLEHOST) */
 
 	case SPI_BUS:
 	case SDIO_BUS:

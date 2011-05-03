@@ -1,1 +1,1 @@
-cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/rfs/rfs.ko := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-ld -EL -r   -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/rfs/rfs.ko /home/ch33kybutt/kernel/m910-kmodules2-cfs/rfs/rfs.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/rfs/rfs.mod.o
+cmd_/home/lars/spica/new_kernel/modules/rfs/rfs.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/rfs/rfs.ko /home/lars/spica/new_kernel/modules/rfs/rfs.o /home/lars/spica/new_kernel/modules/rfs/rfs.mod.o

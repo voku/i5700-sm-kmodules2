@@ -4,8 +4,9 @@
 #   Copyright(c) 2004-2006, Samsung Electronics, Co., Ltd.
 #
 
-EXTRA_CFLAGS 	+= -DLINUX
-EXTRA_CFLAGS 	+= -DDIVX_ENABLE
+KBUILD_CFLAGS += -DDIVX_ENABLE
+EXTRA_CFLAGS += -DLINUX
+EXTRA_CFLAGS += -DDIVX_ENABLE
 
 obj-m			:= s3c_mfc.o 
 

@@ -22,7 +22,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: bcmsdh.c,v 1.35.2.1.4.8.16.9 2009/07/28 00:46:09 Exp $
+ * $Id: bcmsdh.c,v 1.35.2.1.4.8.16.10 2009/10/05 05:55:47 Exp $
  */
 /* ****************** BCMSDH Interface Functions *************************** */
 
@@ -32,6 +32,9 @@
 #include <bcmutils.h>
 #include <hndsoc.h>
 #include <siutils.h>
+#if !defined(BCMDONGLEHOST)
+#include <bcmsrom.h>
+#endif /* !defined(BCMDONGLEHOST) */
 #include <osl.h>
 
 #include <bcmsdh.h>	/* BRCM API for SDIO clients (such as wl, dhd) */
@@ -189,19 +192,27 @@ bcmsdh_devremove_reg(void *sdh, bcmsdh_cb_fn_t fn, void *argh)
 	return BCME_UNSUPPORTED;
 }
 
+#define SDIOH_API_ACCESS_RETRY_LIMIT	1
 uint8
 bcmsdh_cfg_read(void *sdh, uint fnc_num, uint32 addr, int *err)
 {
 	bcmsdh_info_t *bcmsdh = (bcmsdh_info_t *)sdh;
 	SDIOH_API_RC status;
 	uint8 data = 0;
+	int32 retry = 0;
 
 	if (!bcmsdh)
 		bcmsdh = l_bcmsdh;
 
 	ASSERT(bcmsdh->init_success);
 
-	status = sdioh_cfg_read(bcmsdh->sdioh, fnc_num, addr, (uint8 *)&data);
+	do {
+		if (retry)
+			/* we wait for 1 ms till bus gets settled down */
+			OSL_DELAY(1000);
+
+		status = sdioh_cfg_read(bcmsdh->sdioh, fnc_num, addr, (uint8 *)&data);
+	} while (!SDIOH_API_SUCCESS(status) && retry++ < SDIOH_API_ACCESS_RETRY_LIMIT);
 	if (err)
 		*err = (SDIOH_API_SUCCESS(status) ? 0 : BCME_SDIO_ERROR);
 
@@ -216,13 +227,20 @@ bcmsdh_cfg_write(void *sdh, uint fnc_num, uint32 addr, uint8 data, int *err)
 {
 	bcmsdh_info_t *bcmsdh = (bcmsdh_info_t *)sdh;
 	SDIOH_API_RC status;
+	int32 retry = 0;
 
 	if (!bcmsdh)
 		bcmsdh = l_bcmsdh;
 
 	ASSERT(bcmsdh->init_success);
 
-	status = sdioh_cfg_write(bcmsdh->sdioh, fnc_num, addr, (uint8 *)&data);
+	do {
+		if (retry)
+			/* we wait for 1 ms till bus gets settled down */
+			OSL_DELAY(1000);
+
+		status = sdioh_cfg_write(bcmsdh->sdioh, fnc_num, addr, (uint8 *)&data);
+	} while (!SDIOH_API_SUCCESS(status) && retry++ < SDIOH_API_ACCESS_RETRY_LIMIT);
 	if (err)
 		*err = SDIOH_API_SUCCESS(status) ? 0 : BCME_SDIO_ERROR;
 
@@ -565,7 +583,45 @@ int
 bcmsdh_query_device(void *sdh)
 {
 	bcmsdh_info_t *bcmsdh = (bcmsdh_info_t *)sdh;
+#ifdef BCMDONGLEHOST
 	bcmsdh->vendevid = (VENDOR_BROADCOM << 16) | 0;
+#else
+	uint8 *fn0cis[1];
+	int err;
+	char *vars;
+	uint varsz;
+	osl_t *osh = bcmsdh->osh;
+
+	bcmsdh->vendevid = ~(0);
+
+	if (!(fn0cis[0] = MALLOC(osh, SBSDIO_CIS_SIZE_LIMIT))) {
+		BCMSDH_ERROR(("%s: CIS malloc failed\n", __FUNCTION__));
+		return (bcmsdh->vendevid);
+	}
+
+	bzero(fn0cis[0], SBSDIO_CIS_SIZE_LIMIT);
+
+	if ((err = bcmsdh_cis_read(sdh, 0, fn0cis[0], SBSDIO_CIS_SIZE_LIMIT))) {
+		BCMSDH_ERROR(("%s: CIS read err %d, report unknown BRCM device\n",
+		              __FUNCTION__, err));
+		bcmsdh->vendevid = (VENDOR_BROADCOM << 16) | 0;
+		MFREE(osh, fn0cis[0], SBSDIO_CIS_SIZE_LIMIT);
+		return (bcmsdh->vendevid);
+	}
+
+	if (!err) {
+		if ((err = srom_parsecis(osh, fn0cis, 1, &vars, &varsz))) {
+			BCMSDH_ERROR(("%s: Error parsing CIS = %d\n", __FUNCTION__, err));
+			bcmsdh->vendevid = (VENDOR_BROADCOM << 16) | BCM4328_D11DUAL_ID;
+		} else {
+			bcmsdh->vendevid = (getintvar(vars, "vendid") << 16) |
+			                    getintvar(vars, "devid");
+			MFREE(osh, vars, varsz);
+		}
+	}
+
+	MFREE(osh, fn0cis[0], SBSDIO_CIS_SIZE_LIMIT);
+#endif /* BCMDONGLEHOST */
 	return (bcmsdh->vendevid);
 }
 

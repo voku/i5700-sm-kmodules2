@@ -1,2 +1,2 @@
-/home/ch33kybutt/kernel/m910-kmodules2-cfs/xsr/xsr_debug.ko
-/home/ch33kybutt/kernel/m910-kmodules2-cfs/xsr/debug.o
+/home/lars/spica/new_kernel/modules/xsr/xsr_debug.ko
+/home/lars/spica/new_kernel/modules/xsr/debug.o

@@ -15,6 +15,15 @@ EXTRA_CFLAGS += -DBCM_PKTFILTER -DBCM_ARPO
 #   WAPI-CERT [To Disable Power save option.]    ****DEPENDENCY ==> WAPI
 #EXTRA_CFLAGS += -DBCMDISABLE_PM
 
+#   SOFTAP
+EXTRA_CFLAGS += -DSOFTAP
+
+#   STATIC MEMORY ALLOCATION FEATURE
+# EXTRA_CFLAGS += -DDHD_USE_STATIC_BUF
+
+#   For Samsung Infobowlq only.
+# EXTRA_CFLAGS += -DCUSTOMER_HW_SAMSUNG
+
 ###########################################################################################################################################################################
 ifeq ($(CONFIG_BCM_EMBED_FW),y)
 	EXTRA_CFLAGS		+= -I$(src)/src/dongle/rte/wl/builds/4325b0/sdio-g-cdc-reclaim-wme/

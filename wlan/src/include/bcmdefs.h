@@ -20,7 +20,7 @@
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
- * $Id: bcmdefs.h,v 13.38.4.10.2.7.20.1 2009/07/09 00:03:10 Exp $
+ * $Id: bcmdefs.h,v 13.38.4.10.2.7.20.2 2010/03/25 13:05:31 Exp $
  */
 
 
@@ -101,10 +101,13 @@
 #define MAX_DMA_SEGS 4
 
 
-#define BCMEXTRAHDROOM 160
+#define BCMEXTRAHDROOM 164
 
 
 #define BCMDONGLEHDRSZ 12
+#define BCMDONGLEPADSZ 16
+
+#define BCMDONGLEOVERHEAD	(BCMDONGLEHDRSZ + BCMDONGLEPADSZ)
 
 
 

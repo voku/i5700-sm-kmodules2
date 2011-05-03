@@ -1,7 +1,7 @@
-cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/.MfcSetConfig.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DLINUX -DDIVX_ENABLE -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(MfcSetConfig)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_mfc)"  -c -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.c
+cmd_/home/lars/spica/new_kernel/modules/mfc/MfcSetConfig.o := /usr/bin/arm-linux-gnueabihf-gcc -Wp,-MD,/home/lars/spica/new_kernel/modules/mfc/.MfcSetConfig.o.d  -nostdinc -isystem /usr/lib/gcc/arm-linux-gnueabihf/4.6.1/include -Iinclude  -I/home/lars/spica/new_kernel/SM-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Ofast -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DDIVX_ENABLE -DLINUX -DDIVX_ENABLE -DMODULE -pipe -Ofast -marm -mfpu=vfp -mtune=arm1176jzf-s -march=armv6zk -mfloat-abi=hard -floop-interchange -floop-strip-mine -floop-block -ffast-math -funsafe-loop-optimizations -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(MfcSetConfig)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_mfc)"  -c -o /home/lars/spica/new_kernel/modules/mfc/MfcSetConfig.o /home/lars/spica/new_kernel/modules/mfc/MfcSetConfig.c
 
-deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
-  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.c \
+deps_/home/lars/spica/new_kernel/modules/mfc/MfcSetConfig.o := \
+  /home/lars/spica/new_kernel/modules/mfc/MfcSetConfig.c \
     $(wildcard include/config/dec/frame/need/count.h) \
     $(wildcard include/config/dec/mp4asp/mv.h) \
     $(wildcard include/config/dec/mp4asp/mbtype.h) \
@@ -44,8 +44,8 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
     $(wildcard include/config/64bit.h) \
   include/linux/posix_types.h \
   include/linux/stddef.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/posix_types.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/types.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/posix_types.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/types.h \
   include/asm-generic/int-ll64.h \
   include/linux/kobject.h \
     $(wildcard include/config/hotplug.h) \
@@ -53,21 +53,21 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
     $(wildcard include/config/debug/list.h) \
   include/linux/poison.h \
   include/linux/prefetch.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/processor.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/processor.h \
     $(wildcard include/config/mmu.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/ptrace.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/ptrace.h \
     $(wildcard include/config/arm/thumb.h) \
     $(wildcard include/config/smp.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/hwcap.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/cache.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/hwcap.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/cache.h \
     $(wildcard include/config/arm/l1/cache/shift.h) \
     $(wildcard include/config/aeabi.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/system.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/system.h \
     $(wildcard include/config/cpu/xsc3.h) \
     $(wildcard include/config/cpu/sa1100.h) \
     $(wildcard include/config/cpu/sa110.h) \
   include/linux/linkage.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/linkage.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/linkage.h \
   include/linux/irqflags.h \
     $(wildcard include/config/trace/irqflags.h) \
     $(wildcard include/config/irqsoff/tracer.h) \
@@ -75,16 +75,16 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
     $(wildcard include/config/trace/irqflags/support.h) \
     $(wildcard include/config/x86.h) \
   include/linux/typecheck.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/irqflags.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/irqflags.h \
   include/asm-generic/cmpxchg-local.h \
   include/asm-generic/cmpxchg.h \
   include/linux/sysfs.h \
     $(wildcard include/config/sysfs.h) \
   include/linux/errno.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/errno.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/errno.h \
   include/asm-generic/errno.h \
   include/asm-generic/errno-base.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/atomic.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/atomic.h \
   include/asm-generic/atomic.h \
   include/linux/spinlock.h \
     $(wildcard include/config/debug/spinlock.h) \
@@ -100,18 +100,18 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
     $(wildcard include/config/generic/find/first/bit.h) \
     $(wildcard include/config/generic/find/last/bit.h) \
     $(wildcard include/config/generic/find/next/bit.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/bitops.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/bitops.h \
   include/asm-generic/bitops/non-atomic.h \
   include/asm-generic/bitops/fls64.h \
   include/asm-generic/bitops/sched.h \
   include/asm-generic/bitops/hweight.h \
   include/asm-generic/bitops/lock.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/thread_info.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/thread_info.h \
     $(wildcard include/config/arm/thumbee.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/fpstate.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/fpstate.h \
     $(wildcard include/config/vfpv3.h) \
     $(wildcard include/config/iwmmxt.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/domain.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/domain.h \
     $(wildcard include/config/io/36.h) \
   include/linux/kernel.h \
     $(wildcard include/config/preempt/voluntary.h) \
@@ -119,21 +119,21 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
     $(wildcard include/config/prove/locking.h) \
     $(wildcard include/config/printk.h) \
     $(wildcard include/config/ftrace/mcount/record.h) \
-  /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include/stdarg.h \
+  /usr/lib/gcc/arm-linux-gnueabihf/4.6.1/include/stdarg.h \
   include/linux/log2.h \
     $(wildcard include/config/arch/has/ilog2/u32.h) \
     $(wildcard include/config/arch/has/ilog2/u64.h) \
   include/linux/ratelimit.h \
   include/linux/param.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/param.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/param.h \
     $(wildcard include/config/hz.h) \
   include/linux/dynamic_printk.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/byteorder.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/byteorder.h \
   include/linux/byteorder/little_endian.h \
   include/linux/swab.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/swab.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/swab.h \
   include/linux/byteorder/generic.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/bug.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/bug.h \
     $(wildcard include/config/bug.h) \
     $(wildcard include/config/debug/bugverbose.h) \
   include/asm-generic/bug.h \
@@ -151,7 +151,7 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
   include/linux/spinlock_api_up.h \
   include/linux/kref.h \
   include/linux/wait.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/current.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/current.h \
   include/linux/klist.h \
   include/linux/module.h \
     $(wildcard include/config/modules.h) \
@@ -162,13 +162,13 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
     $(wildcard include/config/tracepoints.h) \
     $(wildcard include/config/module/unload.h) \
   include/linux/stat.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/stat.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/stat.h \
   include/linux/time.h \
   include/linux/cache.h \
     $(wildcard include/config/arch/has/cache/line/size.h) \
   include/linux/seqlock.h \
   include/linux/math64.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/div64.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/div64.h \
   include/linux/kmod.h \
   include/linux/gfp.h \
     $(wildcard include/config/zone/dma.h) \
@@ -200,19 +200,19 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
   include/linux/nodemask.h \
   include/linux/bitmap.h \
   include/linux/string.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/string.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/string.h \
   include/linux/pageblock-flags.h \
     $(wildcard include/config/hugetlb/page.h) \
     $(wildcard include/config/hugetlb/page/size/variable.h) \
   include/linux/bounds.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/page.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/page.h \
     $(wildcard include/config/cpu/copy/v3.h) \
     $(wildcard include/config/cpu/copy/v4wt.h) \
     $(wildcard include/config/cpu/copy/v4wb.h) \
     $(wildcard include/config/cpu/copy/feroceon.h) \
     $(wildcard include/config/cpu/xscale.h) \
     $(wildcard include/config/cpu/copy/v6.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/glue.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/glue.h \
     $(wildcard include/config/cpu/arm610.h) \
     $(wildcard include/config/cpu/arm710.h) \
     $(wildcard include/config/cpu/abrt/lv4t.h) \
@@ -224,13 +224,13 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
     $(wildcard include/config/cpu/abrt/ev7.h) \
     $(wildcard include/config/cpu/pabrt/ifar.h) \
     $(wildcard include/config/cpu/pabrt/noifar.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/memory.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/memory.h \
     $(wildcard include/config/page/offset.h) \
     $(wildcard include/config/dram/size.h) \
     $(wildcard include/config/dram/base.h) \
   include/linux/const.h \
   arch/arm/mach-s3c6400/include/mach/memory.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/sizes.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/sizes.h \
   include/asm-generic/memory_model.h \
     $(wildcard include/config/sparsemem/vmemmap.h) \
   include/asm-generic/page.h \
@@ -243,7 +243,7 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
   include/linux/mutex-debug.h \
   include/linux/rwsem.h \
     $(wildcard include/config/rwsem/generic/spinlock.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/rwsem.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/rwsem.h \
   include/linux/srcu.h \
   include/linux/topology.h \
     $(wildcard include/config/sched/smt.h) \
@@ -255,12 +255,12 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
     $(wildcard include/config/debug/per/cpu/maps.h) \
   include/linux/smp.h \
     $(wildcard include/config/use/generic/smp/helpers.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/topology.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/topology.h \
   include/asm-generic/topology.h \
   include/linux/elf.h \
   include/linux/elf-em.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/elf.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/user.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/elf.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/user.h \
   include/linux/moduleparam.h \
     $(wildcard include/config/alpha.h) \
     $(wildcard include/config/ia64.h) \
@@ -281,38 +281,38 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
     $(wildcard include/config/debug/slab.h) \
   include/linux/slab_def.h \
   include/linux/kmalloc_sizes.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/percpu.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/percpu.h \
   include/asm-generic/percpu.h \
     $(wildcard include/config/have/setup/per/cpu/area.h) \
   include/linux/completion.h \
   include/linux/rcutiny.h \
     $(wildcard include/config/no/hz.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/local.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/local.h \
   include/asm-generic/local.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/module.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/module.h \
   include/linux/pm.h \
     $(wildcard include/config/pm/sleep.h) \
   include/linux/semaphore.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/device.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/device.h \
     $(wildcard include/config/dmabounce.h) \
   include/linux/pm_wakeup.h \
     $(wildcard include/config/pm.h) \
   include/linux/err.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/dma-mapping.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/dma-mapping.h \
   include/linux/mm_types.h \
     $(wildcard include/config/split/ptlock/cpus.h) \
     $(wildcard include/config/mm/owner.h) \
     $(wildcard include/config/proc/fs.h) \
     $(wildcard include/config/mmu/notifier.h) \
   include/linux/auxvec.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/auxvec.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/auxvec.h \
   include/linux/prio_tree.h \
   include/linux/rbtree.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/mmu.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/mmu.h \
     $(wildcard include/config/cpu/has/asid.h) \
   include/linux/scatterlist.h \
     $(wildcard include/config/debug/sg.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/scatterlist.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/scatterlist.h \
   include/linux/mm.h \
     $(wildcard include/config/sysctl.h) \
     $(wildcard include/config/stack/growsup.h) \
@@ -325,9 +325,9 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
     $(wildcard include/config/debug/virtual.h) \
   include/linux/debug_locks.h \
     $(wildcard include/config/debug/locking/api/selftests.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/pgtable.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/pgtable.h \
   include/asm-generic/4level-fixup.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/proc-fns.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/proc-fns.h \
     $(wildcard include/config/cpu/32.h) \
     $(wildcard include/config/cpu/arm7tdmi.h) \
     $(wildcard include/config/cpu/arm720t.h) \
@@ -346,9 +346,9 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
     $(wildcard include/config/cpu/feroceon.h) \
     $(wildcard include/config/cpu/v6.h) \
     $(wildcard include/config/cpu/v7.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/cpu-single.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/cpu-single.h \
   arch/arm/plat-s3c/include/mach/vmalloc.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/pgtable-hwdef.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/pgtable-hwdef.h \
   include/asm-generic/pgtable.h \
   include/linux/page-flags.h \
     $(wildcard include/config/pageflags/extended.h) \
@@ -356,28 +356,28 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
     $(wildcard include/config/s390.h) \
   include/linux/vmstat.h \
     $(wildcard include/config/vm/event/counters.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/io.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/io.h \
   arch/arm/plat-s3c/include/mach/io.h \
   include/asm-generic/dma-coherent.h \
     $(wildcard include/config/have/generic/dma/coherent.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/cacheflush.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/cacheflush.h \
     $(wildcard include/config/cpu/cache/v3.h) \
     $(wildcard include/config/cpu/cache/v4.h) \
     $(wildcard include/config/cpu/cache/v4wb.h) \
     $(wildcard include/config/outer/cache.h) \
     $(wildcard include/config/cpu/cache/vipt.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/shmparam.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/cachetype.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/shmparam.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/cachetype.h \
     $(wildcard include/config/cpu/cache/vivt.h) \
-  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcDrvParams.h \
+  /home/lars/spica/new_kernel/modules/mfc/MfcDrvParams.h \
     $(wildcard include/config/arg.h) \
     $(wildcard include/config/dec/option.h) \
-  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MFC_Instance.h \
+  /home/lars/spica/new_kernel/modules/mfc/MFC_Instance.h \
     $(wildcard include/config/phy/outbuf.h) \
     $(wildcard include/config/out/position.h) \
-  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/Mfc.h \
-  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcTypes.h \
-  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcConfig.h \
+  /home/lars/spica/new_kernel/modules/mfc/Mfc.h \
+  /home/lars/spica/new_kernel/modules/mfc/MfcTypes.h \
+  /home/lars/spica/new_kernel/modules/mfc/MfcConfig.h \
     $(wildcard include/config/h//.h) \
   include/linux/version.h \
   arch/arm/mach-s3c6400/include/mach/hardware.h \
@@ -427,11 +427,11 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o := \
   arch/arm/plat-s3c64xx/include/plat/reserved_mem.h \
     $(wildcard include/config/sec/log/buf.h) \
     $(wildcard include/config/log/buf/shift.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/setup.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/setup.h \
     $(wildcard include/config/arch/lh7a40x.h) \
-  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSfr.h \
-  /home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/LogMsg.h \
+  /home/lars/spica/new_kernel/modules/mfc/MfcSfr.h \
+  /home/lars/spica/new_kernel/modules/mfc/LogMsg.h \
 
-/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o: $(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o)
+/home/lars/spica/new_kernel/modules/mfc/MfcSetConfig.o: $(deps_/home/lars/spica/new_kernel/modules/mfc/MfcSetConfig.o)
 
-$(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/mfc/MfcSetConfig.o):
+$(deps_/home/lars/spica/new_kernel/modules/mfc/MfcSetConfig.o):

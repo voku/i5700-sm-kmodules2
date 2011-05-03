@@ -1,1 +1,1 @@
-cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/xsr/xsr_debug.ko := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-ld -EL -r   -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/xsr/xsr_debug.ko /home/ch33kybutt/kernel/m910-kmodules2-cfs/xsr/xsr_debug.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/xsr/xsr_debug.mod.o
+cmd_/home/lars/spica/new_kernel/modules/xsr/xsr_debug.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/xsr/xsr_debug.ko /home/lars/spica/new_kernel/modules/xsr/xsr_debug.o /home/lars/spica/new_kernel/modules/xsr/xsr_debug.mod.o

@@ -1,2 +1,2 @@
-/home/ch33kybutt/kernel/m910-kmodules2-cfs/multipdp/multipdp.ko
-/home/ch33kybutt/kernel/m910-kmodules2-cfs/multipdp/multipdp.o
+/home/lars/spica/new_kernel/modules/multipdp/multipdp.ko
+/home/lars/spica/new_kernel/modules/multipdp/multipdp.o

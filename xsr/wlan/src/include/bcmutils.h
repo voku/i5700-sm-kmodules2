@@ -20,7 +20,7 @@
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
- * $Id: bcmutils.h,v 13.184.4.6.2.1.26.5 2009/07/15 21:13:22 Exp $
+ * $Id: bcmutils.h,v 13.184.4.6.2.1.26.8 2009/12/10 20:18:43 Exp $
  */
 
 
@@ -330,8 +330,11 @@ extern int bcm_iovar_lencheck(const bcm_iovar_t *table, void *arg, int len, bool
 #define BCME_NOT_WME_ASSOCIATION	-34	
 #define BCME_SDIO_ERROR			-35	
 #define BCME_DONGLE_DOWN		-36	
-#define BCME_VERSION			-37 
-#define BCME_LAST			BCME_VERSION
+#define BCME_VERSION			-37	
+#define BCME_TXFAIL			-38	
+#define BCME_RXFAIL			-39	
+#define BCME_NODEVICE			-40	
+#define BCME_LAST			BCME_NODEVICE
 
 
 #define BCMERRSTRINGTABLE {		\
@@ -372,7 +375,10 @@ extern int bcm_iovar_lencheck(const bcm_iovar_t *table, void *arg, int len, bool
 	"Not WME Association",		\
 	"SDIO Bus Error",		\
 	"Dongle Not Accessible",	\
-	"Incorrect version"	\
+	"Incorrect version",		\
+	"TX Failure",			\
+	"RX Failure",			\
+	"Device Not Present",		\
 }
 
 #ifndef ABS
@@ -558,14 +564,12 @@ extern uint8 hndcrc8(uint8 *p, uint nbytes, uint8 crc);
 extern uint16 hndcrc16(uint8 *p, uint nbytes, uint16 crc);
 extern uint32 hndcrc32(uint8 *p, uint nbytes, uint32 crc);
 
-#if defined(DHD_DEBUG) || defined(WLMSG_PRHDRS) || defined(WLMSG_PRPKT) || \
-	defined(WLMSG_ASSOC)
 extern int bcm_format_flags(const bcm_bit_desc_t *bd, uint32 flags, char* buf, int len);
 extern int bcm_format_hex(char *str, const void *bytes, int len);
-#endif 
-extern void prhex(const char *msg, uchar *buf, uint len);
+extern const char *bcm_crypto_algo_name(uint algo);
 extern char *bcm_brev_str(uint32 brev, char *buf);
 extern void printbig(char *buf);
+extern void prhex(const char *msg, uchar *buf, uint len);
 
 
 extern bcm_tlv_t *bcm_next_tlv(bcm_tlv_t *elt, int *buflen);

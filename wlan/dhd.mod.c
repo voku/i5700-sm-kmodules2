@@ -20,4 +20,6 @@ __attribute__((section(".modinfo"))) =
 "depends=";
 
 MODULE_ALIAS("sdio:c*v02D0d0000*");
-MODULE_ALIAS("sdio:c00v*d*");
+MODULE_ALIAS("sdio:c*v02D0d0492*");
+MODULE_ALIAS("sdio:c*v02D0d0493*");
+MODULE_ALIAS("sdio:c*v02D0d4329*");

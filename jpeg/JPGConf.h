@@ -17,10 +17,10 @@
 #ifndef __JPG_CONF_H__
 #define __JPG_CONF_H__
 
-//#define JPEG_ENCODE_LEVEL_1
-#define JPEG_ENCODE_LEVEL_2
-//#define JPEG_ENCODE_LEVEL_3
-#define JPEG_ENCODE_LEVEL_4
+#define JPEG_ENCODE_LEVEL_1
+//#define JPEG_ENCODE_LEVEL_2
+#define JPEG_ENCODE_LEVEL_3
+//#define JPEG_ENCODE_LEVEL_4
 //#define JPEG_ENCODE_LEVEL_5
 #define JPEG_ENCODE_LEVEL_6    // -> thumbnail standard.
 //#define JPEG_ENCODE_LEVEL_7

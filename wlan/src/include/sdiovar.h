@@ -22,7 +22,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: sdiovar.h,v 13.5.14.2.30.1 2008/10/25 00:31:57 Exp $
+ * $Id: sdiovar.h,v 13.5.14.2.30.2 2009/12/08 22:18:12 Exp $
  */
 
 #ifndef _sdiovar_h_
@@ -48,6 +48,7 @@ typedef struct sdreg {
 #define SDH_DATA_VAL		0x0010	/* Data */
 #define SDH_CTRL_VAL		0x0020	/* Control Regs */
 #define SDH_LOG_VAL		0x0040	/* Enable bcmlog */
+#define SDH_DMA_VAL		0x0080	/* DMA */
 
 #define NUM_PREV_TRANSACTIONS	16
 

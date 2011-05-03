@@ -24,7 +24,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: dhd.h,v 1.32.4.7.2.4.28.29 2009/07/15 21:07:52 Exp $
+ * $Id: dhd.h,v 1.32.4.7.2.4.28.43 2010/05/25 18:14:08 Exp $
  */
 
 /****************
@@ -34,7 +34,6 @@
 #ifndef _dhd_h_
 #define _dhd_h_
 
-#if defined(LINUX)
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/slab.h>
@@ -46,20 +45,12 @@
 #include <linux/ethtool.h>
 #include <asm/uaccess.h>
 #include <asm/unaligned.h>
-#if defined(BCMLXSDMMC)
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined(CONFIG_HAS_WAKELOCK)
 #include <linux/wakelock.h>
-#endif /*  LinuxVer */
-#endif /* BCMLXSDMMC */
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined (CONFIG_HAS_WAKELOCK) */
+
 /* The kernel threading is sdio-specific */
-#else /* LINUX */
-#define ENOMEM		1
-#define EFAULT      2
-#define EINVAL		3
-#define EIO			4
-#define ETIMEDOUT	5
-#define ERESTARTSYS 6
-#endif /* LINUX */
 
 #include <wlioctl.h>
 
@@ -67,7 +58,6 @@
 #include <wdf.h>
 #include <WdfMiniport.h>
 #endif /* NDIS60 */
-
 /* Forward decls */
 struct dhd_bus;
 struct dhd_prot;
@@ -94,7 +84,15 @@ enum dhd_bus_wake_state {
 	WAKE_LOCK_SOFTAP_START,
 	WAKE_LOCK_MAX
 };
-
+enum dhd_prealloc_index {
+	DHD_PREALLOC_PROT = 0,
+	DHD_PREALLOC_RXBUF,
+	DHD_PREALLOC_DATABUF,
+	DHD_PREALLOC_OSL_BUF
+};
+#ifdef DHD_USE_STATIC_BUF
+extern void * dhd_os_prealloc(int section, unsigned long size);
+#endif
 /* Common structure for module and instance linkage */
 typedef struct dhd_pub {
 	/* Linkage ponters */
@@ -150,22 +148,174 @@ typedef struct dhd_pub {
 #endif /*  LinuxVer */
 #endif /* BCMLXSDMMC */
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined(CONFIG_HAS_WAKELOCK)
+	struct wake_lock wakelock[WAKE_LOCK_MAX];
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined (CONFIG_HAS_WAKELOCK) */
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)) && 1
+	struct mutex 	wl_start_stop_lock; /* lock/unlock for Android start/stop */
+	struct mutex 	wl_softap_lock;		 /* lock/unlock for any SoftAP/STA settings */
+#endif 
 } dhd_pub_t;
 
 #ifdef NDIS60
-
 typedef struct _wdf_device_info {
 	dhd_pub_t *dhd;
 } wdf_device_info_t;
 
 WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(wdf_device_info_t, dhd_get_wdf_device_info)
 
-
 #endif /* NDIS60 */
+
+	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined(CONFIG_PM_SLEEP1)
+
+	#define DHD_PM_RESUME_WAIT_INIT(a) DECLARE_WAIT_QUEUE_HEAD(a);
+	#define _DHD_PM_RESUME_WAIT(a, b) do {\
+			int retry = 0; \
+			while (dhd_mmc_suspend && retry++ != b) { \
+				wait_event_timeout(a, FALSE, HZ/100); \
+			} \
+		} 	while (0)
+	#define DHD_PM_RESUME_WAIT(a) 			_DHD_PM_RESUME_WAIT(a, 30)
+	#define DHD_PM_RESUME_WAIT_FOREVER(a) 	_DHD_PM_RESUME_WAIT(a, ~0)
+	#define DHD_PM_RESUME_RETURN_ERROR(a)	do { if (dhd_mmc_suspend) return a; } while (0)
+	#define DHD_PM_RESUME_RETURN		do { if (dhd_mmc_suspend) return; } while (0)
+
+	#define DHD_SPINWAIT_SLEEP_INIT(a) DECLARE_WAIT_QUEUE_HEAD(a);
+	#define SPINWAIT_SLEEP(a, exp, us) do { \
+		uint countdown = (us) + 9; \
+		while ((exp) && (countdown >= 10)) { \
+			wait_event_timeout(a, FALSE, HZ/100); \
+			countdown -= 10; \
+		} \
+	} while (0)
+
+	#else
+
+	#define DHD_PM_RESUME_WAIT_INIT(a)
+	#define DHD_PM_RESUME_WAIT(a)
+	#define DHD_PM_RESUME_WAIT_FOREVER(a)
+	#define DHD_PM_RESUME_RETURN_ERROR(a)
+	#define DHD_PM_RESUME_RETURN
+
+	#define DHD_SPINWAIT_SLEEP_INIT(a)
+	#define SPINWAIT_SLEEP(a, exp, us)  do { \
+		uint countdown = (us) + 9; \
+		while ((exp) && (countdown >= 10)) { \
+			OSL_DELAY(10);  \
+			countdown -= 10;  \
+		} \
+	} while (0)
+
+	#endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined(CONFIG_PM_SLEEP1) */
+#define DHD_IF_VIF	0x01	/* Virtual IF (Hidden from user) */
+
+inline static void MUTEX_LOCK_INIT(dhd_pub_t * dhdp)
+{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)) && 1
+	mutex_init(&dhdp->wl_start_stop_lock);
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) */
+}
+
+inline static void MUTEX_LOCK(dhd_pub_t * dhdp)
+{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)) && 1
+	mutex_lock(&dhdp->wl_start_stop_lock);
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) */
+}
+
+inline static void MUTEX_UNLOCK(dhd_pub_t * dhdp)
+{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)) && 1
+	mutex_unlock(&dhdp->wl_start_stop_lock);
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) */
+}
+
+inline static void MUTEX_LOCK_SOFTAP_SET_INIT(dhd_pub_t * dhdp)
+{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)) && 1
+	mutex_init(&dhdp->wl_softap_lock);
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) */
+}
+
+inline static void MUTEX_LOCK_SOFTAP_SET(dhd_pub_t * dhdp)
+{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)) && 1
+	mutex_lock(&dhdp->wl_softap_lock);
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) */
+}
+
+inline static void MUTEX_UNLOCK_SOFTAP_SET(dhd_pub_t * dhdp)
+{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)) && 1
+	mutex_unlock(&dhdp->wl_softap_lock);
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) */
+}
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)) && 1
+extern struct mutex  g_wl_ss_scan_lock;		 /* lock/unlock for Scan/Cache settings */
+#endif 
+
+inline static void MUTEX_LOCK_WL_SCAN_SET_INIT(void)
+{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)) && 1
+	mutex_init(&g_wl_ss_scan_lock);
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) */
+}
+
+inline static void MUTEX_LOCK_WL_SCAN_SET(void)
+{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)) && 1
+	mutex_lock(&g_wl_ss_scan_lock);
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) */
+}
+
+inline static void MUTEX_UNLOCK_WL_SCAN_SET(void)
+{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)) && 1
+	mutex_unlock(&g_wl_ss_scan_lock);
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) */
+}
+
+inline static void WAKE_LOCK_INIT(dhd_pub_t * dhdp, int index, char * y)
+{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined(CONFIG_HAS_WAKELOCK)
+	wake_lock_init(&dhdp->wakelock[index], WAKE_LOCK_SUSPEND, y);
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined (CONFIG_HAS_WAKELOCK) */
+}
+
+inline static void WAKE_LOCK(dhd_pub_t * dhdp, int index)
+{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined(CONFIG_HAS_WAKELOCK)
+	wake_lock(&dhdp->wakelock[index]);
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined (CONFIG_HAS_WAKELOCK) */
+}
+
+inline static void WAKE_UNLOCK(dhd_pub_t * dhdp, int index)
+{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined(CONFIG_HAS_WAKELOCK)
+	wake_unlock(&dhdp->wakelock[index]);
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined (CONFIG_HAS_WAKELOCK) */
+}
+
+inline static void WAKE_LOCK_TIMEOUT(dhd_pub_t * dhdp, int index, long time)
+{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined(CONFIG_HAS_WAKELOCK)
+	wake_lock_timeout(&dhdp->wakelock[index], time);
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined (CONFIG_HAS_WAKELOCK) */
+}
+
+inline static void WAKE_LOCK_DESTROY(dhd_pub_t * dhdp, int index)
+{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined(CONFIG_HAS_WAKELOCK)
+	wake_lock_destroy(&dhdp->wakelock[index]);
+#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined (CONFIG_HAS_WAKELOCK) */
+}
 
 typedef struct dhd_if_event {
 	uint8 ifidx;
 	uint8 action;
+	uint8 flags;
+	uint8 bssidx;
 } dhd_if_event_t;
 
 /*
@@ -223,8 +373,17 @@ extern void dhd_os_sdunlock_txq(dhd_pub_t * pub);
 extern void dhd_os_sdlock_rxq(dhd_pub_t * pub);
 extern void dhd_os_sdunlock_rxq(dhd_pub_t * pub);
 extern void dhd_os_sdlock_sndup_rxq(dhd_pub_t * pub);
+extern void dhd_customer_gpio_wlan_ctrl(int onoff);
 extern void dhd_os_sdunlock_sndup_rxq(dhd_pub_t * pub);
+#ifdef DHD_DEBUG
+extern int write_to_file(dhd_pub_t *dhd, uint8 *buf, int size);
+#endif /* DHD_DEBUG */
+#if defined(OOB_INTR_ONLY)
+extern int dhd_customer_oob_irq_map(void);
+#endif /* defined(OOB_INTR_ONLY) */
 
+struct task_struct;
+struct sched_param;
 int setScheduler(struct task_struct *p, int policy, struct sched_param *param);
 
 typedef struct {
@@ -238,25 +397,46 @@ extern void dhd_timeout_start(dhd_timeout_t *tmo, uint usec);
 extern int dhd_timeout_expired(dhd_timeout_t *tmo);
 
 extern int dhd_ifname2idx(struct dhd_info *dhd, char *name);
+extern uint8 *dhd_bssidx2bssid(dhd_pub_t *dhd, int idx);
 extern int wl_host_event(struct dhd_info *dhd, int *idx, void *pktdata,
 wl_event_msg_t *, void **data_ptr);
 extern void wl_event_to_host_order(wl_event_msg_t * evt);
 
 extern void dhd_common_init(void);
 
-extern int dhd_add_if(struct dhd_info *dhd, int ifidx, void *handle, char *name, uint8 *mac_addr);
+extern int dhd_add_if(struct dhd_info *dhd, int ifidx, void *handle,
+	char *name, uint8 *mac_addr, uint32 flags, uint8 bssidx);
 extern void dhd_del_if(struct dhd_info *dhd, int ifidx);
+
+extern void dhd_vif_add(struct dhd_info *dhd, int ifidx, char * name);
+extern void dhd_vif_del(struct dhd_info *dhd, int ifidx);
+
+extern void dhd_event(struct dhd_info *dhd, char *evpkt, int evlen, int ifidx);
+extern void dhd_vif_sendup(struct dhd_info *dhd, int ifidx, uchar *cp, int len);
+
 
 /* Send pakcet to dongle via data channel */
 extern int dhd_sendpkt(dhd_pub_t *dhdp, int ifidx, void *pkt);
 
 /* Send event to host */
+/* send up locally generated event */
+extern void dhd_sendup_event_common(dhd_pub_t *dhdp, wl_event_msg_t *event, void *data);
 extern void dhd_sendup_event(dhd_pub_t *dhdp, wl_event_msg_t *event, void *data);
 extern int dhd_bus_devreset(dhd_pub_t *dhdp, uint8 flag);
 extern uint dhd_bus_status(dhd_pub_t *dhdp);
 extern int  dhd_bus_start(dhd_pub_t *dhdp);
 
+extern void print_buf(void *pbuf, int len, int bytes_per_line);
 
+
+typedef enum cust_gpio_modes {
+	WLAN_RESET_ON,
+	WLAN_RESET_OFF,
+	WLAN_POWER_ON,
+	WLAN_POWER_OFF
+} cust_gpio_modes_t;
+
+extern int wl_iw_iscan_set_scan_broadcast_prep(struct net_device *dev, uint flag);
 
 /*
  * Insmod parameters for debug/test

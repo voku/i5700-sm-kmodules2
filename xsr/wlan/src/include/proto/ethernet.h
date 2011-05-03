@@ -21,7 +21,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: ethernet.h,v 9.45.74.2 2009/06/25 14:46:22 Exp $
+ * $Id: ethernet.h,v 9.45.74.3 2009/11/25 03:14:29 Exp $
  */
 
 
@@ -67,9 +67,6 @@
 #define ETHER_TYPE_8021Q	0x8100		
 #define	ETHER_TYPE_BRCM		0x886c		
 #define	ETHER_TYPE_802_1X	0x888e		
-#ifdef BCMWAPI_WPI
-#define ETHER_TYPE_WAI		0x88b4		
-#endif 
 #ifdef BCMWPA2
 #define	ETHER_TYPE_802_1X_PREAUTH 0x88c7	
 #endif

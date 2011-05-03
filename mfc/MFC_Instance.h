@@ -1,3 +1,24 @@
+/* mfc/MFC_Instance.h
+ *
+ * Copyright (c) 2008 Samsung Electronics
+ *
+ * Samsung S3C MFC driver
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 #ifndef __SAMSUNG_SYSLSI_APDEV_MFC_INST_INIT_H__
 #define __SAMSUNG_SYSLSI_APDEV_MFC_INST_INIT_H__
 
@@ -92,16 +113,21 @@ typedef struct
 
 	int	isMp4DbkOn;	// yj: whether Mp4DbkOn bit is set or not
 
-	int				framBufAllocated;
-	int             cnf_PhyOutBuf;
+	int	framBufAllocated;
+	int	cnf_PhyOutBuf;
 
-	MFC_OUTBUF_POSITION  cnf_OutPos;
+	MFC_OUTBUF_POSITION	cnf_OutPos;
 
-	int             width,     height;
-	int             buf_width, buf_height;	// buf_width is stride.
-	
-	int				frambufCnt;   // Decoding case: RET_DEC_SEQ_FRAME_NEED_COUNT
-	                              // Encoding case: fixed at 2 (at lease 2 frame buffers)
+	int	width, height;
+	int	buf_width, buf_height;	// buf_width is stride.
+
+	// RainAde : added to get crop information (6410 since FW 1.3.E)
+	int	crop_value0;	// Crop left & right in H.264 Stream
+	int	crop_value1;	// Crop top & bottom in H.264 Stream
+
+	int	frambufCnt;	// Decoding case: RET_DEC_SEQ_FRAME_NEED_COUNT
+					// Encoding case: fixed at 2 (at lease 2 frame buffers)
+					
 	// decoding configuration info
 	unsigned int    PostRotMode;
 

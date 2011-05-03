@@ -23,7 +23,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: bcmsdh.h,v 13.35.14.7.16.4 2009/04/13 18:54:22 Exp $
+ * $Id: bcmsdh.h,v 13.35.14.7.16.5 2009/09/30 05:11:12 Exp $
  */
 
 #ifndef	_bcmsdh_h_
@@ -190,6 +190,11 @@ extern void bcmsdh_unregister(void);
 extern bool bcmsdh_chipmatch(uint16 vendor, uint16 device);
 extern void bcmsdh_device_remove(void * sdh);
 
+#if defined(OOB_INTR_ONLY)
+extern int bcmsdh_register_oob_intr(void * dhdp);
+extern void bcmsdh_unregister_oob_intr(void);
+extern void bcmsdh_oob_intr_set(bool enable);
+#endif /* defined(OOB_INTR_ONLY) */
 /* Function to pass device-status bits to DHD. */
 extern uint32 bcmsdh_get_dstatus(void *sdh);
 

@@ -21,7 +21,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: bcmsdh_sdmmc.h,v 13.1.2.2.6.2 2009/04/09 17:21:36 Exp $
+ * $Id: bcmsdh_sdmmc.h,v 13.1.2.2.6.3 2009/09/30 05:11:12 Exp $
  */
 
 #ifndef __BCMSDH_SDMMC_H__

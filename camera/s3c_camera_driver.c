@@ -67,6 +67,7 @@
 
 #ifdef CONFIG_S3C64XX_DOMAIN_GATING
 #define USE_CAMERA_DOMAIN_GATING
+#define CONFIG_CPU_FREQ
 #endif /* CONFIG_S3C64XX_DOMAIN_GATING */
 
 // function define
@@ -117,18 +118,18 @@ EXPORT_SYMBOL(cam_hclk);
 
 static camif_cis_t default_msdma_input = {
 	itu_fmt:       	CAMIF_ITU601,
-	order422:      	CAMIF_CBYCRY,	/* another case: YCRYCB */
-	camclk:        	44000000,		/* for 20 fps: 44MHz, for 12 fps(more stable): 26MHz */
+	order422:      	CAMIF_CRYCBY,	/* another case: YCRYCB */
+	camclk:        	28000000,		/* for 20 fps: 44MHz, for 12 fps(more stable): 26MHz */
 	source_x:      	800,
-	source_y:      	600,
+	source_y:      	480,
 	win_hor_ofst:  	0,
 	win_ver_ofst:  	0,
 	win_hor_ofst2: 	0,
 	win_ver_ofst2: 	0,
 	polarity_pclk: 	0,
-	polarity_vsync:	0,
+	polarity_vsync:	1,
 	polarity_href: 	0,
-	reset_type:		CAMIF_EX_RESET_AL,
+	reset_type:	CAMIF_EX_RESET_AH,
 	reset_udelay: 	5000,
 };
 
@@ -220,8 +221,8 @@ static int s3c_camif_check_global_status(camif_cfg_t *cfg)
 
 static int s3c_camif_convert_format(int pixfmt, int *fmtptr)
 {
-	int fmt = CAMIF_YCBCR420;
-	int depth = 12;
+	int fmt = CAMIF_RGB24;
+	int depth = 24;
 
 	__TRACE_CAMERA_DRV(printk("[CAM-DRV] +s3c_camif_convert_format pixfmt=%c%c%c%c\n",
 				(__u32)(pixfmt),((__u32)(pixfmt) >> 8),((__u32)(pixfmt) >> 16),((__u32)(pixfmt) >> 24)));
@@ -1914,7 +1915,7 @@ static int s3c_camif_request_irq(camif_cfg_t * cfg)
 	}
 
 	if (cfg->dma_type & CAMIF_PREVIEW) {
-		if ((ret = request_irq(cfg->irq, s3c_camif_do_irq_preview, IRQF_DISABLED, cfg->shortname, cfg)))
+		if ((ret = request_irq(cfg->irq, s3c_camif_do_irq_preview, IRQF_SHARED, cfg->shortname, cfg)))
 			printk("Request_irq (CAM_P) failed\n");
 		else
 			printk(KERN_INFO "Request irq %d for preview\n", cfg->irq);
@@ -2416,7 +2417,7 @@ int s3c_camif_open(struct file *file)
 int s3c_camif_release(struct file *file)
 {
 	int minor = video_devdata(file)->minor;
-	camif_cfg_t *cfg = s3c_camif_get_fimc_object(minor);
+	camif_cfg_t *cfg =s3c_camif_get_fimc_object(MINOR(file->f_dentry->d_inode->i_rdev)); 
 
 	if (cfg->dma_type & CAMIF_PREVIEW) {
 		cfg->cis->status &= ~PWANT2START;
@@ -2431,7 +2432,7 @@ int s3c_camif_release(struct file *file)
 	s3c_cam_exclusive_release();
 
 #ifdef CONFIG_CPU_FREQ
-	set_dvfs_level(1);
+	set_dvfs_level(4);
 #endif /* CONFIG_CPU_FREQ */
 
 	if (cfg->cis->sensor == NULL)
@@ -2695,7 +2696,7 @@ static int s3c_camif_init_preview(camif_cfg_t * cfg)
 	cfg->input_channel = CAMERA_INPUT;
 	cfg->src_fmt = CAMIF_YCBCR422;
 	cfg->output_channel = CAMIF_OUT_PP;
-	cfg->dst_fmt = CAMIF_RGB16;
+	cfg->dst_fmt = CAMIF_RGB24;
 	cfg->flip = CAMIF_FLIP_Y;
 	cfg->v = &preview_template;
 	cfg->v2.input = &v4l2_msdma_input;
@@ -2723,7 +2724,7 @@ static int s3c_camif_init_codec(camif_cfg_t * cfg)
 	cfg->input_channel  = CAMERA_INPUT;
 	//  modified by sangyub
 	// cfg->dst_fmt is setted in the function(s3c_camif_convert_type)
-	cfg->dst_fmt        = CAMIF_YCBCR420;
+	cfg->dst_fmt        = CAMIF_RGB24;
 	cfg->output_channel = CAMIF_OUT_PP;
 	cfg->flip           = CAMIF_FLIP_X;
 	cfg->v              = &codec_template;
@@ -3031,9 +3032,9 @@ void s3c_camif_remove_sensor(struct v4l2_input *input, struct v4l2_input_handler
 void s3c_camif_open_sensor(camif_cis_t *cis)
 {
 	__TRACE_CAMERA_DRV(printk("[CAM-DRV] +s3c_camif_open_sensor\n"));
-#if 0
+
 	clk_set_rate(cam_clock, cis->camclk);
-#endif
+
 	s3c_camif_reset(cis->reset_type, cis->reset_udelay);
 
 	__TRACE_CAMERA_DRV(printk("[CAM-DRV] -s3c_camif_open_sensor\n"));

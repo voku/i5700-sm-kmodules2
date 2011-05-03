@@ -1,19 +1,24 @@
-/*
- * Project Name MFC DRIVER 
- * Copyright  2007 Samsung Electronics Co, Ltd. All Rights Reserved. 
+/* mfc/MfcSetConfig.c
  *
- * This software is the confidential and proprietary information
- * of Samsung Electronics  ("Confidential Information").   
- * you shall not disclose such Confidential Information and shall use
- * it only in accordance with the terms of the license agreement
- * you entered into with Samsung Electronics 
+ * Copyright (c) 2008 Samsung Electronics
  *
- * This source file is for printing the driver's log messages.
+ * Samsung S3C MFC driver
  *
- * @name MFC DRIVER MODULE Module (MfcSetConfig.c)
- * @author Jiun, Yu(jiun.yu@samsung.com)
- * @date 03-28-08
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+ 
 #include <linux/dma-mapping.h>
 #include <asm/cacheflush.h>
 #include <asm/memory.h>

@@ -22,7 +22,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: bcmsdpcm.h,v 13.4.26.1 2009/07/06 11:56:22 Exp $
+ * $Id: bcmsdpcm.h,v 13.4.26.2 2010/03/22 00:35:23 Exp $
  */
 
 #ifndef	_bcmsdpcm_h_
@@ -50,5 +50,8 @@ typedef struct {
 } sdpcm_shared_t;
 
 extern sdpcm_shared_t sdpcm_shared;
+
+/* Function can be used to notify host of FW halt */
+extern void sdpcmd_fwhalt(void);
 
 #endif	/* _bcmsdpcm_h_ */

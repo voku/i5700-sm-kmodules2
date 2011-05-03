@@ -21,7 +21,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: bcmsdh_sdmmc.c,v 1.1.2.8.6.19 2009/07/28 00:46:09 Exp $
+ * $Id: bcmsdh_sdmmc.c,v 1.1.2.8.6.23 2009/11/05 10:32:57 Exp $
  */
 #include <typedefs.h>
 
@@ -40,6 +40,13 @@
 #include <linux/mmc/sdio_func.h>
 #include <linux/mmc/sdio_ids.h>
 
+#include <dngl_stats.h>
+#include <dhd.h>
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined(CONFIG_PM_SLEEP1)
+#include <linux/suspend.h>
+extern volatile bool dhd_mmc_suspend;
+#endif
 #include "bcmsdh_sdmmc.h"
 
 #ifndef BCMSDH_MODULE
@@ -47,8 +54,10 @@ extern int sdio_function_init(void);
 extern void sdio_function_cleanup(void);
 #endif /* BCMSDH_MODULE */
 
+#if !defined(OOB_INTR_ONLY)
 static void IRQHandler(struct sdio_func *func);
 static void IRQHandlerF2(struct sdio_func *func);
+#endif
 static int sdioh_sdmmc_get_cisaddr(sdioh_info_t *sd, uint32 regaddr);
 extern int sdio_reset_comm(struct mmc_card *card);
 
@@ -64,6 +73,10 @@ uint sd_clock = 1;		/* Default to SD Clock turned ON */
 uint sd_hiok = FALSE;	/* Don't use hi-speed mode by default */
 uint sd_msglevel = 0x01;
 uint sd_use_dma = TRUE;
+DHD_PM_RESUME_WAIT_INIT(sdioh_request_byte_wait);
+DHD_PM_RESUME_WAIT_INIT(sdioh_request_word_wait);
+DHD_PM_RESUME_WAIT_INIT(sdioh_request_packet_wait);
+DHD_PM_RESUME_WAIT_INIT(sdioh_request_buffer_wait);
 
 #define DMA_ALIGN_MASK	0x03
 
@@ -127,7 +140,7 @@ sdioh_attach(osl_t *osh, void *bar0, uint irq)
 	int err_ret;
 
 	sd_trace(("%s\n", __FUNCTION__));
-
+	printk("%s\n", __FUNCTION__);
 	if (gInstance == NULL) {
 		sd_err(("%s: SDIO Device not present\n", __FUNCTION__));
 		return NULL;
@@ -220,6 +233,7 @@ sdioh_interrupt_register(sdioh_info_t *sd, sdioh_cb_fn_t fn, void *argh)
 		sd_err(("%s: interrupt handler is NULL, not registering\n", __FUNCTION__));
 		return SDIOH_API_RC_FAIL;
 	}
+#if !defined(OOB_INTR_ONLY)
 	sd->intr_handler = fn;
 	sd->intr_handler_arg = argh;
 	sd->intr_handler_valid = TRUE;
@@ -236,6 +250,7 @@ sdioh_interrupt_register(sdioh_info_t *sd, sdioh_cb_fn_t fn, void *argh)
 		sdio_claim_irq(gInstance->func[1], IRQHandler);
 		SDIO_RELEASE_HOST(1);
 	}
+#endif /* !defined(OOB_INTR_ONLY) */
 	return SDIOH_API_RC_SUCCESS;
 }
 
@@ -244,6 +259,7 @@ sdioh_interrupt_deregister(sdioh_info_t *sd)
 {
 	sd_trace(("%s: Entering\n", __FUNCTION__));
 
+#if !defined(OOB_INTR_ONLY)
 	if (gInstance->func[1]) {
 		/* register and unmask irq */
 		SDIO_CLAIM_HOST(1);
@@ -262,6 +278,7 @@ sdioh_interrupt_deregister(sdioh_info_t *sd)
 	sd->intr_handler_valid = FALSE;
 	sd->intr_handler = NULL;
 	sd->intr_handler_arg = NULL;
+#endif /* !defined(OOB_INTR_ONLY) */
 	return SDIOH_API_RC_SUCCESS;
 }
 
@@ -670,6 +687,8 @@ sdioh_request_byte(sdioh_info_t *sd, uint rw, uint func, uint regaddr, uint8 *by
 
 	sd_info(("%s: rw=%d, func=%d, addr=0x%05x\n", __FUNCTION__, rw, func, regaddr));
 
+	DHD_PM_RESUME_WAIT(sdioh_request_byte_wait);
+	DHD_PM_RESUME_RETURN_ERROR(SDIOH_API_RC_FAIL);
 	if(rw) { /* CMD52 Write */
 		if (func == 0) {
 			/* Can only directly write to some F0 registers.  Handle F2 enable
@@ -695,7 +714,16 @@ sdioh_request_byte(sdioh_info_t *sd, uint rw, uint func, uint regaddr, uint8 *by
 					}
 					SDIO_RELEASE_HOST(2);
 				}
-			} else if (regaddr < 0xF0) {
+			}
+#if defined(MMC_SDIO_ABORT)
+			/* to allow abort command through F1 */
+			else if (regaddr == SDIOD_CCCR_IOABORT) {
+				sdio_claim_host(gInstance->func[func]);
+				sdio_writeb(gInstance->func[func], *byte, regaddr, &err_ret);
+				sdio_release_host(gInstance->func[func]);
+			}
+#endif
+			else if (regaddr < 0xF0) {
 				sd_err(("bcmsdh_sdmmc: F0 Wr:0x%02x: write disallowed\n", regaddr));
 			} else {
 				/* Claim host controller, perform F0 write, and release */
@@ -744,6 +772,8 @@ sdioh_request_word(sdioh_info_t *sd, uint cmd_type, uint rw, uint func, uint add
 	sd_info(("%s: cmd_type=%d, rw=%d, func=%d, addr=0x%05x, nbytes=%d\n",
 	         __FUNCTION__, cmd_type, rw, func, addr, nbytes));
 
+	DHD_PM_RESUME_WAIT(sdioh_request_word_wait);
+	DHD_PM_RESUME_RETURN_ERROR(SDIOH_API_RC_FAIL);
 	/* Claim host controller */
 	SDIO_CLAIM_HOST(func);
 
@@ -789,6 +819,8 @@ sdioh_request_packet(sdioh_info_t *sd, uint fix_inc, uint write, uint func,
 	sd_trace(("%s: Enter\n", __FUNCTION__));
 
 	ASSERT(pkt);
+	DHD_PM_RESUME_WAIT(sdioh_request_packet_wait);
+	DHD_PM_RESUME_RETURN_ERROR(SDIOH_API_RC_FAIL);
 
 	/* Claim host controller */
 	SDIO_CLAIM_HOST(func);
@@ -876,11 +908,17 @@ sdioh_request_buffer(sdioh_info_t *sd, uint pio_dma, uint fix_inc, uint write, u
 
 	sd_trace(("%s: Enter\n", __FUNCTION__));
 
+	DHD_PM_RESUME_WAIT(sdioh_request_buffer_wait);
+	DHD_PM_RESUME_RETURN_ERROR(SDIOH_API_RC_FAIL);
 	/* Case 1: we don't have a packet. */
 	if (pkt == NULL) {
 		sd_data(("%s: Creating new %s Packet, len=%d\n",
 		         __FUNCTION__, write ? "TX" : "RX", buflen_u));
+#ifdef DHD_USE_STATIC_BUF
+		if (!(mypkt = PKTGET_STATIC(sd->osh, buflen_u, write ? TRUE : FALSE))) {
+#else
 		if (!(mypkt = PKTGET(sd->osh, buflen_u, write ? TRUE : FALSE))) {
+#endif /* DHD_USE_STATIC_BUF */
 			sd_err(("%s: PKTGET failed: len %d\n",
 			           __FUNCTION__, buflen_u));
 			return SDIOH_API_RC_FAIL;
@@ -897,8 +935,11 @@ sdioh_request_buffer(sdioh_info_t *sd, uint pio_dma, uint fix_inc, uint write, u
 		if (!write) {
 			bcopy(PKTDATA(sd->osh, mypkt), buffer, buflen_u);
 		}
-
+#ifdef DHD_USE_STATIC_BUF
+		PKTFREE_STATIC(sd->osh, mypkt, write ? TRUE : FALSE);
+#else
 		PKTFREE(sd->osh, mypkt, write ? TRUE : FALSE);
+#endif /* DHD_USE_STATIC_BUF */
 	} else if (((uint32)(PKTDATA(sd->osh, pkt)) & DMA_ALIGN_MASK) != 0) {
 		/* Case 2: We have a packet, but it is unaligned. */
 
@@ -907,7 +948,11 @@ sdioh_request_buffer(sdioh_info_t *sd, uint pio_dma, uint fix_inc, uint write, u
 
 		sd_data(("%s: Creating aligned %s Packet, len=%d\n",
 		         __FUNCTION__, write ? "TX" : "RX", PKTLEN(sd->osh, pkt)));
+#ifdef DHD_USE_STATIC_BUF
+		if (!(mypkt = PKTGET_STATIC(sd->osh, PKTLEN(sd->osh, pkt), write ? TRUE : FALSE))) {
+#else
 		if (!(mypkt = PKTGET(sd->osh, PKTLEN(sd->osh, pkt), write ? TRUE : FALSE))) {
+#endif /* DHD_USE_STATIC_BUF */
 			sd_err(("%s: PKTGET failed: len %d\n",
 			           __FUNCTION__, PKTLEN(sd->osh, pkt)));
 			return SDIOH_API_RC_FAIL;
@@ -928,8 +973,11 @@ sdioh_request_buffer(sdioh_info_t *sd, uint pio_dma, uint fix_inc, uint write, u
 			      PKTDATA(sd->osh, pkt),
 			      PKTLEN(sd->osh, mypkt));
 		}
-
+#ifdef DHD_USE_STATIC_BUF
+		PKTFREE_STATIC(sd->osh, mypkt, write ? TRUE : FALSE);
+#else
 		PKTFREE(sd->osh, mypkt, write ? TRUE : FALSE);
+#endif /* DHD_USE_STATIC_BUF */
 	} else { /* case 3: We have a packet and it is aligned. */
 		sd_data(("%s: Aligned %s Packet, direct DMA\n",
 		         __FUNCTION__, write ? "Tx" : "Rx"));
@@ -939,11 +987,60 @@ sdioh_request_buffer(sdioh_info_t *sd, uint pio_dma, uint fix_inc, uint write, u
 	return (Status);
 }
 
+#if defined(MMC_SDIO_ABORT)
+
+#if defined(DHD_DEBUG)
+/* mmc kernel api : newly added for abort test purpose */
+extern int sdio_set_block_size2(struct sdio_func *func, unsigned blksz);
+
+/* can be used to change block size on the fly for abort test purpose */
+void
+dhd_set_blk_size(unsigned int size)
+{
+	int err_ret;
+
+	sdio_claim_host(gInstance->func[2]);
+	err_ret = sdio_set_block_size2(gInstance->func[2], size);
+	if (err_ret) {
+		sd_err(("bcmsdh_sdmmc: Failed to set F2 blocksize to %d\n",
+			sd_f2_blocksize));
+	}
+	sdio_release_host(gInstance->func[2]);
+}
+#define MMC_BASE_ADDR	0xc6872000	/* extracted by test for MSM SDCC */
+#define MMCICOMMAND	0x00c		/* command register offset of MSM SDCC */
+#define MCI_CSPM_MCIABORT (1 << 13)    /* abort bit in command register */
+
+/* mmc kernel api : newly added to access sdcc command register */
+extern void msm_dhd_writel(unsigned int arg, void *base);
+#endif /* defined(DHD_DEBUG) */
+
+/* this function performs "abort" for both of host & device */
+static int
+sdmmc_abort(sdioh_info_t *sd, uint func)
+{
+#if defined(DHD_DEBUG)
+	unsigned int arg;
+
+	arg = MCI_CSPM_MCIABORT;
+	msm_dhd_writel(arg, (void *)(MMC_BASE_ADDR + MMCICOMMAND));	/* abort host first */
+#endif
+	sd_trace(("%s: Enter\n", __FUNCTION__));
+	/* issue abort cmd52 command through F1 */
+	sdioh_request_byte(sd, SD_IO_OP_WRITE, SDIO_FUNC_0, SDIOD_CCCR_IOABORT, (uint8 *)&func);
+	sd_trace(("%s: Exit\n", __FUNCTION__));
+	return SDIOH_API_RC_SUCCESS;
+}
+#endif /* MMC_SDIO_ABORT */
+
 extern int
 sdioh_abort(sdioh_info_t *sd, uint func)
 {
 	sd_trace(("%s: Enter\n", __FUNCTION__));
 
+#if defined(MMC_SDIO_ABORT)
+	sdmmc_abort(sd, func);
+#endif
 
 	sd_trace(("%s: Exit\n", __FUNCTION__));
 	return SDIOH_API_RC_SUCCESS;
@@ -964,7 +1061,7 @@ sdioh_sdmmc_devintr_off(sdioh_info_t *sd)
 	struct mmc_card *card = gInstance->func[0]->card;
 	struct mmc_host *host = card->host;
 
-	host->ops->enable_sdio_irq(host, 0);
+	host->ops->enable_sdio_irq(host, 0);  /* GG */
 	sd_trace(("%s: %d\n", __FUNCTION__, sd->use_client_ints));
 	sd->intmask &= ~CLIENT_INTR;
 }
@@ -1006,6 +1103,7 @@ sdioh_sdmmc_card_regread(sdioh_info_t *sd, int func, uint32 regaddr, int regsize
 	return SUCCESS;
 }
 
+#if !defined(OOB_INTR_ONLY)
 /* bcmsdh_sdmmc interrupt handler */
 static void IRQHandler(struct sdio_func *func)
 {
@@ -1047,6 +1145,7 @@ static void IRQHandlerF2(struct sdio_func *func)
 
 	ASSERT(sd != NULL);
 }
+#endif /* !defined(OOB_INTR_ONLY) */
 
 #ifdef NOTUSED
 /* Write client card reg */
@@ -1133,11 +1232,14 @@ sdioh_start(sdioh_info_t *si, int stage)
 				sdioh_sdmmc_card_enablefuncs(sd);
 			}
 		} else {
+#if !defined(OOB_INTR_ONLY)
 			sdio_claim_host(gInstance->func[0]);
 			sdio_claim_irq(gInstance->func[2], IRQHandlerF2);
 			sdio_claim_irq(gInstance->func[1], IRQHandler);
 			sdio_release_host(gInstance->func[0]);
-
+#else
+			bcmsdh_oob_intr_set(TRUE);
+#endif
 		}
 	}
 	else
@@ -1157,10 +1259,14 @@ sdioh_stop(sdioh_info_t *si)
 		polling
 	*/
 	if (gInstance->func[0]) {
+#if !defined(OOB_INTR_ONLY)
 		sdio_claim_host(gInstance->func[0]);
 		sdio_release_irq(gInstance->func[1]);
 		sdio_release_irq(gInstance->func[2]);
 		sdio_release_host(gInstance->func[0]);
+#else
+		bcmsdh_oob_intr_set(FALSE);
+#endif
 	}
 	else
 		sd_err(("%s Failed\n", __FUNCTION__));

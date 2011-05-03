@@ -20,7 +20,7 @@
  *      Notwithstanding the above, under no circumstances may you combine this
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
- * $Id: bcmutils.c,v 1.210.4.5.2.4.16.4 2009/07/13 18:04:07 Exp $
+ * $Id: bcmutils.c,v 1.210.4.5.2.4.16.7 2010/04/24 20:36:36 Exp $
  */
 
 #include <typedefs.h>
@@ -30,9 +30,16 @@
 #ifdef BCMDRIVER
 #include <osl.h>
 #include <siutils.h>
+#if !defined(BCMDONGLEHOST)
+#include <bcmnvram.h>
+#endif /* !defined(BCMDONGLEHOST) */
 #else
 #include <stdio.h>
 #include <string.h>
+/* This case for external supplicant use */
+#if defined(BCMEXTSUP)
+#include <bcm_osl.h>
+#endif
 #endif /* BCMDRIVER */
 #include <bcmendian.h>
 #include <bcmdevs.h>
@@ -872,6 +879,110 @@ bcm_mdelay(uint ms)
 	}
 }
 
+#if !defined(BCMDONGLEHOST)
+/*
+ * Search the name=value vars for a specific one and return its value.
+ * Returns NULL if not found.
+ */
+char *
+getvar(char *vars, const char *name)
+{
+	char *s;
+	int len;
+
+	if (!name)
+		return NULL;
+
+	len = strlen(name);
+	if (len == 0)
+		return NULL;
+
+	/* first look in vars[] */
+	for (s = vars; s && *s;) {
+		/* CSTYLED */
+		if ((bcmp(s, name, len) == 0) && (s[len] == '='))
+			return (&s[len+1]);
+
+		while (*s++)
+			;
+	}
+
+	/* then query nvram */
+	return (nvram_get(name));
+}
+
+/*
+ * Search the vars for a specific one and return its value as
+ * an integer. Returns 0 if not found.
+ */
+int
+getintvar(char *vars, const char *name)
+{
+	char *val;
+
+	if ((val = getvar(vars, name)) == NULL)
+		return (0);
+
+	return (bcm_strtoul(val, NULL, 0));
+}
+
+
+/* Search for token in comma separated token-string */
+static int
+findmatch(char *string, char *name)
+{
+	uint len;
+	char *c;
+
+	len = strlen(name);
+	/* CSTYLED */
+	while ((c = strchr(string, ',')) != NULL) {
+		if (len == (uint)(c - string) && !strncmp(string, name, len))
+			return 1;
+		string = c + 1;
+	}
+
+	return (!strcmp(string, name));
+}
+
+/* Return gpio pin number assigned to the named pin
+ *
+ * Variable should be in format:
+ *
+ *	gpio<N>=pin_name,pin_name
+ *
+ * This format allows multiple features to share the gpio with mutual
+ * understanding.
+ *
+ * 'def_pin' is returned if a specific gpio is not defined for the requested functionality
+ * and if def_pin is not used by others.
+ */
+uint
+getgpiopin(char *vars, char *pin_name, uint def_pin)
+{
+	char name[] = "gpioXXXX";
+	char *val;
+	uint pin;
+
+	/* Go thru all possibilities till a match in pin name */
+	for (pin = 0; pin < GPIO_NUMPINS; pin ++) {
+		snprintf(name, sizeof(name), "gpio%d", pin);
+		val = getvar(vars, name);
+		if (val && findmatch(val, pin_name))
+			return pin;
+	}
+
+	if (def_pin != GPIO_PIN_NOTDEFINED) {
+		/* make sure the default pin is not used by someone else */
+		snprintf(name, sizeof(name), "gpio%d", def_pin);
+		if (getvar(vars, name)) {
+			def_pin =  GPIO_PIN_NOTDEFINED;
+		}
+	}
+
+	return def_pin;
+}
+#endif /* !defined(BCMDONGLEHOST) */
 
 
 
@@ -1436,15 +1547,13 @@ bcm_parse_ordered_tlvs(void *buf, int buflen, uint key)
 	return NULL;
 }
 
-#if defined(WLMSG_PRHDRS) || defined(WLMSG_PRPKT) || defined(WLMSG_ASSOC) || \
-	defined(DHD_DEBUG)
 int
 bcm_format_flags(const bcm_bit_desc_t *bd, uint32 flags, char* buf, int len)
 {
 	int i;
 	char* p = buf;
 	char hexstr[16];
-	int slen = 0;
+	int slen = 0, nlen = 0;
 	uint32 bit;
 	const char* name;
 
@@ -1452,34 +1561,40 @@ bcm_format_flags(const bcm_bit_desc_t *bd, uint32 flags, char* buf, int len)
 		return 0;
 
 	buf[0] = '\0';
-	len -= 1;
 
 	for (i = 0; flags != 0; i++) {
 		bit = bd[i].bit;
 		name = bd[i].name;
-		if (bit == 0 && flags) {
+		if (bit == 0 && flags != 0) {
 			/* print any unnamed bits */
-			sprintf(hexstr, "0x%X", flags);
+			snprintf(hexstr, 16, "0x%X", flags);
 			name = hexstr;
 			flags = 0;	/* exit loop */
 		} else if ((flags & bit) == 0)
 			continue;
-		slen += strlen(name);
-		if (len < slen)
-			break;
-		if (p != buf) p += sprintf(p, " "); /* btwn flag space */
-		strcat(p, name);
-		p += strlen(name);
 		flags &= ~bit;
+		nlen = strlen(name);
+		slen += nlen;
+		/* count btwn flag space */
+		if (flags != 0)
+			slen += 1;
+		/* need NULL char as well */
+		if (len <= slen)
+			break;
+		/* copy NULL char but don't count it */
+		strncpy(p, name, nlen + 1);
+		p += nlen;
+		/* copy btwn flag space and NULL char */
+		if (flags != 0)
+			p += snprintf(p, 2, " ");
 		len -= slen;
-		slen = 1;	/* account for btwn flag space */
 	}
 
 	/* indicate the str was too short */
 	if (flags != 0) {
-		if (len == 0)
-			p--;	/* overwrite last char */
-		p += sprintf(p, ">");
+		if (len < 2)
+			p -= 2 - len;	/* overwrite last char */
+		p += snprintf(p, 2, ">");
 	}
 
 	return (int)(p - buf);
@@ -1494,18 +1609,19 @@ bcm_format_hex(char *str, const void *bytes, int len)
 	const uint8 *src = (const uint8*)bytes;
 
 	for (i = 0; i < len; i++) {
-		p += sprintf(p, "%02X", *src);
+		p += snprintf(p, 3, "%02X", *src);
 		src++;
 	}
 	return (int)(p - str);
 }
-#endif 
 
 /* pretty hex print a contiguous buffer */
 void
 prhex(const char *msg, uchar *buf, uint nbytes)
 {
 	char line[128], *p;
+	int len = sizeof(line);
+	int nchar;
 	uint i;
 
 	if (msg && (msg[0] != '\0'))
@@ -1514,18 +1630,47 @@ prhex(const char *msg, uchar *buf, uint nbytes)
 	p = line;
 	for (i = 0; i < nbytes; i++) {
 		if (i % 16 == 0) {
-			p += sprintf(p, "  %04d: ", i);	/* line prefix */
+			nchar = snprintf(p, len, "  %04d: ", i);	/* line prefix */
+			p += nchar;
+			len -= nchar;
 		}
-		p += sprintf(p, "%02x ", buf[i]);
+		if (len > 0) {
+			nchar = snprintf(p, len, "%02x ", buf[i]);
+			p += nchar;
+			len -= nchar;
+		}
+
 		if (i % 16 == 15) {
 			printf("%s\n", line);		/* flush line */
 			p = line;
+			len = sizeof(line);
 		}
 	}
 
 	/* flush last partial line */
 	if (p != line)
 		printf("%s\n", line);
+}
+
+static const char *crypto_algo_names[] = {
+	"NONE",
+	"WEP1",
+	"TKIP",
+	"WEP128",
+	"AES_CCM",
+	"AES_OCB_MSDU",
+	"AES_OCB_MPDU",
+	"NALG"
+	"UNDEF",
+	"UNDEF",
+	"UNDEF",
+	"UNDEF"
+};
+
+const char *
+bcm_crypto_algo_name(uint algo)
+{
+	return (algo < ARRAYSIZE(crypto_algo_names)) ? crypto_algo_names[algo] : "ERR";
 }
 
 

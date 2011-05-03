@@ -21,7 +21,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: dhd_cdc.c,v 1.22.4.2.4.8.2.27 2009/08/14 23:17:28 Exp $
+ * $Id: dhd_cdc.c,v 1.22.4.2.4.8.2.35 2010/06/28 16:11:07 Exp $
  *
  * BDC is like CDC, except it includes a header for data packets to convey
  * packet priority over the bus, and flags (e.g. to indicate checksum status
@@ -41,11 +41,6 @@
 #include <dhd_bus.h>
 #include <dhd_dbg.h>
 
-#ifdef EXT_STA
-#include <siutils.h>
-#include <wlc_cfg.h>
-#include <wlc_pub.h>
-#endif /* EXT_STA */
 
 /* Packet alignment for most efficient SDIO (can change based on platform) */
 #ifndef DHD_SDALIGN
@@ -141,9 +136,9 @@ dhdcdc_query_ioctl(dhd_pub_t *dhd, int ifidx, uint cmd, void *buf, uint len)
 
 	msg->cmd = htol32(cmd);
 	msg->len = htol32(len);
-	flags = (++prot->reqid << CDCF_IOC_ID_SHIFT);
-	msg->flags = htol32(flags);
+	msg->flags = (++prot->reqid << CDCF_IOC_ID_SHIFT);
 	CDC_SET_IF_IDX(msg, ifidx);
+	msg->flags = htol32(msg->flags);
 
 	if (buf)
 		memcpy(prot->buf, buf, len);
@@ -208,9 +203,9 @@ dhdcdc_set_ioctl(dhd_pub_t *dhd, int ifidx, uint cmd, void *buf, uint len)
 
 	msg->cmd = htol32(cmd);
 	msg->len = htol32(len);
-	flags = (++prot->reqid << CDCF_IOC_ID_SHIFT) | CDCF_IOC_SET;
-	msg->flags |= htol32(flags);
+	msg->flags = (++prot->reqid << CDCF_IOC_ID_SHIFT) | CDCF_IOC_SET;
 	CDC_SET_IF_IDX(msg, ifidx);
+	msg->flags = htol32(msg->flags);
 
 	if (buf)
 		memcpy(prot->buf, buf, len);
@@ -250,6 +245,10 @@ dhd_prot_ioctl(dhd_pub_t *dhd, int ifidx, wl_ioctl_t * ioc, void * buf, int len)
 	dhd_prot_t *prot = dhd->prot;
 	int ret = -1;
 
+	if (dhd->busstate == DHD_BUS_DOWN) {
+		DHD_ERROR(("%s : bus is down. we have nothing to do\n", __FUNCTION__));
+		return ret;
+	}
 	dhd_os_proto_block(dhd);
 
 	DHD_TRACE(("%s: Enter\n", __FUNCTION__));
@@ -263,6 +262,7 @@ dhd_prot_ioctl(dhd_pub_t *dhd, int ifidx, wl_ioctl_t * ioc, void * buf, int len)
 		DHD_TRACE(("CDC packet is pending!!!! cmd=0x%x (%lu) lastcmd=0x%x (%lu)\n",
 			ioc->cmd, (unsigned long)ioc->cmd, prot->lastcmd,
 			(unsigned long)prot->lastcmd));
+
 		if ((ioc->cmd == WLC_SET_VAR) || (ioc->cmd == WLC_GET_VAR)) {
 			DHD_TRACE(("iovar cmd=%s\n", (char*)buf));
 		}
@@ -376,8 +376,8 @@ dhd_prot_hdrpush(dhd_pub_t *dhd, int ifidx, void *pktbuf)
 		}
 	}
 #endif /* APSTA_PINGTEST */
-	h->rssi = 0;
 #endif /* BDC */
+	h->dataOffset = 0;
 	BDC_SET_IF_IDX(h, ifidx);
 }
 
@@ -407,9 +407,13 @@ dhd_prot_hdrpull(dhd_pub_t *dhd, uint *ifidx, void *pktbuf)
 	}
 
 	if (((h->flags & BDC_FLAG_VER_MASK) >> BDC_FLAG_VER_SHIFT) != BDC_PROTO_VER) {
-		DHD_ERROR(("%s: non-BDC packet received, flags 0x%x\n",
+		if (((h->flags & BDC_FLAG_VER_MASK) >> BDC_FLAG_VER_SHIFT) == BDC_PROTO_VER_1)
+			h->dataOffset = 0;
+		else {
+			DHD_ERROR(("%s: non-BDC packet received, flags 0x%x\n",
 		           dhd_ifname(dhd, *ifidx), h->flags));
-		return BCME_ERROR;
+			return BCME_ERROR;
+		}
 	}
 
 	if (h->flags & BDC_FLAG_SUM_GOOD) {
@@ -421,6 +425,7 @@ dhd_prot_hdrpull(dhd_pub_t *dhd, uint *ifidx, void *pktbuf)
 	PKTSETPRIO(pktbuf, (h->priority & BDC_PRIORITY_MASK));
 
 	PKTPULL(dhd->osh, pktbuf, BDC_HEADER_LEN);
+	PKTPULL(dhd->osh, pktbuf, (h->dataOffset << 2));
 #endif /* BDC */
 
 	return 0;
@@ -431,10 +436,17 @@ dhd_prot_attach(dhd_pub_t *dhd)
 {
 	dhd_prot_t *cdc;
 
-	if (!(cdc = (dhd_prot_t *)MALLOC(dhd->osh, sizeof(dhd_prot_t)))) {
-		DHD_ERROR(("%s: kmalloc failed\n", __FUNCTION__));
-		goto fail;
-	}
+#ifndef DHD_USE_STATIC_BUF
+		if (!(cdc = (dhd_prot_t *)MALLOC(dhd->osh, sizeof(dhd_prot_t)))) {
+			DHD_ERROR(("%s: kmalloc failed\n", __FUNCTION__));
+			goto fail;
+		}
+#else
+		if (!(cdc = (dhd_prot_t *)dhd_os_prealloc(DHD_PREALLOC_PROT, sizeof(dhd_prot_t)))) {
+			DHD_ERROR(("%s: kmalloc failed\n", __FUNCTION__));
+			goto fail;
+		}
+#endif /* DHD_USE_STATIC_BUF */
 	memset(cdc, 0, sizeof(dhd_prot_t));
 
 	/* ensure that the msg buf directly follows the cdc msg struct */
@@ -451,8 +463,10 @@ dhd_prot_attach(dhd_pub_t *dhd)
 	return 0;
 
 fail:
+#ifndef DHD_USE_STATIC_BUF
 	if (cdc != NULL)
 		MFREE(dhd->osh, cdc, sizeof(dhd_prot_t));
+#endif
 	return BCME_NOMEM;
 }
 
@@ -460,7 +474,9 @@ fail:
 void
 dhd_prot_detach(dhd_pub_t *dhd)
 {
-	MFREE(dhd->osh, dhd->prot, sizeof(dhd_prot_t));
+#ifndef DHD_USE_STATIC_BUF
+		MFREE(dhd->osh, dhd->prot, sizeof(dhd_prot_t));
+#endif
 	dhd->prot = NULL;
 }
 
@@ -476,6 +492,7 @@ dhd_prot_dstats(dhd_pub_t *dhd)
 	dhd->dstats.multicast = dhd->rx_multicast;
 	return;
 }
+
 #if defined(BCM_HOSTWAKE) && defined(BCM_PKTFILTER)
 extern int dhdsdio_set_pktfilters(dhd_pub_t *dhd);
 #endif
@@ -489,8 +506,9 @@ dhd_preinit_ioctls(dhd_pub_t *dhd)
 	uint roamvar = 1;
 	uint power_mode = PM_FAST;
 	uint32 dongle_align = DHD_SDALIGN;
-	uint bcn_timeout = 2;
+	uint32 glom = 0;
 	int ret;
+	uint bcn_timeout = 3;
 
 	/* Get the device MAC address */
 	strcpy(iovbuf, "cur_etheraddr");
@@ -527,6 +545,9 @@ dhd_preinit_ioctls(dhd_pub_t *dhd)
 	bcm_mkiovar("bus:txglomalign", (char *)&dongle_align, 4, iovbuf, sizeof(iovbuf));
 	dhdcdc_set_ioctl(dhd, 0, WLC_SET_VAR, iovbuf, sizeof(iovbuf));
 
+	/* disable glom option per default */
+	bcm_mkiovar("bus:txglom", (char *)&glom, 4, iovbuf, sizeof(iovbuf));
+	dhdcdc_set_ioctl(dhd, 0, WLC_SET_VAR, iovbuf, sizeof(iovbuf));
 	/* Setup timeout if Beacons are lost to report link down */
 	if (roamvar) {
 		bcm_mkiovar("bcn_timeout", (char *)&bcn_timeout, 4, iovbuf, sizeof(iovbuf));
@@ -572,6 +593,7 @@ dhd_preinit_ioctls(dhd_pub_t *dhd)
 	dhdsdio_set_pktfilters(dhd);
 #endif
 
+	return 0;
 }
 
 #ifdef ENABLE_DEEP_SLEEP
@@ -634,7 +656,9 @@ dhd_prot_init(dhd_pub_t *dhd)
 	dhdpub = dhd;
 #endif /*ENABLE_DEEP_SLEEP*/
 
+#ifdef BCMDONGLEHOST
 	ret = dhd_preinit_ioctls(dhd);
+#endif /* BCMDONGLEHOST */
 
 	/* Always assumes wl for now */
 	dhd->iswl = TRUE;

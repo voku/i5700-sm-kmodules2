@@ -21,7 +21,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: dhd_common.c,v 1.5.6.8.2.8.2.28 2009/07/28 00:53:00 Exp $
+ * $Id: dhd_common.c,v 1.5.6.8.2.8.2.39 2010/05/20 04:36:51 Exp $
  */
 #include <typedefs.h>
 #include <osl.h>
@@ -99,7 +99,7 @@ dhd_common_init(void)
 	 * behaviour since the value of the globals may be different on the
 	 * first time that the driver is initialized vs subsequent initializations.
 	 */
-	dhd_msg_level = DHD_ERROR_VAL;
+	dhd_msg_level |= DHD_ERROR_VAL;
 	fw_path[0] = '\0';
 	nv_path[0] = '\0';
 }
@@ -254,6 +254,7 @@ exit:
 	return bcmerror;
 }
 
+#ifdef BCMDONGLEHOST
 /* Store the status of a connection attempt for later retrieval by an iovar */
 void dhd_store_conn_status(uint32 event, uint32 status, uint32 reason)
 {
@@ -268,10 +269,11 @@ void dhd_store_conn_status(uint32 event, uint32 status, uint32 reason)
 		dhd_conn_reason = reason;
 	}
 }
+#endif /* BCMDONGLEHOST */
 
 static int
 dhd_iovar_op(dhd_pub_t *dhd_pub, const char *name,
-	void *params, int plen, void *arg, int len, bool set)
+             void *params, int plen, void *arg, int len, bool set)
 {
 	int bcmerror = 0;
 	int val_size;
@@ -296,7 +298,7 @@ dhd_iovar_op(dhd_pub_t *dhd_pub, const char *name,
 	}
 
 	DHD_CTL(("%s: %s %s, len %d plen %d\n", __FUNCTION__,
-		name, (set ? "set" : "get"), len, plen));
+	         name, (set ? "set" : "get"), len, plen));
 
 	/* set up 'params' pointer in case this is a set command so that
 	 * the convenience int and bool code can be common to set and get
@@ -397,7 +399,7 @@ dhd_ioctl(dhd_pub_t * dhd_pub, dhd_ioctl_t *ioc, void * buf, uint buflen)
 }
 
 #ifdef APSTA_PINGTEST
-struct ether_addr guest_eas[MAX_GUEST] = {};
+struct ether_addr guest_eas[MAX_GUEST];
 #endif
 
 #ifdef SHOW_EVENTS
@@ -678,7 +680,7 @@ wl_show_host_event(wl_event_msg_t *event, void *event_data)
 			/* Display the trace buffer. Advance from \n to \n to avoid display big
 			 * printf (issue with Linux printk )
 			 */
-			p = &(buf[MSGTRACE_HDRLEN]);
+			p =  (char *)&(buf[MSGTRACE_HDRLEN]);
 			while ((s = strstr(p, "\n")) != NULL) {
 				*s = '\0';
 				printf("%s\n", p);
@@ -723,6 +725,7 @@ wl_host_event(struct dhd_info *dhd, int *ifidx, void *pktdata,
 	char *event_data;
 	uint32 type, status;
 	uint16 flags;
+	int evlen;
 
 
 	if (bcmp(BRCM_OUI, &pvt_data->bcm_hdr.oui[0], DOT11_OUI_LEN))
@@ -741,18 +744,20 @@ wl_host_event(struct dhd_info *dhd, int *ifidx, void *pktdata,
 	type = ntoh32_ua((void *)&event->event_type);
 	flags = ntoh16_ua((void *)&event->flags);
 	status = ntoh32_ua((void *)&event->status);
+	evlen = ntoh32_ua((void *)&event->datalen) + sizeof(bcm_event_t);
+
 	switch (type) {
 		case WLC_E_IF:
 			{
 				dhd_if_event_t *ifevent = (dhd_if_event_t *)event_data;
 
-				printf("WLC_E_IF: ifevent->action = %d\n", ifevent->action);
 				if (ifevent->ifidx > 0 && ifevent->ifidx < DHD_MAX_IFS)
 				{
 					if (ifevent->action == WLC_E_IF_ADD)
 						dhd_add_if(dhd, ifevent->ifidx,
 							NULL, event->ifname,
-							pvt_data->eth.ether_dhost);
+							pvt_data->eth.ether_dhost,
+							ifevent->flags, ifevent->bssidx);
 					else
 						dhd_del_if(dhd, ifevent->ifidx);
 				} else {
@@ -760,18 +765,40 @@ wl_host_event(struct dhd_info *dhd, int *ifidx, void *pktdata,
 						__FUNCTION__, ifevent->ifidx, event->ifname));
 				}
 			}
-			break;
-		case WLC_E_LINK:
-		case WLC_E_DEAUTH:
-		case WLC_E_DEAUTH_IND:
-		case WLC_E_DISASSOC:
-		case WLC_E_DISASSOC_IND:
-			DHD_EVENT(("%s: Link event %d, flags %x, status %x\n",
-			           __FUNCTION__, type, flags, status));
-			/* Fall thru and continue */
-		default:
+			/* send up the if event: btamp user needs it */
 			*ifidx = dhd_ifname2idx(dhd, event->ifname);
-			DHD_EVENT(("%s: event %d, idx %d\n", __FUNCTION__, type, *ifidx));
+			/* push up to external supp/auth */
+			dhd_event(dhd, (char *)pvt_data, evlen, *ifidx);
+			break;
+
+
+		/* fall through */
+		/* These are what external supplicant/authenticator wants */
+		case WLC_E_LINK:
+		case WLC_E_ASSOC_IND:
+		case WLC_E_REASSOC_IND:
+		case WLC_E_DISASSOC_IND:
+		case WLC_E_MIC_ERROR:
+		default:
+		/* Fall through: this should get _everything_  */
+
+			*ifidx = dhd_ifname2idx(dhd, event->ifname);
+			/* push up to external supp/auth */
+			dhd_event(dhd, (char *)pvt_data, evlen, *ifidx);
+			DHD_TRACE(("%s: MAC event %d, flags %x, status %x\n",
+			           __FUNCTION__, type, flags, status));
+
+			/* put it back to WLC_E_NDIS_LINK */
+			if (type == WLC_E_NDIS_LINK) {
+				uint32 temp;
+
+				temp = ntoh32_ua((void *)&event->event_type);
+				DHD_TRACE(("Converted to WLC_E_LINK type %d\n", temp));
+
+				temp = ntoh32(WLC_E_NDIS_LINK);
+				memcpy((void *)(&pvt_data->event.event_type), &temp,
+					sizeof(pvt_data->event.event_type));
+			}
 			break;
 	}
 
@@ -796,4 +823,20 @@ wl_event_to_host_order(wl_event_msg_t * evt)
 	evt->auth_type = ntoh32(evt->auth_type);
 	evt->datalen = ntoh32(evt->datalen);
 	evt->version = ntoh16(evt->version);
+}
+
+
+/* send up locally generated event */
+void
+dhd_sendup_event_common(dhd_pub_t *dhdp, wl_event_msg_t *event, void *data)
+{
+	switch (ntoh32(event->event_type)) {
+
+	default:
+		break;
+	}
+
+
+	/* Call per-port handler. */
+	dhd_sendup_event(dhdp, event, data);
 }

@@ -22,7 +22,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: linuxver.h,v 13.38.8.1.22.3 2009/06/18 00:42:34 Exp $
+ * $Id: linuxver.h,v 13.38.8.1.22.4 2010/03/25 13:05:31 Exp $
  */
 
 
@@ -59,6 +59,7 @@
 #include <linux/slab.h>
 #endif
 
+#include <linux/sched.h>
 #include <linux/types.h>
 #include <linux/init.h>
 #include <linux/mm.h>
@@ -425,7 +426,19 @@ pci_restore_state(struct pci_dev *dev, u32 *buffer)
 #define CHECKSUM_HW	CHECKSUM_PARTIAL
 #endif
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 31))
+#define KILL_PROC(nr, sig) \
+{ \
+struct task_struct *tsk; \
+struct pid *pid;    \
+pid = find_get_pid((pid_t)nr);    \
+tsk = pid_task(pid, PIDTYPE_PID);    \
+if (tsk) send_sig(sig, tsk, 1); \
+}
+#else
+//#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && (LINUX_VERSION_CODE <= \
+	KERNEL_VERSION(2, 6, 30))
 #define KILL_PROC(pid, sig) \
 { \
 	struct task_struct *tsk; \
@@ -437,6 +450,7 @@ pci_restore_state(struct pci_dev *dev, u32 *buffer)
 { \
 	kill_proc(pid, sig, 1); \
 }
+#endif 
 #endif 
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 0))

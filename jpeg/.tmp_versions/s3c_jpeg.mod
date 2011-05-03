@@ -1,2 +1,2 @@
-/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/s3c_jpeg.ko
-/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/LogMsg.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGOpr.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGMisc.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGMem.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/s3c-jpeg.o
+/home/lars/spica/new_kernel/modules/jpeg/s3c_jpeg.ko
+/home/lars/spica/new_kernel/modules/jpeg/LogMsg.o /home/lars/spica/new_kernel/modules/jpeg/JPGOpr.o /home/lars/spica/new_kernel/modules/jpeg/JPGMisc.o /home/lars/spica/new_kernel/modules/jpeg/JPGMem.o /home/lars/spica/new_kernel/modules/jpeg/s3c-jpeg.o

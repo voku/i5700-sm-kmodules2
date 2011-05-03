@@ -233,6 +233,10 @@ extern void osl_dma_unmap(osl_t *osh, uint pa, uint size, int direction);
 
 #define	PKTGET(osh, len, send)		osl_pktget((osh), (len))
 #define	PKTFREE(osh, skb, send)		osl_pktfree((osh), (skb), (send))
+#ifdef DHD_USE_STATIC_BUF
+#define	PKTGET_STATIC(osh, len, send)		osl_pktget_static((osh), (len))
+#define	PKTFREE_STATIC(osh, skb, send)		osl_pktfree_static((osh), (skb), (send))
+#endif 
 #define	PKTDATA(osh, skb)		(((struct sk_buff*)(skb))->data)
 #define	PKTLEN(osh, skb)		(((struct sk_buff*)(skb))->len)
 #define PKTHEADROOM(osh, skb)		(PKTDATA(osh, skb)-(((struct sk_buff*)(skb))->head))
@@ -248,9 +252,11 @@ extern void osl_dma_unmap(osl_t *osh, uint pa, uint size, int direction);
 #define PKTLIST_DUMP(osh, buf)
 
 extern void *osl_pktget(osl_t *osh, uint len);
+extern void *osl_pktget_kernel(osl_t *osh, uint len);
 extern void osl_pktfree(osl_t *osh, void *skb, bool send);
+extern void *osl_pktget_static(osl_t *osh, uint len);
+extern void osl_pktfree_static(osl_t *osh, void *skb, bool send);
 extern void *osl_pktdup(osl_t *osh, void *skb);
-
 
 
 static INLINE void *

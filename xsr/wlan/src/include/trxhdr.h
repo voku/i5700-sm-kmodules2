@@ -32,7 +32,8 @@
 #define TRX_NO_HEADER	1		/* Do not write TRX header */
 #define TRX_GZ_FILES	0x2     /* Contains up to TRX_MAX_OFFSET individual gzip files */
 #define TRX_MAX_OFFSET	3		/* Max number of individual files */
-#define TRX_UNCOMP_IMAGE	0x20	/* Trx contains uncompressed rtecdc.bin image */
+#define TRX_UNCOMP_IMAGE	0x20	/* Trx contains uncompressed bcm4325_sta.bin image */
+
 
 struct trx_header {
 	uint32 magic;		/* "HDR0" */

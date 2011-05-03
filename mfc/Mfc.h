@@ -1,3 +1,23 @@
+/* mfc/Mfc.h
+ *
+ * Copyright (c) 2008 Samsung Electronics
+ *
+ * Samsung S3C MFC driver
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 #ifndef __SAMSUNG_SYSLSI_APDEV_MFC_H__
 #define __SAMSUNG_SYSLSI_APDEV_MFC_H__
 
@@ -128,6 +148,10 @@ typedef struct tagS3C6400_MFC_PARAM_REG_DEC_SEQ_INIT
 	unsigned int RET_DEC_SEQ_FRAME_DELAY;		// 0x1d0,
 	unsigned int RET_DEC_SEQ_INFO;			// 0x1d4,
 	unsigned int RET_DEC_SEQ_TIME_RES;			// 0x1d8,
+
+	// RainAde : added to get crop information (6410 since FW 1.3.E)
+	unsigned int RET_DEC_SEQ_CROP_LEFT_RIGHT;		// 0x1dc,
+	unsigned int RET_DEC_SEQ_CROP_TOP_BOTTOM;		// 0x1e0,
 	
 } S3C6400_MFC_PARAM_REG_DEC_SEQ_INIT;
 

@@ -1,1 +1,1 @@
-cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/pp/s3c_pp.ko := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-ld -EL -r   -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/pp/s3c_pp.ko /home/ch33kybutt/kernel/m910-kmodules2-cfs/pp/s3c_pp.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/pp/s3c_pp.mod.o
+cmd_/home/lars/spica/new_kernel/modules/pp/s3c_pp.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/pp/s3c_pp.ko /home/lars/spica/new_kernel/modules/pp/s3c_pp.o /home/lars/spica/new_kernel/modules/pp/s3c_pp.mod.o

@@ -24,7 +24,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: bcmcdc.h,v 13.14.16.4.2.2 2008/10/31 23:21:24 Exp $
+ * $Id: bcmcdc.h,v 13.14.16.4.2.3 2009/12/17 19:59:17 Exp $
  */
 #include <proto/ethernet.h>
 
@@ -69,16 +69,13 @@ typedef struct cdc_ioctl {
 
 #define	BDC_HEADER_LEN		4
 
-#define BDC_PROTO_VER		1	/* Protocol version */
+#define BDC_PROTO_VER_1		1	/* Old Protocol version */
+#define BDC_PROTO_VER		2	/* Protocol version */
 
 #define BDC_FLAG_VER_MASK	0xf0	/* Protocol version mask */
 #define BDC_FLAG_VER_SHIFT	4	/* Protocol version shift */
 
-#ifndef EXT_STA
 #define BDC_FLAG__UNUSED	0x03	/* Unassigned */
-#else
-#define BDC_FLAG_EXEMPT		0x03	/* Vista/EXT_STA: use for encryption exemption */
-#endif /* EXT_STA */
 #define BDC_FLAG_SUM_GOOD	0x04	/* Dongle has verified good RX checksums */
 #define BDC_FLAG_SUM_NEEDED	0x08	/* Dongle needs to do TX checksums */
 
@@ -96,5 +93,5 @@ struct bdc_header {
 	uint8	flags;			/* Flags */
 	uint8	priority;		/* 802.1d Priority (low 3 bits) */
 	uint8	flags2;
-	uint8	rssi;
+	uint8	dataOffset;
 };

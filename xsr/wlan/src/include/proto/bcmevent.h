@@ -21,10 +21,9 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- *
  * Dependencies: proto/bcmeth.h
  *
- * $Id: bcmevent.h,v 9.34.4.1.2.3.2.7 2009/07/09 00:06:36 Exp $
+ * $Id: bcmevent.h,v 9.34.4.1.2.3.2.16 2010/03/27 19:16:12 Exp $
  *
  */
 
@@ -41,13 +40,17 @@
 
 #include <packed_section_start.h>
 
-#define BCM_EVENT_MSG_VERSION		1	
+#define BCM_EVENT_MSG_VERSION		2	
 #define BCM_MSG_IFNAME_MAX		16	
 
 
 #define WLC_EVENT_MSG_LINK		0x01	
 #define WLC_EVENT_MSG_FLUSHTXQ		0x02	
 #define WLC_EVENT_MSG_GROUP		0x04	
+#define WLC_EVENT_MSG_UNKBSS		0x08	
+#define WLC_EVENT_MSG_UNKIF		0x10	
+
+
 
 
 typedef BWL_PRE_PACKED_STRUCT struct
@@ -61,6 +64,22 @@ typedef BWL_PRE_PACKED_STRUCT struct
 	uint32	datalen;		
 	struct ether_addr	addr;	
 	char	ifname[BCM_MSG_IFNAME_MAX]; 
+} BWL_POST_PACKED_STRUCT wl_event_msg_v1_t;
+
+
+typedef BWL_PRE_PACKED_STRUCT struct
+{
+	uint16	version;
+	uint16	flags;			
+	uint32	event_type;		
+	uint32	status;			
+	uint32	reason;			
+	uint32	auth_type;		
+	uint32	datalen;		
+	struct ether_addr	addr;	
+	char	ifname[BCM_MSG_IFNAME_MAX]; 
+	uint8	ifidx;			
+	uint8	bsscfgidx;		
 } BWL_POST_PACKED_STRUCT wl_event_msg_t;
 
 
@@ -118,19 +137,44 @@ typedef BWL_PRE_PACKED_STRUCT struct bcm_event {
 #define WLC_E_PSM_WATCHDOG	41	
 #define WLC_E_PROBREQ_MSG       44      
 #define WLC_E_SCAN_CONFIRM_IND  45
-#define WLC_E_PSK_SUP	46	
+#define WLC_E_PSK_SUP		46	
 #define WLC_E_COUNTRY_CODE_CHANGED 47
 #define	WLC_E_EXCEEDED_MEDIUM_TIME 48	
 #define WLC_E_ICV_ERROR		49	
-#define WLC_E_UNICAST_DECODE_ERROR 50 
+#define WLC_E_UNICAST_DECODE_ERROR 50	
 #define WLC_E_MULTICAST_DECODE_ERROR 51 
-#define WLC_E_TRACE 52
+#define WLC_E_TRACE		52
 #define WLC_E_IF		54	
+#ifdef WLP2P
+#define WLC_E_P2P_DISC_LISTEN_COMPLETE 	55	
+#endif
 #define WLC_E_RSSI		56	
 #define WLC_E_PFN_SCAN_COMPLETE	57	
-#define WLC_E_ACTION_FRAME      58      
-#define WLC_E_ACTION_FRAME_COMPLETE 59  
-#define WLC_E_LAST		60	
+#define WLC_E_EXTLOG_MSG	58
+#define WLC_E_ACTION_FRAME      59 	
+#define WLC_E_ACTION_FRAME_COMPLETE 60	
+#define WLC_E_PRE_ASSOC_IND	61	
+#define WLC_E_PRE_REASSOC_IND	62	
+#define WLC_E_CHANNEL_ADOPTED	63
+#define WLC_E_AP_STARTED	64	
+#define WLC_E_DFS_AP_STOP	65	
+#define WLC_E_DFS_AP_RESUME	66	
+#define WLC_E_WAI_STA_EVENT	67	
+#define WLC_E_WAI_MSG 		68	
+#define WLC_E_ESCAN_RESULT 69 
+#define WLC_E_ACTION_FRAME_OFF_CHAN_COMPLETE 	70	
+#ifdef WLP2P
+#define WLC_E_PROBRESP_MSG	71	
+#define WLC_E_P2P_PROBREQ_MSG	72	
+#endif
+#define WLC_E_DCS_REQUEST 73
+
+#define WLC_E_FIFO_CREDIT_MAP	74 
+
+#define WLC_E_ACTION_FRAME_RX	75	
+#define WLC_E_WAKE_EVENT	76	
+
+#define WLC_E_LAST		77	
 
 
 
@@ -143,13 +187,14 @@ typedef BWL_PRE_PACKED_STRUCT struct bcm_event {
 #define WLC_E_STATUS_UNSOLICITED	6	
 #define WLC_E_STATUS_ATTEMPT		7	
 #define WLC_E_STATUS_PARTIAL		8	
-#define WLC_E_STATUS_NEWSCAN	9	
-#define WLC_E_STATUS_NEWASSOC	10	
-#define WLC_E_STATUS_11HQUIET	11	
-#define WLC_E_STATUS_SUPPRESS	12	
-#define WLC_E_STATUS_NOCHANS	13	
-#define WLC_E_STATUS_CCXFASTRM	14	
-#define WLC_E_STATUS_CS_ABORT	15	
+#define WLC_E_STATUS_NEWSCAN		9	
+#define WLC_E_STATUS_NEWASSOC		10	
+#define WLC_E_STATUS_11HQUIET		11	
+#define WLC_E_STATUS_SUPPRESS		12	
+#define WLC_E_STATUS_NOCHANS		13	
+#define WLC_E_STATUS_CCXFASTRM		14	
+#define WLC_E_STATUS_CS_ABORT		15	
+#define WLC_E_STATUS_ERROR		16	
 
 
 #define WLC_E_REASON_INITIAL_ASSOC	0	
@@ -159,6 +204,7 @@ typedef BWL_PRE_PACKED_STRUCT struct bcm_event {
 #define WLC_E_REASON_BCNS_LOST		4	
 #define WLC_E_REASON_MINTXRATE		9	
 #define WLC_E_REASON_TXFAIL		10	
+
 
 #define WLC_E_REASON_FAST_ROAM_FAILED	5	
 #define WLC_E_REASON_DIRECTED_ROAM	6	
@@ -183,7 +229,7 @@ typedef BWL_PRE_PACKED_STRUCT struct bcm_event {
 #define WLC_E_PRUNE_HOME_AP		17	
 
 
-#define WLC_E_SUP_OTHER				0	
+#define WLC_E_SUP_OTHER			0	
 #define WLC_E_SUP_DECRYPT_KEY_DATA	1	
 #define WLC_E_SUP_BAD_UCAST_WEP128	2	
 #define WLC_E_SUP_BAD_UCAST_WEP40	3	
@@ -196,13 +242,42 @@ typedef BWL_PRE_PACKED_STRUCT struct bcm_event {
 #define WLC_E_SUP_GRP_KEY_CIPHER	10	
 #define WLC_E_SUP_GRP_MSG1_NO_GTK	11	
 #define WLC_E_SUP_GTK_DECRYPT_FAIL	12	
-#define WLC_E_SUP_SEND_FAIL			13	
-#define WLC_E_SUP_DEAUTH			14	
+#define WLC_E_SUP_SEND_FAIL		13	
+#define WLC_E_SUP_DEAUTH		14	
 #define WLC_E_SUP_WPA_PSK_TMO       15  
+
+
+typedef BWL_PRE_PACKED_STRUCT struct wl_event_rx_frame_data {
+	uint16	version;
+	uint16	channel;	
+	int32	rssi;
+	uint32	mactime;
+	uint32	rate;
+} BWL_POST_PACKED_STRUCT wl_event_rx_frame_data_t;
+
+#define BCM_RX_FRAME_DATA_VERSION 1
+
+
+
+typedef struct wl_event_data_if {
+	uint8 ifidx;
+	uint8 opcode;		
+	uint8 reserved;
+	uint8 bssidx;		
+	uint8 role;		
+} wl_event_data_if_t;
 
 
 #define WLC_E_IF_ADD		1	
 #define WLC_E_IF_DEL		2	
+#define WLC_E_IF_CHANGE		3	
+
+
+#define WLC_E_IF_ROLE_STA		0	
+#define WLC_E_IF_ROLE_AP		1	
+#define WLC_E_IF_ROLE_WDS		2	
+#define WLC_E_IF_ROLE_P2P_GO		3	
+#define WLC_E_IF_ROLE_P2P_CLIENT	4	
 
 
 #define WLC_E_LINK_BCN_LOSS	1	

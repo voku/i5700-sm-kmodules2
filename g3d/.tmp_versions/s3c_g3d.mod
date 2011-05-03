@@ -1,2 +1,2 @@
-/home/ch33kybutt/kernel/m910-kmodules2-cfs/g3d/s3c_g3d.ko
-/home/ch33kybutt/kernel/m910-kmodules2-cfs/g3d/s3c_g3d.o
+/home/lars/spica/new_kernel/modules/g3d/s3c_g3d.ko
+/home/lars/spica/new_kernel/modules/g3d/s3c_g3d.o

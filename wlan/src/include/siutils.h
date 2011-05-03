@@ -208,6 +208,23 @@ extern int si_corepciid(si_t *sih, uint func, uint16 *pcivendor, uint16 *pcidevi
 #define si_eci_init(sih) (0)
 #define si_eci_notify_bt(sih, type, val, interrupt)  (0)
 
+#if !defined(BCMDONGLEHOST)
+
+extern bool si_is_otp_disabled(si_t *sih);
+extern bool si_is_otp_powered(si_t *sih);
+extern void si_otp_power(si_t *sih, bool on);
+
+
+extern bool si_is_sprom_available(si_t *sih);
+extern bool si_is_sprom_enabled(si_t *sih);
+extern void si_sprom_enable(si_t *sih, bool enable);
+
+
+extern int si_cis_source(si_t *sih);
+#define CIS_DEFAULT	0
+#define CIS_SROM	1
+#define CIS_OTP		2
+#endif 
 
 
 extern int si_devpath(si_t *sih, char *path, int size);
@@ -224,6 +241,9 @@ extern void si_pci_up(si_t *sih);
 extern void si_pcie_war_ovr_disable(si_t *sih);
 extern void si_pcie_extendL1timer(si_t *sih, bool extend);
 extern int si_pci_fixcfg(si_t *sih);
+#ifndef BCMDONGLEHOST
+extern bool si_ldo_war(si_t *sih, uint devid);
+#endif
 
 
 
@@ -231,5 +251,10 @@ extern int si_pci_fixcfg(si_t *sih);
 
 
 
+#if !defined(BCMDONGLEHOST)
+extern void si_4329_tweak(si_t *sih, uint32 mask, uint32 val);
+extern void si_4329_vbatmeas_on(si_t *sih, uint32 *save_reg0, uint32 *save_reg5);
+extern void si_4329_vbatmeas_off(si_t *sih, uint32 save_reg0, uint32 save_reg5);
+#endif 
 
 #endif	

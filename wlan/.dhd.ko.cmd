@@ -1,1 +1,1 @@
-cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/dhd.ko := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-ld -EL -r   -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/dhd.ko /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/dhd.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/wlan/dhd.mod.o
+cmd_/home/lars/spica/new_kernel/modules/wlan/dhd.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/wlan/dhd.ko /home/lars/spica/new_kernel/modules/wlan/dhd.o /home/lars/spica/new_kernel/modules/wlan/dhd.mod.o

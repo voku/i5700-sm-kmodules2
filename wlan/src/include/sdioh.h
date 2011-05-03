@@ -22,7 +22,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: sdioh.h,v 13.13.18.2 2008/09/30 17:52:35 Exp $
+ * $Id: sdioh.h,v 13.13.18.2.4.1 2009/12/08 22:18:12 Exp $
  */
 
 #ifndef	_SDIOH_H
@@ -64,6 +64,7 @@
 #define SD_Capabilities_Reserved	0x044
 #define SD_MaxCurCap			0x048
 #define SD_MaxCurCap_Reserved		0x04C
+#define SD_ADMA_SysAddr			0x58
 #define SD_SlotInterruptStatus		0x0FC
 #define SD_HostControllerVersion 	0x0FE
 
@@ -81,6 +82,8 @@
 #define CAP_MAXBLOCK_S		16
 #define CAP_ADMA2_M		BITFIELD_MASK(1)
 #define CAP_ADMA2_S		19
+#define CAP_ADMA1_M		BITFIELD_MASK(1)
+#define CAP_ADMA1_S		20
 #define CAP_HIGHSPEED_M		BITFIELD_MASK(1)
 #define CAP_HIGHSPEED_S		21
 #define CAP_DMA_M		BITFIELD_MASK(1)
@@ -191,6 +194,8 @@
 #define HOST_DATA_WIDTH_M	BITFIELD_MASK(1)	/* Bit 1	4 bit enable */
 #define HOST_DATA_WIDTH_S	1
 #define HOST_HI_SPEED_EN_M	BITFIELD_MASK(1)	/* Bit 2	High speed vs low speed */
+#define HOST_DMA_SEL_S		3
+#define HOST_DMA_SEL_M		BITFIELD_MASK(2)	/* Bit 4:3	DMA Select */
 #define HOST_HI_SPEED_EN_S	2
 
 /* misc defines */
@@ -211,7 +216,7 @@
 #define SW_RESET_DAT_M		BITFIELD_MASK(1)	/* Bit 2	DAT Line Reset */
 #define SW_RESET_DAT_S		2
 
-/* SD_IntStatus: Offset 0x030, size = 2 bytes */
+/* SD_IntrStatus: Offset 0x030, size = 2 bytes */
 /* Defs also serve SD_IntrStatusEnable and SD_IntrSignalEnable */
 #define INTSTAT_CMD_COMPLETE_M		BITFIELD_MASK(1)	/* Bit 0 */
 #define INTSTAT_CMD_COMPLETE_S		0
@@ -277,7 +282,7 @@
 
 /* SD_WakeupCntr_BlockGapCntrl : Offset 0x02A , size = bytes */
 /* SD_ClockCntrl	: Offset 0x02C , size = bytes */
-/* SD_SoftwarewReset_TimeoutCntrl 	: Offset 0x02E , size = bytes */
+/* SD_SoftwareReset_TimeoutCntrl 	: Offset 0x02E , size = bytes */
 /* SD_IntrStatus	: Offset 0x030 , size = bytes */
 /* SD_ErrorIntrStatus 	: Offset 0x032 , size = bytes */
 /* SD_IntrStatusEnable	: Offset 0x034 , size = bytes */

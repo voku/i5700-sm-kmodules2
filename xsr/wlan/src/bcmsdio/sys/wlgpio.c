@@ -36,6 +36,8 @@
 #include <mach/cygnus.h>
 #elif CONFIG_MACH_INSTINCTQ
 #include <mach/instinctq.h>
+#elif CONFIG_MACH_INFOBOWLQ
+#include <mach/infobowlq.h>
 #elif CONFIG_MACH_BONANZA
 #include <mach/bonanza.h>
 #endif
@@ -54,18 +56,20 @@ uint flags = 0;
 spinlock_t regon_lock = SPIN_LOCK_UNLOCKED;
 static void s3c_WLAN_SDIO_on(void)
 {
-#if defined(CONFIG_MACH_INSTINCTQ)
+#if defined(CONFIG_MACH_INSTINCTQ) || defined(CONFIG_MACH_INFOBOWLQ)
+        printk("configuring sdio in s3c_WLAN_SDIO_on\n");
 	s3c_gpio_cfgpin(GPIO_SDIO_CLK, S3C_GPIO_SFN(GPIO_SDIO_CLK_AF));
 	s3c_gpio_cfgpin(GPIO_SDIO_CMD, S3C_GPIO_SFN(GPIO_SDIO_CMD_AF));
 #else
 	s3c_gpio_cfgpin(GPIO_WLAN_CLK, S3C_GPIO_SFN(GPIO_WLAN_CLK_AF));
 	s3c_gpio_cfgpin(GPIO_WLAN_CMD, S3C_GPIO_SFN(GPIO_WLAN_CMD_AF));
 #endif
+        printk("configuring sdio data lines in s3c_WLAN_SDIO_on\n");
 	s3c_gpio_cfgpin(GPIO_WLAN_D_0, S3C_GPIO_SFN(GPIO_WLAN_D_0_AF));
 	s3c_gpio_cfgpin(GPIO_WLAN_D_1, S3C_GPIO_SFN(GPIO_WLAN_D_1_AF));
 	s3c_gpio_cfgpin(GPIO_WLAN_D_2, S3C_GPIO_SFN(GPIO_WLAN_D_2_AF));
 	s3c_gpio_cfgpin(GPIO_WLAN_D_3, S3C_GPIO_SFN(GPIO_WLAN_D_3_AF));
-#if defined(CONFIG_MACH_INSTINCTQ)
+#if defined(CONFIG_MACH_INSTINCTQ) || defined(CONFIG_MACH_INFOBOWLQ)
 	s3c_gpio_setpull(GPIO_SDIO_CLK, S3C_GPIO_PULL_NONE);
 	s3c_gpio_setpull(GPIO_SDIO_CMD, S3C_GPIO_PULL_NONE);
 #else
@@ -80,7 +84,7 @@ static void s3c_WLAN_SDIO_on(void)
 
 static void s3c_WLAN_SDIO_off(void)
 {
-#if defined(CONFIG_MACH_INSTINCTQ)
+#if defined(CONFIG_MACH_INSTINCTQ) || defined(CONFIG_MACH_INFOBOWLQ)
 	s3c_gpio_cfgpin(GPIO_SDIO_CLK, S3C_GPIO_INPUT);
 	s3c_gpio_cfgpin(GPIO_SDIO_CMD, S3C_GPIO_INPUT);
 #else
@@ -91,7 +95,7 @@ static void s3c_WLAN_SDIO_off(void)
 	s3c_gpio_cfgpin(GPIO_WLAN_D_1, S3C_GPIO_INPUT);
 	s3c_gpio_cfgpin(GPIO_WLAN_D_2, S3C_GPIO_INPUT);
 	s3c_gpio_cfgpin(GPIO_WLAN_D_3, S3C_GPIO_INPUT);
-#if defined(CONFIG_MACH_INSTINCTQ)
+#if defined(CONFIG_MACH_INSTINCTQ) || defined(CONFIG_MACH_INFOBOWLQ)
 	s3c_gpio_setpull(GPIO_SDIO_CLK, S3C_GPIO_PULL_DOWN);
 	s3c_gpio_setpull(GPIO_SDIO_CMD, S3C_GPIO_PULL_NONE);
 #else
@@ -217,6 +221,21 @@ int gpio_wlan_poweroff (void)
 	sdhci_s3c_force_presence_change(&s3c_device_hsmmc2);
 
 	return 0;
+}
+
+void gpio_wlan_reset(int on)
+{
+	printk("[WIFI] Device RESET %s\n", on ? "ON" : "OFF");
+
+	spin_lock_irqsave(&regon_lock, flags);
+
+	if (on) {
+		gpio_set_value(GPIO_WLAN_RST_N, GPIO_LEVEL_LOW);
+	} else {
+		gpio_set_value(GPIO_WLAN_RST_N, GPIO_LEVEL_HIGH);
+	}
+
+	spin_unlock_irqrestore(&regon_lock, flags);
 }
 	
 EXPORT_SYMBOL_GPL(gpio_regon_lock_init);

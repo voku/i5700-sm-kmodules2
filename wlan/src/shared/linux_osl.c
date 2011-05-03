@@ -21,7 +21,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: linux_osl.c,v 1.125.12.3.22.2 2008/12/01 18:14:06 Exp $
+ * $Id: linux_osl.c,v 1.125.12.3.22.5 2009/12/08 22:14:57 Exp $
  */
 
 
@@ -36,11 +36,47 @@
 #include <linux/delay.h>
 #include <pcicfg.h>
 
+#ifdef DHD_DEBUG
+#define OSL_MSG_ERROR(x) printk x
+#define OSL_MSG_INFO(x)
+#else           
+#define OSL_MSG_ERROR(x)
+#define OSL_MSG_INFO(x)
+#endif      
+
 #define PCI_CFG_RETRY 		10
 
 #define OS_HANDLE_MAGIC		0x1234abcd	
 #define BCM_MEM_FILENAME_LEN 	24		
 
+#ifdef DHD_USE_STATIC_BUF
+#define DHD_SKB_HDRSIZE 		336
+#define DHD_SKB_1PAGE_BUFSIZE	((PAGE_SIZE*1)-DHD_SKB_HDRSIZE)
+#define DHD_SKB_2PAGE_BUFSIZE	((PAGE_SIZE*2)-DHD_SKB_HDRSIZE)
+#define DHD_SKB_4PAGE_BUFSIZE	((PAGE_SIZE*4)-DHD_SKB_HDRSIZE)
+
+#define MAX_STATIC_BUF_NUM 16
+#define STATIC_BUF_SIZE	(PAGE_SIZE*2)
+#define STATIC_BUF_TOTAL_LEN (MAX_STATIC_BUF_NUM*STATIC_BUF_SIZE)
+typedef struct bcm_static_buf {
+	struct semaphore static_sem;
+	unsigned char *buf_ptr;
+	unsigned char buf_use[MAX_STATIC_BUF_NUM];
+} bcm_static_buf_t;
+
+static bcm_static_buf_t *bcm_static_buf = 0;
+
+#define MAX_STATIC_PKT_NUM 8
+typedef struct bcm_static_pkt {
+	struct sk_buff *skb_4k[MAX_STATIC_PKT_NUM];
+	struct sk_buff *skb_8k[MAX_STATIC_PKT_NUM];
+	struct sk_buff *skb_16k;
+	struct semaphore osl_pkt_sem;
+	unsigned char pkt_use[MAX_STATIC_PKT_NUM*2+1];
+} bcm_static_pkt_t;
+static bcm_static_pkt_t *bcm_static_skb = 0;
+
+#endif 
 typedef struct bcm_mem_link {
 	struct bcm_mem_link *prev;
 	struct bcm_mem_link *next;
@@ -59,7 +95,7 @@ struct osl_info {
 	bcm_mem_link_t *dbgmem_list;
 };
 
-static int16 linuxbcmerrormap[] =  \
+static int16 linuxbcmerrormap[] =
 {	0, 			
 	-EINVAL,		
 	-EINVAL,		
@@ -97,13 +133,16 @@ static int16 linuxbcmerrormap[] =  \
 	-EINVAL,		
 	-EIO,			
 	-ENODEV,		
-	-EINVAL			
+	-EINVAL,		
+	-EIO,			
+	-EIO,			
+	-EINVAL,		
 
 
 
-#if BCME_LAST != -37
+#if BCME_LAST != -40
 #error "You need to add a OS error translation in the linuxbcmerrormap \
-	for new error code defined in bcmuitls.h"
+	for new error code defined in bcmutils.h"
 #endif 
 };
 
@@ -120,6 +159,7 @@ osl_error(int bcmerror)
 	return linuxbcmerrormap[-bcmerror];
 }
 
+void * dhd_os_prealloc(int section, unsigned long size);
 osl_t *
 osl_attach(void *pdev, uint bustype, bool pkttag)
 {
@@ -158,7 +198,70 @@ osl_attach(void *pdev, uint bustype, bool pkttag)
 			break;
 	}
 
+#ifdef DHD_USE_STATIC_BUF
+
+
+	if (!bcm_static_buf) {
+		if (!(bcm_static_buf = (bcm_static_buf_t *)dhd_os_prealloc(3, STATIC_BUF_SIZE+
+			STATIC_BUF_TOTAL_LEN))) {
+			OSL_MSG_ERROR(("osl_attach: can not alloc static buf!\n"));
+		}
+		else
+			OSL_MSG_INFO(("osl_attach: alloc static buf at %x!\n", (unsigned int)bcm_static_buf));
+
+		
+		init_MUTEX(&bcm_static_buf->static_sem);
+
+		
+		bcm_static_buf->buf_ptr = (unsigned char *)bcm_static_buf + STATIC_BUF_SIZE;
+
+	}
+	
+	if (!bcm_static_skb)
+	{
+		int i;
+#ifndef CUSTOMER_HW_SAMSUNG
+		void *skb_buff_ptr = 0;
+#endif
+		bcm_static_skb = (bcm_static_pkt_t *)((char *)bcm_static_buf + 2048);
+#ifdef CUSTOMER_HW_SAMSUNG
+		for (i = 0; i < MAX_STATIC_PKT_NUM; i++) {
+			bcm_static_skb->skb_4k[i] = dev_alloc_skb(DHD_SKB_1PAGE_BUFSIZE);
+			if (bcm_static_skb->skb_4k[i] == NULL) {
+				OSL_MSG_ERROR(("osl_attach: 4K memory allocation failure. idx=%d\n", i));
+				goto err;
+			}
+		}
+			
+		for (i = 0; i < MAX_STATIC_PKT_NUM; i++) {
+			bcm_static_skb->skb_8k[i] = dev_alloc_skb_kernel(DHD_SKB_2PAGE_BUFSIZE);
+			if (bcm_static_skb->skb_8k[i] == NULL) {
+				OSL_MSG_ERROR(("osl_attach: 8K memory allocation failure. idx=%d\n", i));
+				goto err;
+			}
+		}
+
+		bcm_static_skb->skb_16k = dev_alloc_skb_kernel(DHD_SKB_4PAGE_BUFSIZE);
+		if (bcm_static_skb->skb_16k == NULL) {
+			OSL_MSG_ERROR(("osl_attach: 16K memory allocation failure. idx=%d\n", i));
+			goto err;
+		}
+#else
+		skb_buff_ptr = dhd_os_prealloc(4, 0);
+
+		bcopy(skb_buff_ptr, bcm_static_skb, sizeof(struct sk_buff *)*16);
+#endif /* CUSTOMER_HW_SAMSUNG */
+		for (i = 0; i < MAX_STATIC_PKT_NUM*2+1; i++)
+			bcm_static_skb->pkt_use[i] = 0;
+
+		init_MUTEX(&bcm_static_skb->osl_pkt_sem);
+	}
+#endif 
 	return osh;
+err:
+
+	kfree(osh);
+	return 0;
 }
 
 void
@@ -167,6 +270,20 @@ osl_detach(osl_t *osh)
 	if (osh == NULL)
 		return;
 
+#ifdef DHD_USE_STATIC_BUF
+	if (bcm_static_buf) {
+		bcm_static_buf = 0;
+	}
+	if (bcm_static_skb) {
+		int i;
+		down(&bcm_static_skb->osl_pkt_sem);
+		for(i=0; i<MAX_STATIC_PKT_NUM*2+1; i++) {
+			dev_kfree_skb(bcm_static_skb->skb_4k[i]);
+		}
+		up(&bcm_static_skb->osl_pkt_sem);
+		bcm_static_skb = 0;
+	}
+#endif 
 	ASSERT(osh->magic == OS_HANDLE_MAGIC);
 	kfree(osh);
 }
@@ -187,7 +304,21 @@ osl_pktget(osl_t *osh, uint len)
 
 	return ((void*) skb);
 }
-
+/*
+void*
+osl_pktget_kernel(osl_t *osh, uint len)
+{
+	struct sk_buff *skb;
+	 
+	if ((skb = dev_alloc_skb_kernel(len))) {
+		skb_put(skb, len);
+		skb->priority = 0;
+		 
+		 
+		osh->pub.pktalloced++;
+	}
+	return ((void*) skb);
+}*/
 
 void
 osl_pktfree(osl_t *osh, void *p, bool send)
@@ -219,6 +350,102 @@ osl_pktfree(osl_t *osh, void *p, bool send)
 	}
 }
 
+#ifdef DHD_USE_STATIC_BUF
+void*
+osl_pktget_static(osl_t *osh, uint len)
+{
+	int i = 0;
+	struct sk_buff *skb;
+
+	
+	if (len > DHD_SKB_4PAGE_BUFSIZE)
+	{
+		OSL_MSG_ERROR(("osl_pktget_static: Do we really need this big skb?? len=%d\n", len));
+		return osl_pktget_kernel(osh, len);
+	}
+
+	
+	down(&bcm_static_skb->osl_pkt_sem);
+	if (len <= DHD_SKB_1PAGE_BUFSIZE)
+	{
+		
+		for (i = 0; i < MAX_STATIC_PKT_NUM; i++)
+		{
+			if (bcm_static_skb->pkt_use[i] == 0)
+				break;
+		}
+
+		if (i != MAX_STATIC_PKT_NUM)
+		{
+			bcm_static_skb->pkt_use[i] = 1;
+			up(&bcm_static_skb->osl_pkt_sem);
+
+			skb = bcm_static_skb->skb_4k[i];
+			skb->tail = skb->data + len;
+			skb->len = len;
+			
+			return skb;
+		}
+	}
+
+	if (len <= DHD_SKB_2PAGE_BUFSIZE) 
+	{
+		for (i = 0; i < MAX_STATIC_PKT_NUM; i++)
+		{
+			if (bcm_static_skb->pkt_use[i+MAX_STATIC_PKT_NUM] == 0)
+				break;
+		}
+
+		if (i != MAX_STATIC_PKT_NUM)
+		{
+			bcm_static_skb->pkt_use[i+MAX_STATIC_PKT_NUM] = 1;
+			up(&bcm_static_skb->osl_pkt_sem);
+			skb = bcm_static_skb->skb_8k[i];
+			skb->tail = skb->data + len;
+			skb->len = len;
+			
+			return skb;
+		}
+	}
+
+	if (bcm_static_skb->pkt_use[MAX_STATIC_PKT_NUM*2] == 0) 
+	{
+		bcm_static_skb->pkt_use[MAX_STATIC_PKT_NUM*2] = 1;
+		up(&bcm_static_skb->osl_pkt_sem);
+
+		skb = bcm_static_skb->skb_16k;
+		skb->tail = skb->data + len;
+		skb->len = len;
+
+		return skb;
+	}
+	
+	up(&bcm_static_skb->osl_pkt_sem);
+	OSL_MSG_ERROR(("osl_pktget_static: all static pkt in use!\n"));
+	return osl_pktget(osh, len);
+}
+
+
+void
+osl_pktfree_static(osl_t *osh, void *p, bool send)
+{
+	int i;
+	
+	for (i = 0; i < MAX_STATIC_PKT_NUM*2+1; i++)
+	{
+		if (p == bcm_static_skb->skb_4k[i])
+		{
+			down(&bcm_static_skb->osl_pkt_sem);
+			bcm_static_skb->pkt_use[i] = 0;
+			up(&bcm_static_skb->osl_pkt_sem);
+
+			
+			return;
+		}
+	}
+	return osl_pktfree(osh, p, send);
+}
+#endif 
 uint32
 osl_pci_read_config(osl_t *osh, uint offset, uint size)
 {
@@ -306,10 +533,48 @@ osl_malloc(osl_t *osh, uint size)
 	if (osh)
 		ASSERT(osh->magic == OS_HANDLE_MAGIC);
 
+#ifdef DHD_USE_STATIC_BUF
+	if (bcm_static_buf)
+	{
+		int i = 0;
+		if ((size >= PAGE_SIZE)&&(size <= STATIC_BUF_SIZE))
+		{
+			down(&bcm_static_buf->static_sem);
+			
+			for (i = 0; i < MAX_STATIC_BUF_NUM; i++)
+			{
+				if (bcm_static_buf->buf_use[i] == 0)
+					break;
+			}
+			
+			if (i == MAX_STATIC_BUF_NUM)
+			{
+				up(&bcm_static_buf->static_sem);
+				OSL_MSG_INFO(("osl_malloc: all static buff in use!\n"));
+				goto original;
+			}
+			
+			bcm_static_buf->buf_use[i] = 1;
+			up(&bcm_static_buf->static_sem);
+
+			bzero(bcm_static_buf->buf_ptr+STATIC_BUF_SIZE*i, size);
+			if (osh)
+				osh->malloced += size;
+
+			return ((void *)(bcm_static_buf->buf_ptr+STATIC_BUF_SIZE*i));
+		}
+	}
+original:
+#endif 
+
 	if ((addr = kmalloc(size, GFP_ATOMIC)) == NULL) {
-		if (osh)
-			osh->failed++;
-		return (NULL);
+		OSL_MSG_ERROR(("osl_malloc: GFP_ATOMIC failed, trying GFP_KERNEL\n"));
+        if ((addr = kmalloc(size, GFP_KERNEL)) == NULL) {
+			OSL_MSG_ERROR(("osl_malloc: GFP_KERNEL failed also\n"));
+            if (osh)
+                osh->failed++;
+            return (NULL);
+        }
 	}
 	if (osh)
 		osh->malloced += size;
@@ -320,6 +585,28 @@ osl_malloc(osl_t *osh, uint size)
 void
 osl_mfree(osl_t *osh, void *addr, uint size)
 {
+#ifdef DHD_USE_STATIC_BUF
+	if (bcm_static_buf)
+	{
+		if ((addr > (void *)bcm_static_buf) && ((unsigned char *)addr
+			<= ((unsigned char *)bcm_static_buf + STATIC_BUF_TOTAL_LEN)))
+		{
+			int buf_idx = 0;
+			
+			buf_idx = ((unsigned char *)addr - bcm_static_buf->buf_ptr)/STATIC_BUF_SIZE;
+			
+			down(&bcm_static_buf->static_sem);
+			bcm_static_buf->buf_use[buf_idx] = 0;
+			up(&bcm_static_buf->static_sem);
+
+			if (osh) {
+				ASSERT(osh->magic == OS_HANDLE_MAGIC);
+				osh->malloced -= size;
+			}
+			return;
+		}
+	}
+#endif 
 	if (osh) {
 		ASSERT(osh->magic == OS_HANDLE_MAGIC);
 		osh->malloced -= size;

@@ -90,13 +90,11 @@ static int s5k4ca_regs_table_write(char *name);
  */
 static camif_cis_t s5k4ca_data =
 {
-itu_fmt:
-    CAMIF_ITU601,
-order422:
-    CAMIF_CRYCBY,
-    camclk:        	24000000,
-    source_x:      	1024,
-    source_y:      	768,
+    itu_fmt:		CAMIF_ITU601,
+    order422:		CAMIF_CRYCBY,
+    camclk:        	28000000, /* Lukiqq */
+    source_x:      	960,
+    source_y:      	640,
     win_hor_ofst:  	0,
     win_ver_ofst:  	0,
     win_hor_ofst2: 	0,
@@ -104,12 +102,11 @@ order422:
     polarity_pclk: 	0,
     polarity_vsync:	1,
     polarity_href: 	0,
-reset_type:
-    CAMIF_RESET,
+    reset_type:		CAMIF_EX_RESET_AH,
     reset_udelay: 	5000,
 };
 
-/* #define S5K4CA_ID	0x78 */
+#define S5K4CA_ID	0x78
 
 static unsigned short s5k4ca_normal_i2c[] = { (S5K4CA_ID >> 1), I2C_CLIENT_END };
 static unsigned short s5k4ca_ignore[] = { I2C_CLIENT_END };
@@ -186,15 +183,13 @@ static int s5k4ca_sensor_write_list(struct i2c_client *client, struct samsung_sh
 
 static void s5k4ca_sensor_get_id(struct i2c_client *client)
 {
-    __TRACE_CAM_SENSOR(printk("[CAM-SENSOR] +%s\n", __func__));
-    unsigned short id = 0;
+	unsigned short id = 0;
+	
+	s5k4ca_sensor_write(client, 0x002C, 0x7000);
+	s5k4ca_sensor_write(client, 0x002E, 0x01FA);
+	s5k4ca_sensor_read(client, 0x0F12, &id);
 
-    s5k4ca_sensor_write(client, 0x002C, 0x7000);
-    s5k4ca_sensor_write(client, 0x002E, 0x01FA);
-    s5k4ca_sensor_read(client, 0x0F12, &id);
-
-    (printk("[CAM-SENSOR] =Sensor ID(0x%04x) is %s!\n", id, (id == 0x4CA4) ? "Valid" : "Invalid"));
-    __TRACE_CAM_SENSOR(printk("[CAM-SENSOR] -%s\n", __func__));
+	printk("Sensor ID(0x%04x) is %s!\n", id, (id == 0x4CA4) ? "Valid" : "Invalid"); 
 }
 
 static void s5k4ca_sensor_gpio_init(void)
@@ -254,41 +249,38 @@ void s5k4ca_sensor_enable(void)
 
 static void s5k4ca_sensor_disable(void)
 {
-    (printk("[CAM-SENSOR] +%s\n", __func__));
-    I2C_CAM_DIS;
+	I2C_CAM_DIS;
+	
+	MCAM_STB_DIS;
 
-    MCAM_STB_DIS;
+	/* > 20 cycles */
+	msleep(1);
 
-    /* > 20 cycles */
-    msleep(1);
+	/* MCLK Disable */
+	clk_disable(cam_clock);
+	clk_disable(cam_hclk);
 
-    /* MCLK Disable */
-    clk_disable(cam_clock);
-    clk_disable(cam_hclk);
+	/* > 0 ms */
+	msleep(1);
 
-    /* > 0 ms */
-    msleep(1);
+	MCAM_RST_DIS;
 
-    MCAM_RST_DIS;
+	/* > 0 ms */
+	msleep(1);
 
-    /* > 0 ms */
-    msleep(1);
+	AF_PWR_DIS;
 
-    AF_PWR_DIS;
-
-    CAM_PWR_DIS;
-    (printk("[CAM-SENSOR] -%s\n", __func__));
+	CAM_PWR_DIS;
 }
 
 static int sensor_init(struct i2c_client *client)
 {
-    (printk("[CAM-SENSOR] +%s\n", __func__));
     int ret = 0;
 
     if(s5k4ca_sensor_write_list(client, s5k4ca_init0, "s5k4ca_init0") < 0)
         return -1;
 
-    msleep(100);
+    msleep(10);
 
     /* Check Sensor ID */
     s5k4ca_sensor_get_id(client);
@@ -321,15 +313,6 @@ static int s5k4cagx_attach(struct i2c_adapter *adap, int addr, int kind)
     s5k4ca_data.sensor = c;
 
     (printk("[CAM-SENSOR] -%s\n", __func__));
-#ifdef LOCAL_CONFIG_S5K4CA_I2C_TEST
-    i2c_attach_client(c);
-    msleep(10);
-    sensor_init(c);
-
-    return 0;
-#else
-    return i2c_attach_client(c);
-#endif
 }
 
 static int s5k4ca_sensor_attach_adapter(struct i2c_adapter *adap)
@@ -358,9 +341,7 @@ static int s5k4ca_sensor_mode_set(struct i2c_client *client, int type)
     {
         printk("-> Preview ");
 
-//		s5k4ca_sensor_write_list(client,s5k4ca_preview_0,"s5k4ca_preview_0"); // 1024 x 768
-
-        s5k4ca_sensor_write_list(client, s5k4ca_preview, "s5k4ca_preview"); // preview start
+	s5k4ca_sensor_write_list(client,s5k4ca_preview_0,"s5k4ca_preview_0"); // 1024 x 768
 
         /*		if (type & SENSOR_NIGHTMODE)
         		{
@@ -382,14 +363,14 @@ static int s5k4ca_sensor_mode_set(struct i2c_client *client, int type)
     {
         printk("-> Capture ");
 
-//		s5k4ca_sensor_write_list(client,s5k4ca_capture_0,"s5k4ca_capture_0"); // 2048x1536(3M)
+	s5k4ca_sensor_write_list(client,s5k4ca_capture_0,"s5k4ca_capture_0"); // 2048x1536(3M)
 
         if(af_mode == 3 || af_mode == 5)
         {
             s5k4ca_sensor_write(client, 0xFCFC, 0xD000);
             s5k4ca_sensor_write(client, 0x002C, 0x7000);
             s5k4ca_sensor_write(client, 0x002E, 0x12FE);
-//			msleep(100);
+	msleep(100);
             s5k4ca_sensor_read(client, 0x0F12, &light);
             lux_value = light;
         }
@@ -772,7 +753,6 @@ static int s5k4ca_sensor_af_control(struct i2c_client *client, int type)
 
 static int s5k4ca_sensor_change_effect(struct i2c_client *client, int type)
 {
-    int size;
 
     printk("[CAM-SENSOR] =Effects Mode %d", type);
 
@@ -810,7 +790,6 @@ static int s5k4ca_sensor_change_effect(struct i2c_client *client, int type)
 
 static int s5k4ca_sensor_change_br(struct i2c_client *client, int type)
 {
-    int size;
 
     printk("[CAM-SENSOR] =Brightness Mode %d", type);
 
@@ -860,7 +839,6 @@ static int s5k4ca_sensor_change_br(struct i2c_client *client, int type)
 
 static int s5k4ca_sensor_change_wb(struct i2c_client *client, int type)
 {
-    int size;
 
     printk("[CAM-SENSOR] =White Balance Mode %d", type);
 
@@ -894,7 +872,6 @@ static int s5k4ca_sensor_change_wb(struct i2c_client *client, int type)
 
 static int s5k4ca_sensor_change_contrast(struct i2c_client *client, int type)
 {
-    int size;
 
     printk("[CAM-SENSOR] =Contras Mode %d", type);
 
@@ -928,7 +905,6 @@ static int s5k4ca_sensor_change_contrast(struct i2c_client *client, int type)
 
 static int s5k4ca_sensor_change_saturation(struct i2c_client *client, int type)
 {
-    int size;
 
     printk("[CAM-SENSOR] =Saturation Mode %d", type);
 
@@ -962,7 +938,6 @@ static int s5k4ca_sensor_change_saturation(struct i2c_client *client, int type)
 
 static int s5k4ca_sensor_change_sharpness(struct i2c_client *client, int type)
 {
-    int size;
 
     printk("[CAM-SENSOR] =Sharpness Mode %d", type);
 
@@ -996,7 +971,6 @@ static int s5k4ca_sensor_change_sharpness(struct i2c_client *client, int type)
 
 static int s5k4ca_sensor_change_iso(struct i2c_client *client, int type)
 {
-    int size;
 
     printk("[CAM-SENSOR] =Iso Mode %d", type);
 
@@ -1030,7 +1004,6 @@ static int s5k4ca_sensor_change_iso(struct i2c_client *client, int type)
 
 static int s5k4ca_sensor_change_photometry(struct i2c_client *client, int type)
 {
-    int size;
 
     printk("[CAM-SENSOR] =Photometry Mode %d", type);
 
@@ -1056,7 +1029,6 @@ static int s5k4ca_sensor_change_photometry(struct i2c_client *client, int type)
 
 static int s5k4ca_sensor_change_scene_mode(struct i2c_client *client, int type)
 {
-    int size;
 
     printk("[CAM-SENSOR] =Scene Mode %d", type);
     if(previous_scene_mode != 0 && type != 0)
@@ -1485,7 +1457,7 @@ static int s5k4ca_sensor_init(void)
     s5k4ca_regs_table_init();
 #endif
 
-//	s5k4ca_sensor_enable();
+	s5k4ca_sensor_enable();
 
     s3c_camif_open_sensor(&s5k4ca_data);
 
@@ -1501,6 +1473,7 @@ static int s5k4ca_sensor_init(void)
 
     s3c_camif_register_sensor(&s5k4ca_data);
     (printk("[CAM-SENSOR] -%s\n", __func__));
+    af_mode_autoset_initailized = 1;
     return 0;
 }
 

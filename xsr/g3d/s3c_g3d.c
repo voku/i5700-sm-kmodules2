@@ -18,7 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
- 
+
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/moduleparam.h>
@@ -30,6 +30,7 @@
 #include <linux/interrupt.h>
 #include <linux/clk.h>
 #include <linux/delay.h>
+#include <linux/sched.h>
 #include <asm/uaccess.h>
 #include <linux/errno.h> 	/* error codes */
 #include <asm/div64.h>
@@ -57,17 +58,14 @@
 
 #include <plat/reserved_mem.h>
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,28)
+#define LMK_PRC_KILL  //killing process in low memory configuration
 
 #ifdef CONFIG_PLAT_S3C64XX
 #include <plat/power-clock-domain.h>
 
-#define S3C_G3D_PA 	(0x72000000)
-#define S3C_G3D_IRQ (IRQ_S3C6410_G3D)
-
-#ifdef CONFIG_S3C64XX_DOMAIN_GATING
+#define S3C_G3D_PA	(0x72000000)
+#define S3C_G3D_IRQ	(IRQ_3D)
 #define USE_G3D_DOMAIN_GATING
-#endif /* CONFIG_S3C64XX_DOMAIN_GATING */
 
 #define DOMAIN_POWER_ON do { \
 	s3c_set_normal_cfg(S3C64XX_DOMAIN_G, S3C64XX_ACTIVE_MODE, S3C64XX_3D); \
@@ -83,67 +81,15 @@
 #define IS_DOMAIN_POWER_OFF domain_off_check(S3C64XX_DOMAIN_G)
 
 #else
-#ifdef CONFIG_PLAT_S5PC1XX
-#define S3C_G3D_PA 	(0xEF000000)
-#define S3C_G3D_IRQ (IRQ_3D)
-
-#else
-#ifdef CONFIG_PLAT_S5P64XX
-#include <plat/power_clk_gating.h>
-
-#define S3C_G3D_PA 	(0xD8000000)
-#define S3C_G3D_IRQ (IRQ_3D)
-
-#ifdef S5P6442_POWER_GATING_G3D
-#define USE_G3D_DOMAIN_GATING
-#endif /* S5P6442_POWER_GATING_G3D */
-
-#define DOMAIN_POWER_ON do { \
-	s5p6442_pwrgate_config(S5P6442_G3D_ID, S5P6442_ACTIVE_MODE); \
-} while (0)
-
-#define DOMAIN_POWER_OFF do { \
-	s5p6442_pwrgate_config(S5P6442_G3D_ID, S5P6442_LP_MODE); \
-} while (0)
-
-#define IS_DOMAIN_POWER_OFF !s5p6442_blkpower_state(S5P6442_G3D_ID)
-
-#else
 #error Unsupported platfotm
 
-#endif /* CONFIG_PLAT_S5P6442 */
-#endif /* CONFIG_PLAT_S5PC1XX */
 #endif /* CONFIG_PLAT_S3C64XX */
 
-#else
-
-#ifdef CONFIG_PLAT_S3C64XX
-#define S3C_G3D_PA 	(0x72000000)
-#define S3C_G3D_IRQ (IRQ_3D)
-
-#else
-#ifdef CONFIG_PLAT_S5PC1XX
-#define S3C_G3D_PA 	(0xEF000000)
-#define S3C_G3D_IRQ (IRQ_3D)
-
-#else
-#ifdef CONFIG_CPU_S5P6442
-// 6442 will be supported from 2.6.29 kernel
-#error Unsupported platfotm
-
-#else
-#error Unsupported platfotm
-#endif /* CONFIG_PLAT_S5P6442 */
-#endif /* CONFIG_PLAT_S5PC1XX */
-#endif /* CONFIG_PLAT_S3C64XX */
-
-#endif // LINUX_VERSION_CODE >= KERNEL_VERSION(2,8,0)
-
-unsigned int g_uiFreeMemMap = 0x0;
+unsigned long long g_uiFreeMemMap = 0x0;
 
 #define S3C6410_SZ_G3D 		SZ_4K
 
-#define DEBUG_S3C_G3D
+//#define DEBUG_S3C_G3D
 #undef	DEBUG_S3C_G3D
 
 #ifdef DEBUG_S3C_G3D
@@ -155,14 +101,15 @@ unsigned int g_uiFreeMemMap = 0x0;
 #define G3D_RESERVED_MEM_ADDR_PHY	G3D_RESERVED_START
 #define G3D_RESERVED_MEM_SIZE		RESERVED_G3D
 
-#define G3D_CHUNK_SIZE SZ_2M
+#define G3D_CHUNK_SIZE SZ_4M
 
 #define G3D_UI_CHUNK_NUM		(RESERVED_G3D_UI / G3D_CHUNK_SIZE)
 
-static int G3D_CHUNK_NUM = -1; 
+static int G3D_CHUNK_NUM = -1;
 
 typedef struct __alloc_info {
 	unsigned int    file_desc_id;
+	struct pid *    pId;
 	unsigned int 	uiAllocedMemMap;
 	struct __alloc_info	*next;
 } alloc_info;
@@ -186,28 +133,28 @@ void g3d_alloc_info_dump(void)
 		if(i) printk(" ->");
 	}
 	printk("\n");
-	if(alloc_info_tail) printk("alloc_info_tail = (ID:0x%x) \n",alloc_info_tail->file_desc_id); 
+	if(alloc_info_tail) printk("alloc_info_tail = (ID:0x%x) \n",alloc_info_tail->file_desc_id);
 }
 
 static void* Malloc_3D_ChunkMem(unsigned int szReq, int ithMem)
-{	
+{
 	unsigned long physicAddr = (G3D_RESERVED_MEM_ADDR_PHY) + (G3D_CHUNK_SIZE * ithMem);
 	void * virtAddr = phys_to_virt((unsigned long)physicAddr);
 
 	g_uiFreeMemMap |=(0x1 << ithMem);
-	
+
 	return virtAddr;
 }
 
 static void Free_3D_ChunkMem(void* virtAddr,  int ithMem)
-{	
-	g_uiFreeMemMap &=~(0x1 << ithMem);	
+{
+	g_uiFreeMemMap &=~(0x1 << ithMem);
 }
 
 #define G3D_CHUCNK_AVALIABLE	0
-#define G3D_CHUCNK_RESERVED		1
+#define G3D_CHUCNK_RESERVED	1
 
-#define TIMER_INTERVAL HZ/4
+#define TIMER_INTERVAL HZ  //HZ/4
 
 typedef struct {
 	int		size;
@@ -255,19 +202,9 @@ struct timer_list       g3d_pm_timer;
 G3D_CONFIG_STRUCT g3d_config={
 #ifdef CONFIG_PLAT_S3C64XX
 	S3C_G3D_PA, 	// pool buffer addr
-	0x90000, 	// pool_buffer_size
+	0x1800000, 	// pool_buffer_size
 	1, 	// hardware_has_single_pipeline
 	0, 	// is_dma_available
-#elif CONFIG_PLAT_S5PC1XX
-    S3C_G3D_PA,     // pool buffer addr
-    0x90000,    // pool_buffer_size
-    0,  // hardware_has_single_pipeline
-	0,   // is_dma_available
-#elif CONFIG_CPU_S5P6442
-	S3C_G3D_PA,     // pool buffer addr
-	0x90000,    // pool_buffer_size
-	1,  // hardware_has_single_pipeline
-	0,   // is_dma_available
 #else
 #error "Hardware did not support 3D funtions."
 #endif
@@ -293,7 +230,6 @@ G3D_CONFIG_STRUCT g3d_config={
 #define S3C_3D_POWER_INIT 			_IOWR('S', 321, struct s3c_3d_pm_status)
 #define S3C_3D_CRITICAL_SECTION  	_IOWR('S', 322, struct s3c_3d_pm_status)
 #define S3C_3D_POWER_STATUS 		_IOWR('S', 323, struct s3c_3d_pm_status)
-
 
 #define MEM_ALLOC		1
 #define MEM_ALLOC_SHARE		2
@@ -364,7 +300,7 @@ typedef struct _memalloc_desc
 	int		size;
 	unsigned int 	vir_addr;
 	unsigned int 	phy_addr;
-	int*    newid;	
+	int*    newid;
 	struct _memalloc_desc*  next;
 	struct _memalloc_desc*  prev;
 } Memalloc_desc;
@@ -380,30 +316,29 @@ static void clk_g3d_enable(void)
 	}
 
 	clk_enable(g3d_clock);
-	g3d_pm_flag++;
 }
 
 static void clk_g3d_disable(void)
 {
 	if (g3d_pm_flag <= 0) {
+		g3d_pm_flag--;
 		return;
 	}
 
-	g3d_pm_flag--;
 	clk_disable(g3d_clock);
 }
 
-#ifdef USE_G3D_DOMAIN_GATING
 static void softReset_g3d(void)
 {
-    int i=0;
-    // device reset
-    __raw_writel(1,s3c_g3d_base+FGGB_RST);
-    for(i=0;i<1000;i++);
-    __raw_writel(0,s3c_g3d_base+FGGB_RST);
-    for(i=0;i<1000;i++);
+	// device reset
+	__raw_writel(1,s3c_g3d_base+FGGB_RST);
+	udelay(100);
+	__raw_writel(0,s3c_g3d_base+FGGB_RST);
+	udelay(100);
 
 }
+
+#ifdef USE_G3D_DOMAIN_GATING
 
 void s3c_g3d_timer(void)
 {
@@ -419,7 +354,7 @@ void s3c_g3d_timer(void)
 	clk_g3d_disable();
 	DOMAIN_POWER_OFF;
 	g_G3D_SelfPowerOFF=True;
-	//printk("[3D] Power off-timer wait\n");    
+	//printk("[3D] Power off-timer wait\n");
 }
 #endif /* USE_G3D_DOMAIN_GATING */
 
@@ -438,10 +373,10 @@ unsigned int s3c_g3d_get_current_used_mem(void)
 	int loop_i;
 	int iAvalable = 0;
 	int iUsed = 0;
-	
+
 	for(loop_i = 0; loop_i < G3D_CHUNK_NUM; loop_i++ ){
 		if( g3d_bootm[loop_i].in_used == G3D_CHUCNK_AVALIABLE){
-			iAvalable++;			
+			iAvalable++;
 		}
 		else { /*G3D_CHUCNK_RESERVED Used Memory*/
 			iUsed++;
@@ -469,7 +404,7 @@ int s3c_g3d_open(struct inode *inode, struct file *file)
 
 	/*3D power manager initialized*/
 	g_G3D_PowerInit = True;
-         
+
 	return 0;
 }
 
@@ -478,19 +413,19 @@ int s3c_g3d_release(struct inode *inode, struct file *file)
 	int *newid = file->private_data;
 	if(mutex_lock_processID != 0 && mutex_lock_processID == (unsigned int)file->private_data) {
         	mutex_unlock(&mem_sfr_lock);
-	        printk("Abnormal close of pid # %d\n", task_pid_nr(current));        
+	        printk("Abnormal close of pid # %d\n", task_pid_nr(current));
 	}
-    
+
 	garbageCollect(newid);
 	vfree(newid);
 
 	return 0;
 }
 
-static unsigned int genMemmapMask(unsigned int uirequestblock)
+static unsigned long long  genMemmapMask(u64 uirequestblock)
 {
 	int i;
-	unsigned int uiMemMask = 0;
+	unsigned long long uiMemMask = 0;
 
 	for (i = 0 ; i < uirequestblock ; i++)
 {
@@ -511,7 +446,7 @@ void printRemainChunk(void)
 //	printk("Available Count %d\n", j);
 }
 
-void low_memory_killer(unsigned int uiRequsetBlock, unsigned int uiMemMask,unsigned int id)
+void low_memory_killer(unsigned int uiRequsetBlock, u64 uiMemMask,unsigned int id)
 {
 	alloc_info *s_info = alloc_info_head;
 	alloc_info *k_info = NULL;
@@ -529,11 +464,11 @@ void low_memory_killer(unsigned int uiRequsetBlock, unsigned int uiMemMask,unsig
 		return;
 	}
 	
-	chunk_start_num = G3D_UI_CHUNK_NUM;
+	chunk_start_num = 0;
 	chunk_end_num = G3D_CHUNK_NUM;
 
 	s_info=s_info->next;	// the first s_info is surfaceflinger
-	
+#ifndef LMK_PRC_KILL
 	while(s_info) 
 	{
 		for(loop_i = chunk_start_num; loop_i < chunk_end_num - (uiRequsetBlock -1) ; loop_i++ ) {
@@ -547,17 +482,28 @@ void low_memory_killer(unsigned int uiRequsetBlock, unsigned int uiMemMask,unsig
 		if(k_info) break;
 		s_info=s_info->next;
 	}
+#else
+      k_info = s_info;
+
+#endif
 
 	if(!k_info || k_info->file_desc_id==id) 
 	{
+#ifndef LMK_PRC_KILL	
 		if(k_info==alloc_info_tail) printk("k_info==self\n");
 		else printk("k_info==NULL\n");
-		printk("oldest 3D process's memory not found\n");
+		//printk("oldest 3D process's memory not found\n");
+#else
+		if(!k_info) printk("k_info==NULL\n");
+#endif
 		return;
 	}
 
 	kill_id = k_info->file_desc_id;
 //	printk("low momory killer : kill the oldest process(0x%x)\n",kill_id);
+#ifdef LMK_PRC_KILL
+	kill_pid(k_info->pId , SIGTERM, 1);
+#endif
 
 	for(loop_i = G3D_UI_CHUNK_NUM ; loop_i < G3D_CHUNK_NUM; loop_i++ ){
 		if((g3d_bootm[loop_i].file_desc_id) == (unsigned int)kill_id){
@@ -582,7 +528,7 @@ unsigned long s3c_g3d_available_chunk_size(unsigned int request_size, unsigned i
 
 	if (request_size % G3D_CHUNK_SIZE > 0)
 		uiRequsetBlock += 1;
-	
+
 
 	if(!alloc_info_head)
 	{
@@ -595,9 +541,9 @@ unsigned long s3c_g3d_available_chunk_size(unsigned int request_size, unsigned i
 		chunk_start_num = 0;
 		chunk_end_num = G3D_UI_CHUNK_NUM;
 	}
-	else{	
+	else{
 		enable_lmk = 1;
-		chunk_start_num = G3D_UI_CHUNK_NUM;
+		chunk_start_num = 0;
 		chunk_end_num = G3D_CHUNK_NUM;
 	}
 
@@ -612,26 +558,13 @@ unsigned long s3c_g3d_available_chunk_size(unsigned int request_size, unsigned i
 
 		mutex_unlock(&mem_alloc_lock);
 		printk("wait 0.%d sec to get releaing memory\n", loop_j);
-		msleep(100);	
+		msleep(100);
 		mutex_lock(&mem_alloc_lock);
 	}
 
-	printk("s3c_g3d_available_chunk_size failed : %s cannot find adequate memory!\n", enable_lmk ? "3D apps":"Surfaceflinger");
-    
+	printk("%s cannot find adequate memory!\n", enable_lmk ? "3D apps":"Surfaceflinger");
+
 	return 0;
-}
-
-int check_memStatus(unsigned int id)
-{
-	alloc_info *s_info = alloc_info_head;
-
-	while(s_info!=NULL)
-	{
-		if(s_info->file_desc_id == id) return 0;
-		s_info = s_info->next;
-	}
-
-	return 1;
 }
 
 void register_alloc_info(int index,unsigned int uiAllocedMemMap)
@@ -656,6 +589,8 @@ void register_alloc_info(int index,unsigned int uiAllocedMemMap)
 	{
 		s_info = vmalloc(sizeof(alloc_info));	
 		s_info->file_desc_id 	= id;
+		s_info->pId				= task_pid(current);
+		
 		s_info->next 			= NULL;
 		s_info->uiAllocedMemMap	= uiAllocedMemMap;
 
@@ -672,6 +607,19 @@ void register_alloc_info(int index,unsigned int uiAllocedMemMap)
 
 }
 
+int check_memStatus(unsigned int id)
+{
+	alloc_info *s_info = alloc_info_head;
+
+	while(s_info!=NULL)
+	{
+		if(s_info->file_desc_id == id) return 0;
+		s_info = s_info->next;
+	}
+
+	return 1;
+}
+
 unsigned long s3c_g3d_reserve_chunk(struct file* filp, unsigned int size)
 {
 	unsigned int loop_i, loop_j;
@@ -681,6 +629,7 @@ unsigned long s3c_g3d_reserve_chunk(struct file* filp, unsigned int size)
 
 	int chunk_start_num;
 	int chunk_end_num;
+	int enable_lmk = 0;
 
 	unsigned int id = (unsigned int)filp->private_data;
 
@@ -696,12 +645,16 @@ unsigned long s3c_g3d_reserve_chunk(struct file* filp, unsigned int size)
 		chunk_start_num = 0;
 		chunk_end_num = G3D_UI_CHUNK_NUM;
 	}
-	else{	
-		chunk_start_num = G3D_UI_CHUNK_NUM;
+	else{
+		chunk_start_num = 0;
 		chunk_end_num = G3D_CHUNK_NUM;
+		enable_lmk = 1;
 	}
+#ifdef LMK_PRC_KILL
+        if(enable_lmk)  low_memory_killer(uiRequsetBlock,uiMemMask,id);
+#endif
 
- 	for(loop_i = chunk_start_num; loop_i < chunk_end_num - (uiRequsetBlock -1); loop_i++ ) {
+ 	for(loop_i = 0; loop_i < 10 - (uiRequsetBlock -1); loop_i++ ) {
 
 		if ((g_uiFreeMemMap & (uiMemMask << loop_i)) == (uiMemMask << loop_i)) // check free memory at memory map
 		{
@@ -731,14 +684,14 @@ void unregister_alloc_info(int index, unsigned int uiAllocedMemMap)
 	alloc_info *pre_info = NULL;
 
 //	printk("<unregister_alloc_info index=%d id=0x%x>\n",index,id);
-	
+
 	while(s_info!=NULL)
 	{
 		if(s_info->file_desc_id == id) break;
 		pre_info = s_info;
 		s_info = s_info->next;
 	}
-	
+
 	if(s_info)
 	{
 		if(s_info->uiAllocedMemMap==uiAllocedMemMap)
@@ -748,7 +701,7 @@ void unregister_alloc_info(int index, unsigned int uiAllocedMemMap)
 				pre_info->next = s_info->next;
 				if(alloc_info_tail==s_info) alloc_info_tail = pre_info;
 			}
-			else	// case : surfaceflinger is killed 
+			else	// case : surfaceflinger is killed
 			{
 //				printk("warnning : surfaceflinger is killed\n");
 				alloc_info_head = s_info->next;
@@ -774,7 +727,7 @@ void unregister_alloc_info(int index, unsigned int uiAllocedMemMap)
 #ifdef DEBUG_S3C_G3D
 	g3d_alloc_info_dump();
 #endif
-	
+
 }
 
 void s3c_g3d_release_chunk(unsigned int phy_addr, int size)
@@ -793,7 +746,7 @@ void s3c_g3d_release_chunk(unsigned int phy_addr, int size)
 				printk("s3c_g3d_release_chunk : memory map is crashed");
 				break;
 			}
-	
+
 			do_munmap(mm, g3d_bootm[loop_i].vir_addr, size);
 			g_uiFreeMemMap |= (uiMemMask << loop_i); // add free chunk block at memory map
 			unregister_alloc_info(loop_i,uiMemMask << loop_i);
@@ -803,7 +756,7 @@ void s3c_g3d_release_chunk(unsigned int phy_addr, int size)
 				g3d_bootm[loop_j].in_used = G3D_CHUCNK_AVALIABLE;
 				g3d_bootm[loop_j].file_desc_id = 0;
 			}
-	
+
 			break;
 		}
 	}
@@ -811,7 +764,7 @@ void s3c_g3d_release_chunk(unsigned int phy_addr, int size)
 	if(loop_i >= G3D_CHUNK_NUM)
 		printk("s3c_g3d_release_chunk failed : Cannot find the phys_addr : 0x%p\n", (void*)phy_addr);
 
-	printRemainChunk();	
+	printRemainChunk();
 }
 
 static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
@@ -824,7 +777,7 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 	struct s3c_3d_pm_status param_pm;
 
 	unsigned int timer;
-	
+
 	switch (cmd) {
 	case WAIT_FOR_FLUSH:
 		//if fifo has already been flushed, return;
@@ -839,7 +792,7 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 
 		//printk("wait for flush (arg=0x%lx)\n",arg);
 
-		timer = 1000000;
+		timer = 5;  //1000000;
 
 		while(timer) {
 			wait_event_interruptible_timeout(waitq, (interrupt_already_recevied>0), 1*HZ);
@@ -856,6 +809,13 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 			__raw_writel(1,s3c_g3d_base+FGGB_INTMASK);
 			timer --;
 		}
+		if(timer <= 0){
+			/* device reset */
+			softReset_g3d();
+//			printk("\n\n\n#########G3d -timeout #######\n\n");
+			
+		}
+
 		break;
 
 	case GET_CONFIG:
@@ -869,7 +829,7 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 	case START_DMA_BLOCK:
 		if (copy_from_user(&dma_block,(void *)arg,sizeof(DMA_BLOCK_STRUCT))) {
 			printk("G3D: copy_to_user failed to get dma_block\n");
-			return -EFAULT;		
+			return -EFAULT;
 		}
 
 		if (dma_block.offset%4!=0) {
@@ -918,31 +878,32 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 		break;
 #endif
 
-	case S3C_3D_MEM_ALLOC:		
+
+	case S3C_3D_MEM_ALLOC:
 		mutex_lock(&mem_alloc_lock);
 		if(copy_from_user(&param, (struct s3c_3d_mem_alloc *)arg, sizeof(struct s3c_3d_mem_alloc))){
-			mutex_unlock(&mem_alloc_lock);			
+			mutex_unlock(&mem_alloc_lock);
 			return -EFAULT;
 		}
-       
+
 		flag = MEM_ALLOC;
-		
+
 		param.size = s3c_g3d_available_chunk_size(param.size,(unsigned int)file->private_data);
 
 		if (param.size == 0){
-			printk("S3C_3D_MEM_ALLOC FAILED because there is no block memory bigger than you request\n");
+			//printk("S3C_3D_MEM_ALLOC FAILED because there is no block memory bigger than you request\n");
 			flag = 0;
-			mutex_unlock(&mem_alloc_lock);			
+			mutex_unlock(&mem_alloc_lock);
 			return -EFAULT;
-		}			
-             
+		}
+
 		param.vir_addr = do_mmap(file, 0, param.size, PROT_READ|PROT_WRITE, MAP_SHARED, 0);
 		DEBUG("param.vir_addr = %08x\n", param.vir_addr);
 
 		if(param.vir_addr == -EINVAL) {
 			printk("S3C_3D_MEM_ALLOC FAILED\n");
 			flag = 0;
-			mutex_unlock(&mem_alloc_lock);			
+			mutex_unlock(&mem_alloc_lock);
 			return -EFAULT;
 		}
 		param.phy_addr = physical_address;
@@ -953,17 +914,17 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 		if(copy_to_user((struct s3c_3d_mem_alloc *)arg, &param, sizeof(struct s3c_3d_mem_alloc))){
 			flag = 0;
 			mutex_unlock(&mem_alloc_lock);
-			return -EFAULT;		
+			return -EFAULT;
 		}
 
 		flag = 0;
-		
+
 //		printk("\n\n====Success the malloc from kernel=====\n");
 		mutex_unlock(&mem_alloc_lock);
-		
+
 		break;
 
-	case S3C_3D_MEM_FREE:	
+	case S3C_3D_MEM_FREE:
 		mutex_lock(&mem_free_lock);
 		if(copy_from_user(&param, (struct s3c_3d_mem_alloc *)arg, sizeof(struct s3c_3d_mem_alloc))){
 			mutex_unlock(&mem_free_lock);
@@ -992,9 +953,9 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 			mutex_unlock(&mem_free_lock);
 			return -EFAULT;
 		}
-		
+
 		mutex_unlock(&mem_free_lock);
-		
+
 		break;
 
 	case S3C_3D_SFR_LOCK:
@@ -1009,7 +970,7 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 		DEBUG("s3c_g3d_ioctl() : The muxtex unlock called !!\n");
 		break;
 
-	case S3C_3D_MEM_ALLOC_SHARE:		
+	case S3C_3D_MEM_ALLOC_SHARE:
 		mutex_lock(&mem_alloc_share_lock);
 		if(copy_from_user(&param, (struct s3c_3d_mem_alloc *)arg, sizeof(struct s3c_3d_mem_alloc))){
 			mutex_unlock(&mem_alloc_share_lock);
@@ -1036,20 +997,20 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 		if(copy_to_user((struct s3c_3d_mem_alloc *)arg, &param, sizeof(struct s3c_3d_mem_alloc))){
 			flag = 0;
 			mutex_unlock(&mem_alloc_share_lock);
-			return -EFAULT;		
+			return -EFAULT;
 		}
 
 		flag = 0;
-		
+
 		mutex_unlock(&mem_alloc_share_lock);
-		
+
 		break;
 
-	case S3C_3D_MEM_SHARE_FREE:	
+	case S3C_3D_MEM_SHARE_FREE:
 		mutex_lock(&mem_share_free_lock);
 		if(copy_from_user(&param, (struct s3c_3d_mem_alloc *)arg, sizeof(struct s3c_3d_mem_alloc))){
 			mutex_unlock(&mem_share_free_lock);
-			return -EFAULT;		
+			return -EFAULT;
 		}
 
 		DEBUG("MEM_SHARE_FREE : param.phy_addr = 0x%X \t size = %d \t param.vir_addr = 0x%X\n", param.phy_addr, param.size, param.vir_addr);
@@ -1065,19 +1026,19 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 
 		if(copy_to_user((struct s3c_3d_mem_alloc *)arg, &param, sizeof(struct s3c_3d_mem_alloc))){
 			mutex_unlock(&mem_share_free_lock);
-			return -EFAULT;		
+			return -EFAULT;
 		}
 
 		mutex_unlock(&mem_share_free_lock);
-		
+
 		break;
 
 	case S3C_3D_CACHE_INVALID:
 		mutex_lock(&cache_invalid_lock);
 		if(copy_from_user(&param, (struct s3c_3d_mem_alloc *)arg, sizeof(struct s3c_3d_mem_alloc))){
-			printk("ERR: Invalid Cache Error\n");	
+			printk("ERR: Invalid Cache Error\n");
 			mutex_unlock(&cache_invalid_lock);
-			return -EFAULT;	
+			return -EFAULT;
 		}
 		dmac_inv_range((const void *) param.vir_addr,(const void *)(param.vir_addr + param.size));
 		mutex_unlock(&cache_invalid_lock);
@@ -1086,9 +1047,9 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 	case S3C_3D_CACHE_CLEAN:
 		mutex_lock(&cache_clean_lock);
 		if(copy_from_user(&param, (struct s3c_3d_mem_alloc *)arg, sizeof(struct s3c_3d_mem_alloc))){
-			printk("ERR: Invalid Cache Error\n");	
+			printk("ERR: Invalid Cache Error\n");
 			mutex_unlock(&cache_clean_lock);
-			return -EFAULT;	
+			return -EFAULT;
 		}
 		dmac_clean_range((const void *) param.vir_addr,(const void *)(param.vir_addr + param.size));
 		mutex_unlock(&cache_clean_lock);
@@ -1098,8 +1059,8 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 		mutex_lock(&cache_clean_invalid_lock);
 		if(copy_from_user(&param, (struct s3c_3d_mem_alloc *)arg, sizeof(struct s3c_3d_mem_alloc))){
 			mutex_unlock(&cache_clean_invalid_lock);
-			printk("ERR: Invalid Cache Error\n");	
-			return -EFAULT;	
+			printk("ERR: Invalid Cache Error\n");
+			return -EFAULT;
 		}
 		dmac_flush_range((const void *) param.vir_addr,(const void *)(param.vir_addr + param.size));
 		mutex_unlock(&cache_clean_invalid_lock);
@@ -1107,8 +1068,8 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 
 	case S3C_3D_POWER_INIT:
 		if(copy_from_user(&param_pm, (struct s3c_3d_pm_status *)arg, sizeof(struct s3c_3d_pm_status))){
-			printk("ERR: Invalid Cache Error\n");	
-			return -EFAULT;	
+			printk("ERR: Invalid Cache Error\n");
+			return -EFAULT;
 		}
 		break;
 
@@ -1116,9 +1077,9 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 #ifdef USE_G3D_DOMAIN_GATING
 		mutex_lock(&pm_critical_section_lock);
 		if(copy_from_user(&param_pm, (struct s3c_3d_pm_status *)arg, sizeof(struct s3c_3d_pm_status))){
-			printk("ERR: Invalid Cache Error\n");	
+			printk("ERR: Invalid Cache Error\n");
 			mutex_unlock(&pm_critical_section_lock);
-			return -EFAULT;	
+			return -EFAULT;
 		}
 
 //		param_pm.memStatus = check_memStatus((unsigned int)file->private_data);
@@ -1135,7 +1096,7 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 		else if(g_G3D_CriticalFlag>0)
 		{/*kick power on*/
 			if(IS_DOMAIN_POWER_OFF)
-			{/*if powered off*/                        
+			{/*if powered off*/
 				if(g_G3D_SelfPowerOFF)
 				{/*powered off by 3D PM or by Resume*/
 					/*power on*/
@@ -1143,25 +1104,21 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 					clk_g3d_enable();
 					/*Need here??*/
 					softReset_g3d();
-					// printk("[3D] Power on\n");  
+					// printk("[3D] Power on\n");
 				}
 				else
 				{
 					/*powered off by the system :: error*/
 					printk("Error on the system :: app tries to work during sleep\n");
 					mutex_unlock(&pm_critical_section_lock);
-					return -EFAULT;	
+					return -EFAULT;
 				}
 			}
 			else
 			{
-				/*already powered on : nothing to do*/
+                                /*already powered on : nothing to do*/
 				//g_G3D_SelfPowerOFF=0;
 			}
-		}
-		else if(g_G3D_CriticalFlag < 0) 
-		{
-			printk("Error on the system :: g_G3D_CriticalFlag < 0\n");
 		}
 //		printk("S3C_3D_CRITICAL_SECTION: param_pm.criticalSection=%d\n",param_pm.criticalSection);
 
@@ -1170,7 +1127,7 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 			printk("G3D: copy_to_user failed to get s3c_3d_pm_status\n");
 
 			mutex_unlock(&pm_critical_section_lock);
-			return -EFAULT;		
+			return -EFAULT;
 		}
 		mutex_unlock(&pm_critical_section_lock);
 #endif /* USE_G3D_DOMAIN_GATING */
@@ -1180,7 +1137,7 @@ static int s3c_g3d_ioctl(struct inode *inode, struct file *file, unsigned int cm
 		DEBUG("s3c_g3d_ioctl() : default !!\n");
 		return -EINVAL;
 	}
-	
+
 	return 0;
 }
 
@@ -1189,8 +1146,9 @@ int s3c_g3d_mmap(struct file* filp, struct vm_area_struct *vma)
 	unsigned long pageFrameNo, size, phys_addr;
 
 	size = vma->vm_end - vma->vm_start;
+	
 
-	switch (flag) { 
+	switch (flag) {
 	case MEM_ALLOC :
 		phys_addr = s3c_g3d_reserve_chunk(filp, size);
 
@@ -1205,16 +1163,17 @@ int s3c_g3d_mmap(struct file* filp, struct vm_area_struct *vma)
 
 		pageFrameNo = __phys_to_pfn(phys_addr);
 		break;
-		
+
 	case MEM_ALLOC_SHARE :
 //		DEBUG("MMAP_KMALLOC_SHARE : phys addr = 0x%p\n", physical_address);
-		
+
 		// page frame number of the address for the physical_address to be shared.
 		pageFrameNo = __phys_to_pfn(physical_address);
 		//DEBUG("MMAP_KMALLOC_SHARE: PFN = 0x%x\n", pageFrameNo);
 //		DEBUG("MMAP_KMALLOC_SHARE : vma->end = 0x%p, vma->start = 0x%p, size = %d\n", vma->vm_end, vma->vm_start, size);
 		break;
-		
+
+
 	default :
 		printk("here\n");
 
@@ -1228,7 +1187,7 @@ int s3c_g3d_mmap(struct file* filp, struct vm_area_struct *vma)
 		}
 		break;
 	}
-	
+
 //	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
 
 	if ((vma->vm_flags & VM_WRITE) && !(vma->vm_flags & VM_SHARED)) {
@@ -1259,7 +1218,7 @@ void garbageCollect(int* newid)
 				g3d_bootm[loop_i].file_desc_id = 0;
 	        }
        }
-        mutex_unlock(&mem_alloc_lock);  
+        mutex_unlock(&mem_alloc_lock);
 }
 
 static struct file_operations s3c_g3d_fops = {
@@ -1282,7 +1241,7 @@ int s3c_g3d_probe(struct platform_device *pdev)
 
 	int		ret;
 	int		size;
-	int		i, loop_i;
+	int		loop_i;
 
 	DEBUG("s3c_g3d probe() called\n");
 
@@ -1316,7 +1275,7 @@ int s3c_g3d_probe(struct platform_device *pdev)
 		ret = -ENOENT;
 		goto err_mem;
 	}
-	
+
 	s3c_g3d_base = ioremap(res->start, size);
 	if(s3c_g3d_base == NULL) {
 		printk(KERN_ERR PFX "failed ioremap\n");
@@ -1330,7 +1289,7 @@ int s3c_g3d_probe(struct platform_device *pdev)
 		ret = -ENOENT;
 		goto err_irq;
 	}
-	
+
 	s3c_g3d_irq = res->start;
 	ret = request_irq(res->start, s3c_g3d_isr, 0, pdev->name, pdev);
 	if (ret != 0) {
@@ -1354,15 +1313,12 @@ int s3c_g3d_probe(struct platform_device *pdev)
 #endif /* USE_G3D_DOMAIN_GATING */
 
 	/* device reset */
-	__raw_writel(1,s3c_g3d_base+FGGB_RST);
-	for(i=0;i<1000;i++);
-	__raw_writel(0,s3c_g3d_base+FGGB_RST);
-	for(i=0;i<1000;i++);
+	softReset_g3d();
 
-	G3D_CHUNK_NUM = G3D_RESERVED_MEM_SIZE /SZ_2M;
+	G3D_CHUNK_NUM = G3D_RESERVED_MEM_SIZE /G3D_CHUNK_SIZE;
 
 	if (g3d_bootm == NULL)
-		g3d_bootm = kmalloc(sizeof(s3c_g3d_bootmem) * G3D_CHUNK_NUM, GFP_KERNEL);	
+		g3d_bootm = kmalloc(sizeof(s3c_g3d_bootmem) * G3D_CHUNK_NUM, GFP_KERNEL);
 
 	printk("s3c_g3d version : 0x%x\n",__raw_readl(s3c_g3d_base + FGGB_VERSION));
 	printk("G3D_RESERVED_MEM_SIZE : %d MB\n", G3D_RESERVED_MEM_SIZE/SZ_1M);
@@ -1392,7 +1348,7 @@ err_ioremap:
         kfree(s3c_g3d_mem);
 	s3c_g3d_mem = NULL;
 err_mem:
-	clk_g3d_enable();
+	clk_g3d_disable();
 err_clock:
 
 #ifdef USE_G3D_DOMAIN_GATING
@@ -1404,24 +1360,24 @@ err_clock:
 
 static int s3c_g3d_suspend(struct platform_device *dev, pm_message_t state)
 {
+	mutex_lock(&pm_critical_section_lock);
 	if(g_G3D_CriticalFlag)
 	{
-		printk("unexpected Suspend : App don't support suspend-mode.\n");
+		mutex_unlock(&pm_critical_section_lock);
+		
 	}
-	else
-	{
-		/*power off*/
+
+	/*power off*/
 	
-		clk_g3d_disable();
+	clk_g3d_disable();
 
 #ifdef USE_G3D_DOMAIN_GATING
-		DOMAIN_POWER_OFF;
+	DOMAIN_POWER_OFF;
 #endif /* USE_G3D_DOMAIN_GATING */
 
-		g_G3D_CriticalFlag=0;
-		g_G3D_SelfPowerOFF=False;
-	}
-    
+	g_G3D_CriticalFlag=0;
+	g_G3D_SelfPowerOFF=False;
+
 	return 0;
 }
 
@@ -1458,6 +1414,10 @@ static int s3c_g3d_resume(struct platform_device *pdev)
 		g_G3D_SelfPowerOFF=True;
 	}
 
+#ifndef USE_G3D_DOMAIN_GATING
+        clk_g3d_enable();
+#endif
+	mutex_unlock(&pm_critical_section_lock);
 	return 0;
 }
 
@@ -1494,7 +1454,7 @@ void  s3c_g3d_exit(void)
 
 	for( loop_i = 0; loop_i < G3D_CHUNK_NUM; loop_i++ ){
 		Free_3D_ChunkMem((void*)g3d_bootm[loop_i].vir_addr, loop_i);
-		
+
 		g3d_bootm[loop_i].vir_addr = 0;
 		g3d_bootm[loop_i].phy_addr = 0;
 		g3d_bootm[loop_i].in_used = G3D_CHUCNK_AVALIABLE;

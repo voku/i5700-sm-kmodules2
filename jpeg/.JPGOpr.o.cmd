@@ -1,8 +1,8 @@
-cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGOpr.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/.JPGOpr.o.d  -nostdinc -isystem /opt/ctng/bin/../lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/ch33kybutt/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(JPGOpr)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_jpeg)"  -c -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGOpr.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGOpr.c
+cmd_/home/lars/spica/new_kernel/modules/jpeg/JPGOpr.o := /usr/bin/arm-linux-gnueabihf-gcc -Wp,-MD,/home/lars/spica/new_kernel/modules/jpeg/.JPGOpr.o.d  -nostdinc -isystem /usr/lib/gcc/arm-linux-gnueabihf/4.6.1/include -Iinclude  -I/home/lars/spica/new_kernel/SM-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Ofast -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DMODULE -pipe -Ofast -marm -mfpu=vfp -mtune=arm1176jzf-s -march=armv6zk -mfloat-abi=hard -floop-interchange -floop-strip-mine -floop-block -ffast-math -funsafe-loop-optimizations -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(JPGOpr)"  -D"KBUILD_MODNAME=KBUILD_STR(s3c_jpeg)"  -c -o /home/lars/spica/new_kernel/modules/jpeg/JPGOpr.o /home/lars/spica/new_kernel/modules/jpeg/JPGOpr.c
 
-deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGOpr.o := \
-  /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGOpr.c \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/memory.h \
+deps_/home/lars/spica/new_kernel/modules/jpeg/JPGOpr.o := \
+  /home/lars/spica/new_kernel/modules/jpeg/JPGOpr.c \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/memory.h \
     $(wildcard include/config/mmu.h) \
     $(wildcard include/config/page/offset.h) \
     $(wildcard include/config/dram/size.h) \
@@ -21,12 +21,12 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGOpr.o := \
   include/linux/compiler-gcc4.h \
   include/linux/const.h \
   arch/arm/mach-s3c6400/include/mach/memory.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/sizes.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/sizes.h \
   include/asm-generic/memory_model.h \
     $(wildcard include/config/flatmem.h) \
     $(wildcard include/config/sparsemem/vmemmap.h) \
-  /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGMem.h \
-  /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGMisc.h \
+  /home/lars/spica/new_kernel/modules/jpeg/JPGMem.h \
+  /home/lars/spica/new_kernel/modules/jpeg/JPGMisc.h \
   include/linux/types.h \
     $(wildcard include/config/uid16.h) \
     $(wildcard include/config/lbd.h) \
@@ -34,8 +34,8 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGOpr.o := \
     $(wildcard include/config/64bit.h) \
   include/linux/posix_types.h \
   include/linux/stddef.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/posix_types.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/types.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/posix_types.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/types.h \
   include/asm-generic/int-ll64.h \
   include/linux/version.h \
   arch/arm/mach-s3c6400/include/mach/hardware.h \
@@ -66,7 +66,7 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGOpr.o := \
     $(wildcard include/config/gpio/sysfs.h) \
     $(wildcard include/config/have/gpio/lib.h) \
   include/linux/errno.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/errno.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/errno.h \
   include/asm-generic/errno.h \
   include/asm-generic/errno-base.h \
   arch/arm/plat-s3c64xx/include/plat/gpio-bank-a.h \
@@ -93,20 +93,20 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGOpr.o := \
     $(wildcard include/config/debug/list.h) \
   include/linux/poison.h \
   include/linux/prefetch.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/processor.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/ptrace.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/processor.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/ptrace.h \
     $(wildcard include/config/arm/thumb.h) \
     $(wildcard include/config/smp.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/hwcap.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/cache.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/hwcap.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/cache.h \
     $(wildcard include/config/arm/l1/cache/shift.h) \
     $(wildcard include/config/aeabi.h) \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/system.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/system.h \
     $(wildcard include/config/cpu/xsc3.h) \
     $(wildcard include/config/cpu/sa1100.h) \
     $(wildcard include/config/cpu/sa110.h) \
   include/linux/linkage.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/linkage.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/linkage.h \
   include/linux/irqflags.h \
     $(wildcard include/config/trace/irqflags.h) \
     $(wildcard include/config/irqsoff/tracer.h) \
@@ -114,15 +114,15 @@ deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGOpr.o := \
     $(wildcard include/config/trace/irqflags/support.h) \
     $(wildcard include/config/x86.h) \
   include/linux/typecheck.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/irqflags.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/irqflags.h \
   include/asm-generic/cmpxchg-local.h \
   include/asm-generic/cmpxchg.h \
-  /home/ch33kybutt/kernel/i5700-kernel/arch/arm/include/asm/setup.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/setup.h \
     $(wildcard include/config/arch/lh7a40x.h) \
-  /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGOpr.h \
-  /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGConf.h \
-  /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/LogMsg.h \
+  /home/lars/spica/new_kernel/modules/jpeg/JPGOpr.h \
+  /home/lars/spica/new_kernel/modules/jpeg/JPGConf.h \
+  /home/lars/spica/new_kernel/modules/jpeg/LogMsg.h \
 
-/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGOpr.o: $(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGOpr.o)
+/home/lars/spica/new_kernel/modules/jpeg/JPGOpr.o: $(deps_/home/lars/spica/new_kernel/modules/jpeg/JPGOpr.o)
 
-$(deps_/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/JPGOpr.o):
+$(deps_/home/lars/spica/new_kernel/modules/jpeg/JPGOpr.o):

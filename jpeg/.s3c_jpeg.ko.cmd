@@ -1,1 +1,1 @@
-cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/s3c_jpeg.ko := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-ld -EL -r   -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/s3c_jpeg.ko /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/s3c_jpeg.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/jpeg/s3c_jpeg.mod.o
+cmd_/home/lars/spica/new_kernel/modules/jpeg/s3c_jpeg.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/jpeg/s3c_jpeg.ko /home/lars/spica/new_kernel/modules/jpeg/s3c_jpeg.o /home/lars/spica/new_kernel/modules/jpeg/s3c_jpeg.mod.o

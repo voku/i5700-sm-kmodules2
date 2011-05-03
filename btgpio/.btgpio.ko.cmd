@@ -1,1 +1,1 @@
-cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/btgpio/btgpio.ko := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-ld -EL -r   -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/btgpio/btgpio.ko /home/ch33kybutt/kernel/m910-kmodules2-cfs/btgpio/btgpio.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/btgpio/btgpio.mod.o
+cmd_/home/lars/spica/new_kernel/modules/btgpio/btgpio.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/btgpio/btgpio.ko /home/lars/spica/new_kernel/modules/btgpio/btgpio.o /home/lars/spica/new_kernel/modules/btgpio/btgpio.mod.o

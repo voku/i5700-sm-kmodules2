@@ -1,3 +1,24 @@
+/* mfc/s3c-mfc.c
+ *
+ * Copyright (c) 2008 Samsung Electronics
+ *
+ * Samsung S3C MFC driver
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+ 
 #include <linux/version.h>
 #include <linux/module.h>
 #include <linux/delay.h>
@@ -69,6 +90,8 @@
 #ifdef CONFIG_S3C64XX_DOMAIN_GATING
 #define USE_MFC_DOMAIN_GATING
 #endif /* CONFIG_S3C64XX_DOMAIN_GATING */
+
+int mfc_critial_error; //mfc.error.recovery
 
 static char banner[] __initdata = KERN_INFO "S3C6400 MFC Driver, (c) 2007 Samsung Electronics\n";
 
@@ -232,6 +255,19 @@ static irqreturn_t s3c_mfc_irq(int irq, void *dev_id, struct pt_regs *regs)
 	return IRQ_HANDLED;
 }
 
+#ifdef CONFIG_MACH_SATURN
+/* SEC AMOLED 
+   If device use AMOLED as display module, gamma setting have to be changed when video playing or camera preview
+ */
+typedef enum {
+	LCD_IDLE = 0,
+	LCD_VIDEO,
+	LCD_CAMERA
+} lcd_gamma_status;
+
+extern void lcd_gamma_change(lcd_gamma_status gamma_status);
+#endif /* CONFIG_MACH_SATURN */
+
 static int s3c_mfc_open(struct inode *inode, struct file *file)
 {
 	MFC_HANDLE		*handle;
@@ -332,7 +368,22 @@ static int s3c_mfc_release(struct inode *inode, struct file *file)
 	int			ret;
 
 	MFC_Mutex_Lock();
+#ifdef CONFIG_MACH_SATURN
+	lcd_gamma_change(LCD_IDLE); // when finishing playing video, AMOLED gamma change to idle mode
+#endif
 
+    #if 1 //mfc.error.recovery
+    // If the last issued command is timed out, reset the MFC for error recovery
+    // When MFC doesn't respond with DEC_INIT command (timeout)
+    // It seems that it doesn't operate normally. It doesn't even respond
+    // to swfi command and locks up the cpu when going to sleep. 
+    // (SWFI instruction waits for the response from the DOMAIN-V)
+    // 
+    if(mfc_critial_error) {
+        printk(KERN_ERR "\x1b[1;31m" "@#@#@# Reset mfc for error recovery" "\x1b[0m \n");
+        MFC_HW_Init();
+    }
+    #endif
 	handle = (MFC_HANDLE *)file->private_data;
 	if (handle->mfc_inst == NULL) {
 		ret = -1;
@@ -525,6 +576,9 @@ static int s3c_mfc_ioctl(struct inode *inode, struct file *file, unsigned
 		case IOCTL_MFC_H263_DEC_INIT:
 		case IOCTL_MFC_VC1_DEC_INIT:
 			MFC_Mutex_Lock();
+#ifdef CONFIG_MACH_SATURN
+			lcd_gamma_change(LCD_VIDEO); // when decoder init to start playing video, AMOLED gamma set to video mode
+#endif
 
 			Copy_From_User(&args.dec_init, (MFC_DEC_INIT_ARG *)arg, sizeof(MFC_DEC_INIT_ARG));
 			
@@ -669,11 +723,11 @@ static int s3c_mfc_ioctl(struct inode *inode, struct file *file, unsigned
 				args.get_buf_addr.out_buf_size	= (pMfcInst->buf_width * pMfcInst->buf_height * 3) >> 1;
 
 				tmp	= (unsigned int)args.get_buf_addr.in_usr_data + ( ((unsigned int) pMfcInst->pFramBuf)	\
-					+ (pMfcInst->idx) * (args.get_buf_addr.out_buf_size) - (unsigned int)GetDataBufVirAddr() );
+					+ (pMfcInst->idx) * (args.get_buf_addr.out_buf_size + ZERO_COPY_HDR_SIZE) - (unsigned int)GetDataBufVirAddr() );
 #if (MFC_ROTATE_ENABLE == 1)
 				if ( (pMfcInst->codec_mode != VC1_DEC) && (pMfcInst->PostRotMode & 0x0010) ) {
 					tmp	= (unsigned int)args.get_buf_addr.in_usr_data + ( ((unsigned int) pMfcInst->pFramBuf)	\
-					+ (pMfcInst->frambufCnt) * (args.get_buf_addr.out_buf_size) - (unsigned int)GetDataBufVirAddr() );	
+					+ (pMfcInst->frambufCnt) * (args.get_buf_addr.out_buf_size + ZERO_COPY_HDR_SIZE) - (unsigned int)GetDataBufVirAddr() );	
 				}
 #endif
 				args.get_buf_addr.out_buf_addr = tmp;
@@ -701,15 +755,16 @@ static int s3c_mfc_ioctl(struct inode *inode, struct file *file, unsigned
 
 			args.get_buf_addr.out_buf_size	= (pMfcInst->buf_width * pMfcInst->buf_height * 3) >> 1;
 //			args.get_buf_addr.out_buf_size	= ((pMfcInst->width+2*DIVX_PADDING) * (pMfcInst->height+2*DIVX_PADDING) * 3) >> 1;
-			tmp	= (unsigned int)S3C6400_BASEADDR_MFC_DATA_BUF + ( ((unsigned int) pMfcInst->pFramBuf)	\
-				+ (pMfcInst->idx) * (args.get_buf_addr.out_buf_size) - (unsigned int)GetDataBufVirAddr() );
+		tmp	= (unsigned int)S3C6400_BASEADDR_MFC_DATA_BUF + ( ((unsigned int) pMfcInst->pFramBuf)	\
+			+ (pMfcInst->idx) * (args.get_buf_addr.out_buf_size + ZERO_COPY_HDR_SIZE) - (unsigned int)GetDataBufVirAddr() );
 
 //.[ i: sichoi 081103 (ROTATE)
 #if (MFC_ROTATE_ENABLE == 1)
-            if ( (pMfcInst->codec_mode != VC1_DEC) && (pMfcInst->PostRotMode & 0x0010) ) {
-                tmp = (unsigned int)S3C6400_BASEADDR_MFC_DATA_BUF + ( ((unsigned int) pMfcInst->pFramBuf)   \
-                + (pMfcInst->frambufCnt) * (args.get_buf_addr.out_buf_size) - (unsigned int)GetDataBufVirAddr() );  
-            }
+        if ( (pMfcInst->codec_mode != VC1_DEC) && (pMfcInst->PostRotMode & 0x0010) ) 
+		{
+            tmp = (unsigned int)S3C6400_BASEADDR_MFC_DATA_BUF + ( ((unsigned int) pMfcInst->pFramBuf)   \
+            + (pMfcInst->frambufCnt) * (args.get_buf_addr.out_buf_size + ZERO_COPY_HDR_SIZE) - (unsigned int)GetDataBufVirAddr() );  
+        }
 #endif
 //.] sichoi 081103
 
@@ -744,12 +799,11 @@ static int s3c_mfc_ioctl(struct inode *inode, struct file *file, unsigned
 
 			Copy_To_User((MFC_GET_MPEG4ASP_ARG *)arg, &args.mpeg4_asp_param, sizeof(MFC_GET_MPEG4ASP_ARG));
 
-                        // from 2.8.5
-			//dmac_clean_range(vir_mv_addr, vir_mv_addr + args.mpeg4_asp_param.mv_size);
-			//outer_clean_range(__pa(vir_mv_addr), __pa(vir_mv_addr + args.mpeg4_asp_param.mv_size));
+			dmac_clean_range(vir_mv_addr, vir_mv_addr + args.mpeg4_asp_param.mv_size);
+			outer_clean_range(__pa(vir_mv_addr), __pa(vir_mv_addr + args.mpeg4_asp_param.mv_size));
 
-			//dmac_clean_range(vir_mb_type_addr, vir_mb_type_addr + args.mpeg4_asp_param.mb_type_size);
-			//outer_clean_range(__pa(vir_mb_type_addr), __pa(vir_mb_type_addr + args.mpeg4_asp_param.mb_type_size));
+			dmac_clean_range(vir_mb_type_addr, vir_mb_type_addr + args.mpeg4_asp_param.mb_type_size);
+			outer_clean_range(__pa(vir_mb_type_addr), __pa(vir_mb_type_addr + args.mpeg4_asp_param.mb_type_size));
 		#endif	
 			break;
 		case IOCTL_MFC_GET_CONFIG:

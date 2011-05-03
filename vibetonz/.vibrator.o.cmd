@@ -1,1 +1,1 @@
-cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/vibetonz/vibrator.o := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-ld -EL    -r -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/vibetonz/vibrator.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/vibetonz/vibetonz.o 
+cmd_/home/lars/spica/new_kernel/modules/vibetonz/vibrator.o := /usr/bin/arm-linux-gnueabihf-ld -EL    -r -o /home/lars/spica/new_kernel/modules/vibetonz/vibrator.o /home/lars/spica/new_kernel/modules/vibetonz/vibetonz.o 
