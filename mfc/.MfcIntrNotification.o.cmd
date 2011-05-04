@@ -4,7 +4,6 @@ deps_/home/lars/spica/new_kernel/modules/mfc/MfcIntrNotification.o := \
   /home/lars/spica/new_kernel/modules/mfc/MfcIntrNotification.c \
   /home/lars/spica/new_kernel/modules/mfc/s3c-mfc.h \
   include/linux/sched.h \
-    $(wildcard include/config/sched/bfs.h) \
     $(wildcard include/config/sched/debug.h) \
     $(wildcard include/config/smp.h) \
     $(wildcard include/config/no/hz.h) \
@@ -21,6 +20,8 @@ deps_/home/lars/spica/new_kernel/modules/mfc/MfcIntrNotification.o := \
     $(wildcard include/config/sysfs.h) \
     $(wildcard include/config/schedstats.h) \
     $(wildcard include/config/task/delay/acct.h) \
+    $(wildcard include/config/fair/group/sched.h) \
+    $(wildcard include/config/rt/group/sched.h) \
     $(wildcard include/config/preempt/notifiers.h) \
     $(wildcard include/config/blk/dev/io/trace.h) \
     $(wildcard include/config/preempt/rcu.h) \
@@ -47,8 +48,6 @@ deps_/home/lars/spica/new_kernel/modules/mfc/MfcIntrNotification.o := \
     $(wildcard include/config/preempt/bkl.h) \
     $(wildcard include/config/preempt.h) \
     $(wildcard include/config/group/sched.h) \
-    $(wildcard include/config/fair/group/sched.h) \
-    $(wildcard include/config/rt/group/sched.h) \
     $(wildcard include/config/mm/owner.h) \
   /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/param.h \
     $(wildcard include/config/hz.h) \

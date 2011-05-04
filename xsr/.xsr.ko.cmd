@@ -1,1 +1,1 @@
-cmd_/home/lars/spica/new_kernel/modules/xsr/xsr.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/xsr/xsr.ko /home/lars/spica/new_kernel/modules/xsr/xsr.o /home/lars/spica/new_kernel/modules/xsr/xsr.mod.o
+cmd_/home/lukasz/i5700.2/i5700-leshak-kmodules2/xsr/xsr.ko := /home/lukasz/ctng/opt/arm-spica-linux-uclibcgnueabi/bin/arm-spica-linux-uclibcgnueabi-ld -EL -r   -o /home/lukasz/i5700.2/i5700-leshak-kmodules2/xsr/xsr.ko /home/lukasz/i5700.2/i5700-leshak-kmodules2/xsr/xsr.o /home/lukasz/i5700.2/i5700-leshak-kmodules2/xsr/xsr.mod.o

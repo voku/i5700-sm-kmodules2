@@ -1,7 +1,7 @@
-cmd_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o := /usr/bin/arm-linux-gnueabihf-gcc -Wp,-MD,/home/lars/spica/new_kernel/modules/xsr/.xsr_stl.mod.o.d  -nostdinc -isystem /usr/lib/gcc/arm-linux-gnueabihf/4.6.1/include -Iinclude  -I/home/lars/spica/new_kernel/SM-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Ofast -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DUNLOCK_PARTITIONS_IN_RESUME -DCONFIG_RFS_STL_DELETE -DCONFIG_XSR_FLASH_PHYS_ADDR0=0x20000000 -DCONFIG_XSR_FLASH_PHYS_ADDR1=0x70100000 -DCONFIG_RFS_XSR_STL_SAM=100 -I/home/lars/spica/new_kernel/SM-kernel/Inc -I/home/lars/spica/new_kernel/SM-kernel -DXSR_NW  -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(xsr_stl.mod)"  -D"KBUILD_MODNAME=KBUILD_STR(xsr_stl)"  -DMODULE -pipe -Ofast -marm -mfpu=vfp -mtune=arm1176jzf-s -c -o /home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o /home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.c
+cmd_/home/lukasz/i5700.2/i5700-leshak-kmodules2/xsr/xsr_stl.mod.o := /home/lukasz/ctng/opt/arm-spica-linux-uclibcgnueabi/bin/arm-spica-linux-uclibcgnueabi-gcc -Wp,-MD,/home/lukasz/i5700.2/i5700-leshak-kmodules2/xsr/.xsr_stl.mod.o.d  -nostdinc -isystem /home/lukasz/ctng/opt/arm-spica-linux-uclibcgnueabi/lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include -Iinclude  -I/home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O3 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -DUNLOCK_PARTITIONS_IN_RESUME -DCONFIG_RFS_STL_DELETE -DCONFIG_XSR_FLASH_PHYS_ADDR0=0x20000000 -DCONFIG_XSR_FLASH_PHYS_ADDR1=0x70100000 -DCONFIG_RFS_XSR_STL_SAM=100 -I/home/lukasz/i5700.2/kernel/i5700-kernel/Inc -I/home/lukasz/i5700.2/kernel/i5700-kernel -DXSR_NW  -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(xsr_stl.mod)"  -D"KBUILD_MODNAME=KBUILD_STR(xsr_stl)"  -DMODULE -O3 -marm -mfpu=vfp -mtune=arm1176jzf-s -c -o /home/lukasz/i5700.2/i5700-leshak-kmodules2/xsr/xsr_stl.mod.o /home/lukasz/i5700.2/i5700-leshak-kmodules2/xsr/xsr_stl.mod.c
 
-deps_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o := \
-  /home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.c \
+deps_/home/lukasz/i5700.2/i5700-leshak-kmodules2/xsr/xsr_stl.mod.o := \
+  /home/lukasz/i5700.2/i5700-leshak-kmodules2/xsr/xsr_stl.mod.c \
     $(wildcard include/config/module/unload.h) \
   include/linux/module.h \
     $(wildcard include/config/modules.h) \
@@ -33,23 +33,23 @@ deps_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o := \
     $(wildcard include/config/phys/addr/t/64bit.h) \
     $(wildcard include/config/64bit.h) \
   include/linux/posix_types.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/posix_types.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/types.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/posix_types.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/types.h \
   include/asm-generic/int-ll64.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/processor.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/processor.h \
     $(wildcard include/config/mmu.h) \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/ptrace.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/ptrace.h \
     $(wildcard include/config/arm/thumb.h) \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/hwcap.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/cache.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/hwcap.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/cache.h \
     $(wildcard include/config/arm/l1/cache/shift.h) \
     $(wildcard include/config/aeabi.h) \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/system.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/system.h \
     $(wildcard include/config/cpu/xsc3.h) \
     $(wildcard include/config/cpu/sa1100.h) \
     $(wildcard include/config/cpu/sa110.h) \
   include/linux/linkage.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/linkage.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/linkage.h \
   include/linux/irqflags.h \
     $(wildcard include/config/trace/irqflags.h) \
     $(wildcard include/config/irqsoff/tracer.h) \
@@ -57,11 +57,11 @@ deps_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o := \
     $(wildcard include/config/trace/irqflags/support.h) \
     $(wildcard include/config/x86.h) \
   include/linux/typecheck.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/irqflags.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/irqflags.h \
   include/asm-generic/cmpxchg-local.h \
   include/asm-generic/cmpxchg.h \
   include/linux/stat.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/stat.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/stat.h \
   include/linux/time.h \
   include/linux/cache.h \
     $(wildcard include/config/arch/has/cache/line/size.h) \
@@ -73,12 +73,12 @@ deps_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o := \
     $(wildcard include/config/dynamic/printk/debug.h) \
     $(wildcard include/config/numa.h) \
     $(wildcard include/config/ftrace/mcount/record.h) \
-  /usr/lib/gcc/arm-linux-gnueabihf/4.6.1/include/stdarg.h \
+  /home/lukasz/ctng/opt/arm-spica-linux-uclibcgnueabi/lib/gcc/arm-spica-linux-uclibcgnueabi/4.5.1/include/stdarg.h \
   include/linux/bitops.h \
     $(wildcard include/config/generic/find/first/bit.h) \
     $(wildcard include/config/generic/find/last/bit.h) \
     $(wildcard include/config/generic/find/next/bit.h) \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/bitops.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/bitops.h \
   include/asm-generic/bitops/non-atomic.h \
   include/asm-generic/bitops/fls64.h \
   include/asm-generic/bitops/sched.h \
@@ -89,15 +89,15 @@ deps_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o := \
     $(wildcard include/config/arch/has/ilog2/u64.h) \
   include/linux/ratelimit.h \
   include/linux/param.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/param.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/param.h \
     $(wildcard include/config/hz.h) \
   include/linux/dynamic_printk.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/byteorder.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/byteorder.h \
   include/linux/byteorder/little_endian.h \
   include/linux/swab.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/swab.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/swab.h \
   include/linux/byteorder/generic.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/bug.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/bug.h \
     $(wildcard include/config/bug.h) \
     $(wildcard include/config/debug/bugverbose.h) \
   include/asm-generic/bug.h \
@@ -113,12 +113,12 @@ deps_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o := \
     $(wildcard include/config/preempt/notifiers.h) \
   include/linux/thread_info.h \
     $(wildcard include/config/compat.h) \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/thread_info.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/thread_info.h \
     $(wildcard include/config/arm/thumbee.h) \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/fpstate.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/fpstate.h \
     $(wildcard include/config/vfpv3.h) \
     $(wildcard include/config/iwmmxt.h) \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/domain.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/domain.h \
     $(wildcard include/config/io/36.h) \
   include/linux/stringify.h \
   include/linux/bottom_half.h \
@@ -130,10 +130,10 @@ deps_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o := \
     $(wildcard include/config/generic/hardirqs.h) \
   include/linux/spinlock_up.h \
   include/linux/spinlock_api_up.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/atomic.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/atomic.h \
   include/asm-generic/atomic.h \
   include/linux/math64.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/div64.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/div64.h \
   include/linux/kmod.h \
   include/linux/gfp.h \
     $(wildcard include/config/zone/dma.h) \
@@ -157,7 +157,7 @@ deps_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o := \
     $(wildcard include/config/nodes/span/other/nodes.h) \
     $(wildcard include/config/holes/in/zone.h) \
   include/linux/wait.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/current.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/current.h \
   include/linux/threads.h \
     $(wildcard include/config/nr/cpus.h) \
     $(wildcard include/config/base/small.h) \
@@ -168,19 +168,19 @@ deps_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o := \
   include/linux/nodemask.h \
   include/linux/bitmap.h \
   include/linux/string.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/string.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/string.h \
   include/linux/pageblock-flags.h \
     $(wildcard include/config/hugetlb/page.h) \
     $(wildcard include/config/hugetlb/page/size/variable.h) \
   include/linux/bounds.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/page.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/page.h \
     $(wildcard include/config/cpu/copy/v3.h) \
     $(wildcard include/config/cpu/copy/v4wt.h) \
     $(wildcard include/config/cpu/copy/v4wb.h) \
     $(wildcard include/config/cpu/copy/feroceon.h) \
     $(wildcard include/config/cpu/xscale.h) \
     $(wildcard include/config/cpu/copy/v6.h) \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/glue.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/glue.h \
     $(wildcard include/config/cpu/arm610.h) \
     $(wildcard include/config/cpu/arm710.h) \
     $(wildcard include/config/cpu/abrt/lv4t.h) \
@@ -192,13 +192,13 @@ deps_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o := \
     $(wildcard include/config/cpu/abrt/ev7.h) \
     $(wildcard include/config/cpu/pabrt/ifar.h) \
     $(wildcard include/config/cpu/pabrt/noifar.h) \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/memory.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/memory.h \
     $(wildcard include/config/page/offset.h) \
     $(wildcard include/config/dram/size.h) \
     $(wildcard include/config/dram/base.h) \
   include/linux/const.h \
   arch/arm/mach-s3c6400/include/mach/memory.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/sizes.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/sizes.h \
   include/asm-generic/memory_model.h \
     $(wildcard include/config/sparsemem/vmemmap.h) \
   include/asm-generic/page.h \
@@ -207,7 +207,7 @@ deps_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o := \
     $(wildcard include/config/memory/hotremove.h) \
   include/linux/notifier.h \
   include/linux/errno.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/errno.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/errno.h \
   include/asm-generic/errno.h \
   include/asm-generic/errno-base.h \
   include/linux/mutex.h \
@@ -215,7 +215,7 @@ deps_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o := \
   include/linux/mutex-debug.h \
   include/linux/rwsem.h \
     $(wildcard include/config/rwsem/generic/spinlock.h) \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/rwsem.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/rwsem.h \
   include/linux/srcu.h \
   include/linux/topology.h \
     $(wildcard include/config/sched/smt.h) \
@@ -227,12 +227,12 @@ deps_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o := \
     $(wildcard include/config/debug/per/cpu/maps.h) \
   include/linux/smp.h \
     $(wildcard include/config/use/generic/smp/helpers.h) \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/topology.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/topology.h \
   include/asm-generic/topology.h \
   include/linux/elf.h \
   include/linux/elf-em.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/elf.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/user.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/elf.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/user.h \
   include/linux/kobject.h \
   include/linux/sysfs.h \
   include/linux/kref.h \
@@ -256,18 +256,18 @@ deps_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o := \
     $(wildcard include/config/debug/slab.h) \
   include/linux/slab_def.h \
   include/linux/kmalloc_sizes.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/percpu.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/percpu.h \
   include/asm-generic/percpu.h \
     $(wildcard include/config/have/setup/per/cpu/area.h) \
   include/linux/completion.h \
-  include/linux/rcutiny.h \
-    $(wildcard include/config/no/hz.h) \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/local.h \
+  include/linux/rcuclassic.h \
+    $(wildcard include/config/rcu/cpu/stall/detector.h) \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/local.h \
   include/asm-generic/local.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/module.h \
+  /home/lukasz/i5700.2/kernel/i5700-kernel/arch/arm/include/asm/module.h \
   include/linux/vermagic.h \
   include/linux/utsrelease.h \
 
-/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o: $(deps_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o)
+/home/lukasz/i5700.2/i5700-leshak-kmodules2/xsr/xsr_stl.mod.o: $(deps_/home/lukasz/i5700.2/i5700-leshak-kmodules2/xsr/xsr_stl.mod.o)
 
-$(deps_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o):
+$(deps_/home/lukasz/i5700.2/i5700-leshak-kmodules2/xsr/xsr_stl.mod.o):
