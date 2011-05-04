@@ -1,18 +1,22 @@
-/*
- * Project Name JPEG DRIVER IN Linux
- * Copyright  2007 Samsung Electronics Co, Ltd. All Rights Reserved. 
+/* jpeg/JPGMem.h
  *
- * This software is the confidential and proprietary information
- * of Samsung Electronics  ("Confidential Information").   
- * you shall not disclose such Confidential Information and shall use
- * it only in accordance with the terms of the license agreement
- * you entered into with Samsung Electronics 
+ * Copyright (c) 2008 Samsung Electronics
  *
- * This file implements JPEG driver.
+ * Samsung S3C JPEG driver
  *
- * @name JPEG DRIVER MODULE Module (JPGMem.h)
- * @author Jiun Yu (jiun.yu@samsung.com)
- * @date 04-07-07
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef __JPG_MEM_H__
@@ -22,8 +26,10 @@
 
 #include <linux/version.h>
 #include <mach/hardware.h>
-#include <plat/reserved_mem.h>
 
+#ifdef CONFIG_MACH_GT_I5700
+#include <mach/gt_i5700.h>
+#endif
 
 #define JPG_REG_BASE_ADDR          (0x78800000)
 

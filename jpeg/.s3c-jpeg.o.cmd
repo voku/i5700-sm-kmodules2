@@ -313,6 +313,7 @@ deps_/home/lars/spica/new_kernel/modules/jpeg/s3c-jpeg.o := \
   /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/poll.h \
   include/asm-generic/poll.h \
   include/linux/sched.h \
+    $(wildcard include/config/sched/bfs.h) \
     $(wildcard include/config/sched/debug.h) \
     $(wildcard include/config/detect/softlockup.h) \
     $(wildcard include/config/core/dump/default/elf/headers.h) \
@@ -325,8 +326,6 @@ deps_/home/lars/spica/new_kernel/modules/jpeg/s3c-jpeg.o := \
     $(wildcard include/config/user/sched.h) \
     $(wildcard include/config/schedstats.h) \
     $(wildcard include/config/task/delay/acct.h) \
-    $(wildcard include/config/fair/group/sched.h) \
-    $(wildcard include/config/rt/group/sched.h) \
     $(wildcard include/config/blk/dev/io/trace.h) \
     $(wildcard include/config/cc/stackprotector.h) \
     $(wildcard include/config/x86/ptrace/bts.h) \
@@ -343,6 +342,8 @@ deps_/home/lars/spica/new_kernel/modules/jpeg/s3c-jpeg.o := \
     $(wildcard include/config/have/unstable/sched/clock.h) \
     $(wildcard include/config/preempt/bkl.h) \
     $(wildcard include/config/group/sched.h) \
+    $(wildcard include/config/fair/group/sched.h) \
+    $(wildcard include/config/rt/group/sched.h) \
     $(wildcard include/config/mm/owner.h) \
   include/linux/timex.h \
   /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/timex.h \
@@ -478,12 +479,11 @@ deps_/home/lars/spica/new_kernel/modules/jpeg/s3c-jpeg.o := \
   /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/io.h \
   arch/arm/plat-s3c/include/mach/io.h \
   arch/arm/plat-s3c/include/plat/map-base.h \
-  arch/arm/plat-s3c64xx/include/plat/regs-clock.h \
-  arch/arm/plat-s3c64xx/include/plat/power-clock-domain.h \
   arch/arm/plat-s3c64xx/include/plat/pm.h \
   include/linux/sysdev.h \
   /home/lars/spica/new_kernel/modules/jpeg/s3c-jpeg.h \
   /home/lars/spica/new_kernel/modules/jpeg/JPGMem.h \
+    $(wildcard include/config/mach/gt/i5700.h) \
   /home/lars/spica/new_kernel/modules/jpeg/JPGMisc.h \
   arch/arm/mach-s3c6400/include/mach/hardware.h \
     $(wildcard include/config/mach/spica.h) \
@@ -529,13 +529,10 @@ deps_/home/lars/spica/new_kernel/modules/jpeg/s3c-jpeg.o := \
   arch/arm/plat-s3c64xx/include/plat/gpio-bank-o.h \
   arch/arm/plat-s3c64xx/include/plat/gpio-bank-p.h \
   arch/arm/plat-s3c64xx/include/plat/gpio-bank-q.h \
-  arch/arm/plat-s3c64xx/include/plat/reserved_mem.h \
-    $(wildcard include/config/sec/log/buf.h) \
-    $(wildcard include/config/log/buf/shift.h) \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/setup.h \
-    $(wildcard include/config/arch/lh7a40x.h) \
   /home/lars/spica/new_kernel/modules/jpeg/JPGOpr.h \
   /home/lars/spica/new_kernel/modules/jpeg/LogMsg.h \
+  include/linux/regulator/consumer.h \
+    $(wildcard include/config/regulator.h) \
 
 /home/lars/spica/new_kernel/modules/jpeg/s3c-jpeg.o: $(deps_/home/lars/spica/new_kernel/modules/jpeg/s3c-jpeg.o)
 

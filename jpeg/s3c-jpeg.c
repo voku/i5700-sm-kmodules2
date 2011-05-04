@@ -1,18 +1,22 @@
-/*
- * Project Name JPEG DRIVER IN Linux
- * Copyright  2007 Samsung Electronics Co, Ltd. All Rights Reserved. 
+/* jpeg/s3c-jpeg.c
  *
- * This software is the confidential and proprietary information
- * of Samsung Electronics  ("Confidential Information").   
- * you shall not disclose such Confidential Information and shall use
- * it only in accordance with the terms of the license agreement
- * you entered into with Samsung Electronics 
+ * Copyright (c) 2008 Samsung Electronics
  *
- * This file implements JPEG driver.
+ * Samsung S3C JPEG driver
  *
- * @name JPEG DRIVER MODULE Module (JPGDriver.c)
- * @author Jiun Yu (jiun.yu@samsung.com)
- * @date 05-07-07
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include <linux/version.h>
@@ -47,8 +51,7 @@
 
 #include <mach/irqs.h>
 #include <plat/map-base.h>
-#include <plat/regs-clock.h>
-#include <plat/power-clock-domain.h>
+//#include <plat/regs-clock.h>
 #include <plat/pm.h>
 
 #include "s3c-jpeg.h"
@@ -58,6 +61,8 @@
 #include "LogMsg.h"
 
 #ifdef CONFIG_S3C64XX_DOMAIN_GATING
+#include <linux/regulator/consumer.h>
+static struct regulator *jpeg_domain;
 #define USE_JPEG_DOMAIN_GATING
 #endif /* CONFIG_S3C64XX_DOMAIN_GATING */
 
@@ -69,6 +74,7 @@ typedef struct {
 
 
 static struct clk		*jpeg_hclk;
+static struct clk		*jpeg_sclk;
 static struct resource	*jpeg_mem;
 static void __iomem		*jpeg_base;
 static S3C6400_JPG_CTX	JPGMem;
@@ -80,14 +86,14 @@ DECLARE_WAIT_QUEUE_HEAD(WaitQueue_JPEG);
 
 static void clk_jpeg_enable(void)
 {
-	__raw_writel((__raw_readl(S3C_HCLK_GATE) | 1 << 11), S3C_HCLK_GATE);
-	__raw_writel((__raw_readl(S3C_SCLK_GATE) | 1 << 1), S3C_SCLK_GATE);
+	clk_enable(jpeg_hclk);
+	clk_enable(jpeg_sclk);
 }
 
 static void clk_jpeg_disable(void)
 {
-	__raw_writel((__raw_readl(S3C_HCLK_GATE) & ~(1 << 11)), S3C_HCLK_GATE);
-	__raw_writel((__raw_readl(S3C_SCLK_GATE) & ~(1 << 1)), S3C_SCLK_GATE);
+	clk_disable(jpeg_hclk);
+	clk_disable(jpeg_sclk);
 }
 
 irqreturn_t s3c_jpeg_irq(int irq, void *dev_id)
@@ -133,11 +139,7 @@ static int s3c_jpeg_open(struct inode *inode, struct file *file)
 	DWORD	ret;
 
 #ifdef USE_JPEG_DOMAIN_GATING
-	s3c_set_normal_cfg(S3C64XX_DOMAIN_I, S3C64XX_ACTIVE_MODE, S3C64XX_JPEG);
-	if(s3c_wait_blk_pwr_ready(S3C64XX_BLK_I)) {
-		printk(KERN_INFO "s3c_wait_blk_pwr_ready(S3C64XX_BLK_I)\n");
-		return -1;
-	}
+	regulator_enable(jpeg_domain);
 #endif /* USE_JPEG_DOMAIN_GATING */
 
 	clk_jpeg_enable();
@@ -200,7 +202,7 @@ static int s3c_jpeg_release(struct inode *inode, struct file *file)
 	clk_jpeg_disable();
 	
 #ifdef USE_JPEG_DOMAIN_GATING
-	s3c_set_normal_cfg(S3C64XX_DOMAIN_I, S3C64XX_LP_MODE, S3C64XX_JPEG);
+	regulator_disable(jpeg_domain);
 #endif /* USE_JPEG_DOMAIN_GATING */
 
 	return 0;
@@ -218,8 +220,8 @@ static ssize_t s3c_jpeg_read(struct file *file, char *buf, size_t count, loff_t 
 	return 0;
 }
 
-static int s3c_jpeg_ioctl(struct inode *inode, struct file *file, unsigned
-		int cmd, unsigned long arg)
+static long s3c_jpeg_ioctl(struct file *file,
+					unsigned int cmd, unsigned long arg)
 {
 	S3C6400_JPG_CTX		*JPGRegCtx;
 	s3c_jpeg_t			*s3c_jpeg_buf;
@@ -365,12 +367,12 @@ static int s3c_jpeg_ioctl(struct inode *inode, struct file *file, unsigned
 }
 
 static struct file_operations jpeg_fops = {
-owner:		THIS_MODULE,
-			open:		s3c_jpeg_open,
-			release:	s3c_jpeg_release,
-			ioctl:		s3c_jpeg_ioctl,
-			read:		s3c_jpeg_read,
-			write:		s3c_jpeg_write,
+	owner:		THIS_MODULE,
+	open:		s3c_jpeg_open,
+	release:	s3c_jpeg_release,
+	compat_ioctl:	s3c_jpeg_ioctl,
+	read:		s3c_jpeg_read,
+	write:		s3c_jpeg_write,
 };
 
 
@@ -384,25 +386,33 @@ minor:		254,
 static int s3c_jpeg_probe(struct platform_device *pdev)
 {
 	struct resource *res;
-	static int		size;
-	static int		ret;
-	HANDLE 			h_Mutex;
-	unsigned int	jpg_clk;
+	static int	size;
+	static int	ret;
+	HANDLE 		h_Mutex;
 	
 #ifdef USE_JPEG_DOMAIN_GATING
-	s3c_set_normal_cfg(S3C64XX_DOMAIN_I, S3C64XX_ACTIVE_MODE, S3C64XX_JPEG);
-	if(s3c_wait_blk_pwr_ready(S3C64XX_BLK_I)) {
-		printk(KERN_INFO "s3c_wait_blk_pwr_ready(S3C64XX_BLK_I)\n");
-		return -1;
+	jpeg_domain = regulator_get(&pdev->dev, "pd");
+	if (IS_ERR(jpeg_domain)) {
+		printk(KERN_ERR "failed to get power domain regulator\n");
+		return -ENOENT;
 	}
+	regulator_enable(jpeg_domain);
 #endif /* USE_JPEG_DOMAIN_GATING */
 
 	// JPEG clock enable 
-	jpeg_hclk	= clk_get(NULL, "hclk_jpeg");
+	jpeg_hclk = clk_get(NULL, "jpeg_hclk");
 	if (IS_ERR(jpeg_hclk)) {
 		printk(KERN_ERR "failed to get jpeg hclk source\n");
 		return -ENOENT;
 	}
+
+	// JPEG clock enable 
+	jpeg_sclk = clk_get(NULL, "jpeg");
+	if (IS_ERR(jpeg_sclk)) {
+		printk(KERN_ERR "failed to get jpeg sclk source\n");
+		return -ENOENT;
+	}
+
 	clk_jpeg_enable();
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
@@ -437,10 +447,8 @@ static int s3c_jpeg_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
-	// JPEG clock was set as 66 MHz
-	jpg_clk = readl(S3C_CLK_DIV0);
-	jpg_clk = (jpg_clk & ~(0xF << 24)) | (3 << 24);
-	__raw_writel(jpg_clk, S3C_CLK_DIV0);
+	// Set JPEG clock to 66 MHz
+	clk_set_rate(jpeg_sclk, 66 * 1000 * 1000);
 
 	JPEG_LOG_MSG(LOG_TRACE, "s3c_jpeg_probe", "JPG_Init\n");
 
@@ -481,7 +489,7 @@ static int s3c_jpeg_probe(struct platform_device *pdev)
 	clk_jpeg_disable();
 	
 #ifdef USE_JPEG_DOMAIN_GATING
-	s3c_set_normal_cfg(S3C64XX_DOMAIN_I, S3C64XX_LP_MODE, S3C64XX_JPEG);
+	regulator_disable(jpeg_domain);
 #endif /* USE_JPEG_DOMAIN_GATING */
 	return 0;
 }
@@ -496,6 +504,12 @@ static int s3c_jpeg_remove(struct platform_device *dev)
 
 	free_irq(irq_no, dev);
 	misc_deregister(&s3c_jpeg_miscdev);
+#ifdef USE_JPEG_DOMAIN_GATING
+	regulator_put(jpeg_domain);
+#endif
+	clk_put(jpeg_hclk);
+	clk_put(jpeg_sclk);
+
 	return 0;
 }
 
