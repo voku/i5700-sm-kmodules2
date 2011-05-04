@@ -361,7 +361,6 @@ deps_/home/lars/spica/new_kernel/modules/wlan/src/bcmsdio/sys/wlgpio.o := \
   arch/arm/plat-s3c64xx/include/plat/irqs.h \
   include/linux/irq_cpustat.h \
   include/linux/sched.h \
-    $(wildcard include/config/sched/bfs.h) \
     $(wildcard include/config/sched/debug.h) \
     $(wildcard include/config/detect/softlockup.h) \
     $(wildcard include/config/core/dump/default/elf/headers.h) \
@@ -375,6 +374,8 @@ deps_/home/lars/spica/new_kernel/modules/wlan/src/bcmsdio/sys/wlgpio.o := \
     $(wildcard include/config/user/sched.h) \
     $(wildcard include/config/schedstats.h) \
     $(wildcard include/config/task/delay/acct.h) \
+    $(wildcard include/config/fair/group/sched.h) \
+    $(wildcard include/config/rt/group/sched.h) \
     $(wildcard include/config/blk/dev/io/trace.h) \
     $(wildcard include/config/cc/stackprotector.h) \
     $(wildcard include/config/x86/ptrace/bts.h) \
@@ -391,8 +392,6 @@ deps_/home/lars/spica/new_kernel/modules/wlan/src/bcmsdio/sys/wlgpio.o := \
     $(wildcard include/config/have/unstable/sched/clock.h) \
     $(wildcard include/config/preempt/bkl.h) \
     $(wildcard include/config/group/sched.h) \
-    $(wildcard include/config/fair/group/sched.h) \
-    $(wildcard include/config/rt/group/sched.h) \
     $(wildcard include/config/mm/owner.h) \
   include/linux/capability.h \
     $(wildcard include/config/security/file/capabilities.h) \

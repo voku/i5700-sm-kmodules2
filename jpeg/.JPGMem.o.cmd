@@ -227,7 +227,6 @@ deps_/home/lars/spica/new_kernel/modules/jpeg/JPGMem.o := \
   include/linux/kmalloc_sizes.h \
   /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/uaccess.h \
   /home/lars/spica/new_kernel/modules/jpeg/JPGMem.h \
-    $(wildcard include/config/mach/gt/i5700.h) \
   /home/lars/spica/new_kernel/modules/jpeg/JPGMisc.h \
   include/linux/version.h \
   arch/arm/mach-s3c6400/include/mach/hardware.h \
@@ -274,6 +273,11 @@ deps_/home/lars/spica/new_kernel/modules/jpeg/JPGMem.o := \
   arch/arm/plat-s3c64xx/include/plat/gpio-bank-o.h \
   arch/arm/plat-s3c64xx/include/plat/gpio-bank-p.h \
   arch/arm/plat-s3c64xx/include/plat/gpio-bank-q.h \
+  arch/arm/plat-s3c64xx/include/plat/reserved_mem.h \
+    $(wildcard include/config/sec/log/buf.h) \
+    $(wildcard include/config/log/buf/shift.h) \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/setup.h \
+    $(wildcard include/config/arch/lh7a40x.h) \
   /home/lars/spica/new_kernel/modules/jpeg/LogMsg.h \
 
 /home/lars/spica/new_kernel/modules/jpeg/JPGMem.o: $(deps_/home/lars/spica/new_kernel/modules/jpeg/JPGMem.o)
