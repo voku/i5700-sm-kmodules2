@@ -1,1 +1,1 @@
-cmd_/home/lars/spica/new_kernel/modules/multipdp/multipdp.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/multipdp/multipdp.ko /home/lars/spica/new_kernel/modules/multipdp/multipdp.o /home/lars/spica/new_kernel/modules/multipdp/multipdp.mod.o
+cmd_/home/lars/spica/new_kernel/modules/multipdp/multipdp.ko := /usr/bin/arm-linux-gnueabi-ld -EL -r   -o /home/lars/spica/new_kernel/modules/multipdp/multipdp.ko /home/lars/spica/new_kernel/modules/multipdp/multipdp.o /home/lars/spica/new_kernel/modules/multipdp/multipdp.mod.o

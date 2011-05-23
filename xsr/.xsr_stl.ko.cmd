@@ -1,1 +1,1 @@
-cmd_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/xsr/xsr_stl.ko /home/lars/spica/new_kernel/modules/xsr/xsr_stl.o /home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o
+cmd_/home/lars/spica/new_kernel/modules/xsr/xsr_stl.ko := /usr/bin/arm-linux-gnueabi-ld -EL -r   -o /home/lars/spica/new_kernel/modules/xsr/xsr_stl.ko /home/lars/spica/new_kernel/modules/xsr/xsr_stl.o /home/lars/spica/new_kernel/modules/xsr/xsr_stl.mod.o

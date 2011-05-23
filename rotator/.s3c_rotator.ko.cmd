@@ -1,1 +1,1 @@
-cmd_/home/lars/spica/new_kernel/modules/rotator/s3c_rotator.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/rotator/s3c_rotator.ko /home/lars/spica/new_kernel/modules/rotator/s3c_rotator.o /home/lars/spica/new_kernel/modules/rotator/s3c_rotator.mod.o
+cmd_/home/lars/spica/new_kernel/modules/rotator/s3c_rotator.ko := /usr/bin/arm-linux-gnueabi-ld -EL -r   -o /home/lars/spica/new_kernel/modules/rotator/s3c_rotator.ko /home/lars/spica/new_kernel/modules/rotator/s3c_rotator.o /home/lars/spica/new_kernel/modules/rotator/s3c_rotator.mod.o

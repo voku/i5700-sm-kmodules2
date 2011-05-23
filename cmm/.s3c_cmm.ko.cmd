@@ -1,1 +1,1 @@
-cmd_/home/lars/spica/new_kernel/modules/cmm/s3c_cmm.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/cmm/s3c_cmm.ko /home/lars/spica/new_kernel/modules/cmm/s3c_cmm.o /home/lars/spica/new_kernel/modules/cmm/s3c_cmm.mod.o
+cmd_/home/lars/spica/new_kernel/modules/cmm/s3c_cmm.ko := /usr/bin/arm-linux-gnueabi-ld -EL -r   -o /home/lars/spica/new_kernel/modules/cmm/s3c_cmm.ko /home/lars/spica/new_kernel/modules/cmm/s3c_cmm.o /home/lars/spica/new_kernel/modules/cmm/s3c_cmm.mod.o

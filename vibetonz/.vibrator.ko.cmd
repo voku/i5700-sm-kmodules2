@@ -1,1 +1,1 @@
-cmd_/home/lars/spica/new_kernel/modules/vibetonz/vibrator.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/vibetonz/vibrator.ko /home/lars/spica/new_kernel/modules/vibetonz/vibrator.o /home/lars/spica/new_kernel/modules/vibetonz/vibrator.mod.o
+cmd_/home/lars/spica/new_kernel/modules/vibetonz/vibrator.ko := /usr/bin/arm-linux-gnueabi-ld -EL -r   -o /home/lars/spica/new_kernel/modules/vibetonz/vibrator.ko /home/lars/spica/new_kernel/modules/vibetonz/vibrator.o /home/lars/spica/new_kernel/modules/vibetonz/vibrator.mod.o

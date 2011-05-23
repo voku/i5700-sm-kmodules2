@@ -1,1 +1,1 @@
-cmd_/home/lars/spica/new_kernel/modules/g2d/s3c_g2d_driver.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/g2d/s3c_g2d_driver.ko /home/lars/spica/new_kernel/modules/g2d/s3c_g2d_driver.o /home/lars/spica/new_kernel/modules/g2d/s3c_g2d_driver.mod.o
+cmd_/home/lars/spica/new_kernel/modules/g2d/s3c_g2d_driver.ko := /usr/bin/arm-linux-gnueabi-ld -EL -r   -o /home/lars/spica/new_kernel/modules/g2d/s3c_g2d_driver.ko /home/lars/spica/new_kernel/modules/g2d/s3c_g2d_driver.o /home/lars/spica/new_kernel/modules/g2d/s3c_g2d_driver.mod.o

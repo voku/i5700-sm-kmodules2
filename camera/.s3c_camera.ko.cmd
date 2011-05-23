@@ -1,1 +1,1 @@
-cmd_/home/lars/spica/new_kernel/modules/camera/s3c_camera.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/camera/s3c_camera.ko /home/lars/spica/new_kernel/modules/camera/s3c_camera.o /home/lars/spica/new_kernel/modules/camera/s3c_camera.mod.o
+cmd_/home/lars/spica/new_kernel/modules/camera/s3c_camera.ko := /usr/bin/arm-linux-gnueabi-ld -EL -r   -o /home/lars/spica/new_kernel/modules/camera/s3c_camera.ko /home/lars/spica/new_kernel/modules/camera/s3c_camera.o /home/lars/spica/new_kernel/modules/camera/s3c_camera.mod.o

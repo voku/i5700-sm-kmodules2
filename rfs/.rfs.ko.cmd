@@ -1,1 +1,1 @@
-cmd_/home/lars/spica/new_kernel/modules/rfs/rfs.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/rfs/rfs.ko /home/lars/spica/new_kernel/modules/rfs/rfs.o /home/lars/spica/new_kernel/modules/rfs/rfs.mod.o
+cmd_/home/lars/spica/new_kernel/modules/rfs/rfs.ko := /usr/bin/arm-linux-gnueabi-ld -EL -r   -o /home/lars/spica/new_kernel/modules/rfs/rfs.ko /home/lars/spica/new_kernel/modules/rfs/rfs.o /home/lars/spica/new_kernel/modules/rfs/rfs.mod.o

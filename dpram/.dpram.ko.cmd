@@ -1,1 +1,1 @@
-cmd_/home/lars/spica/new_kernel/modules/dpram/dpram.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/dpram/dpram.ko /home/lars/spica/new_kernel/modules/dpram/dpram.o /home/lars/spica/new_kernel/modules/dpram/dpram.mod.o
+cmd_/home/lars/spica/new_kernel/modules/dpram/dpram.ko := /usr/bin/arm-linux-gnueabi-ld -EL -r   -o /home/lars/spica/new_kernel/modules/dpram/dpram.ko /home/lars/spica/new_kernel/modules/dpram/dpram.o /home/lars/spica/new_kernel/modules/dpram/dpram.mod.o

@@ -1,1 +1,1 @@
-cmd_/home/lars/spica/new_kernel/modules/jpeg/s3c_jpeg.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/jpeg/s3c_jpeg.ko /home/lars/spica/new_kernel/modules/jpeg/s3c_jpeg.o /home/lars/spica/new_kernel/modules/jpeg/s3c_jpeg.mod.o
+cmd_/home/lars/spica/new_kernel/modules/jpeg/s3c_jpeg.ko := /usr/bin/arm-linux-gnueabi-ld -EL -r   -o /home/lars/spica/new_kernel/modules/jpeg/s3c_jpeg.ko /home/lars/spica/new_kernel/modules/jpeg/s3c_jpeg.o /home/lars/spica/new_kernel/modules/jpeg/s3c_jpeg.mod.o
