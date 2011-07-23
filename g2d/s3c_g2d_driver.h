@@ -1,17 +1,25 @@
 /*
- * Copyright  2008 Samsung Electronics Co, Ltd. All Rights Reserved. 
+/* g2d/s3c_g2d_driver.h
  *
- * This software is the confidential and proprietary information
- * of Samsung Electronics  ("Confidential Information").   
- * you shall not disclose such Confidential Information and shall use
- * it only in accordance with the terms of the license agreement
- * you entered into with Samsung Electronics 
+ * Copyright (c) 2008 Samsung Electronics
  *
- * This file implements s3c-g2d driver.
+ * Samsung S3C G2D driver
  *
- * @name G2D DRIVER MODULE Module (s3c_g2d_driver.h)
- * @date 2008-12-05
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef _S3C_G2D_DRIVER_H_
 #define _S3C_G2D_DRIVER_H_
 
@@ -31,7 +39,7 @@
 #define S3C_G2D_ROTATOR_X_FLIP		_IO(G2D_IOCTL_MAGIC,4)
 #define S3C_G2D_ROTATOR_Y_FLIP		_IO(G2D_IOCTL_MAGIC,5)
 
-#define G2D_TIMEOUT		100
+#define G2D_TIMEOUT		20 //hjkang_DD24 camcorder preview rack when recording 100->20 
 #define ALPHA_VALUE_MAX	255
 
 
