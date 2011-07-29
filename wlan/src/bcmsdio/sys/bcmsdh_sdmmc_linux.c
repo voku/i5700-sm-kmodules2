@@ -21,7 +21,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: bcmsdh_sdmmc_linux.c,v 1.1.2.5.20.16 2010/05/14 04:40:41 Exp $
+ * $Id: bcmsdh_sdmmc_linux.c,v 1.1.2.5.20.8 2009/07/25 03:50:48 Exp $
  */
 
 #include <typedefs.h>
@@ -37,22 +37,14 @@
 #include <linux/mmc/card.h>
 #include <linux/mmc/sdio_func.h>
 #include <linux/mmc/sdio_ids.h>
+#include <dhd_dbg.h>
 
 #if !defined(SDIO_VENDOR_ID_BROADCOM)
 #define SDIO_VENDOR_ID_BROADCOM		0x02d0
 #endif /* !defined(SDIO_DEVICE_ID_BROADCOM_4325) */
-
-#define SDIO_DEVICE_ID_BROADCOM_DEFAULT	0x0000
-
-#if !defined(SDIO_DEVICE_ID_BROADCOM_4325_SDGWB)
-#define SDIO_DEVICE_ID_BROADCOM_4325_SDGWB	0x0492	/* BCM94325SDGWB */
-#endif /* !defined(SDIO_DEVICE_ID_BROADCOM_4325_SDGWB) */
 #if !defined(SDIO_DEVICE_ID_BROADCOM_4325)
-#define SDIO_DEVICE_ID_BROADCOM_4325		0x0493	/* BCM94325SDAGWBM */
+#define SDIO_DEVICE_ID_BROADCOM_4325	0x0000
 #endif /* !defined(SDIO_DEVICE_ID_BROADCOM_4325) */
-#if !defined(SDIO_DEVICE_ID_BROADCOM_4329)
-#define SDIO_DEVICE_ID_BROADCOM_4329		0x4329
-#endif /* !defined(SDIO_DEVICE_ID_BROADCOM_4329) */
 
 #ifdef CONFIG_BRCM_GPIO_INTR
 #include <mach/gpio.h>
@@ -77,8 +69,6 @@ static int dhd_suspend (void);
 #endif
 
 #include <bcmsdh_sdmmc.h>
-#include <dhd_dbg.h>
-
 
 extern void sdioh_sdmmc_devintr_off(sdioh_info_t *sd);
 extern void sdioh_sdmmc_devintr_on(sdioh_info_t *sd);
@@ -104,8 +94,6 @@ void sdio_function_cleanup(void);
 #include <mach/cygnus.h>
 #elif CONFIG_MACH_INSTINCTQ
 #include <mach/instinctq.h>
-#elif CONFIG_MACH_INFOBOWLQ
-#include <mach/infobowlq.h>
 #elif CONFIG_MACH_BONANZA
 #include <mach/bonanza.h>
 #endif
@@ -151,33 +139,23 @@ typedef struct dhd_mmc_suspend {
 dhd_mmc_suspend_t dhd_mmc_suspend_ctrl = { 0,0,0,0 };
 
 #endif
-
-
 static int bcmsdh_sdmmc_probe(struct sdio_func *func,
                               const struct sdio_device_id *id)
 {
 	int ret = 0;
-	static struct sdio_func sdio_func_0;
 	sd_trace(("bcmsdh_sdmmc: %s Enter\n", __FUNCTION__));
 	sd_trace(("sdio_bcmsdh: func->class=%x\n", func->class));
 	sd_trace(("sdio_vendor: 0x%04x\n", func->vendor));
 	sd_trace(("sdio_device: 0x%04x\n", func->device));
 	sd_trace(("Function#: 0x%04x\n", func->num));
 
-	printk("bcmsdh_sdmmc: %s Enter\n", __FUNCTION__);
-	printk("sdio_bcmsdh: func->class=%x\n", func->class);
-	printk("sdio_vendor: 0x%04x\n", func->vendor);
-	printk("sdio_device: 0x%04x\n", func->device);
-	printk("Function#: 0x%04x\n", func->num);
-
 	if (func->num == 1) {
-		sdio_func_0.num = 0;
-		sdio_func_0.card = func->card;
-		gInstance->func[0] = &sdio_func_0;
+		/* Keep a copy of F1's 'func' in F0, just in case... */
+		gInstance->func[0] = func;
 		if(func->device == 0x4) { /* 4318 */
 			gInstance->func[2] = NULL;
 			sd_trace(("NIC found, calling bcmsdh_probe...\n"));
-			ret = bcmsdh_probe(&sdmmc_dev);
+			bcmsdh_probe(&sdmmc_dev);
 		}
 	}
 
@@ -185,12 +163,7 @@ static int bcmsdh_sdmmc_probe(struct sdio_func *func,
 
 	if (func->num == 2) {
 		sd_trace(("F2 found, calling bcmsdh_probe...\n"));
-		ret = bcmsdh_probe(&sdmmc_dev);
-		/*
-		To skip mmc_power_up() / mmc_power_off() during suspend/resume,
-		because these functions overwrite existing settings of host->ios.
-		*/
-		//func->card->host->skip_pwrmgt = 1;
+		bcmsdh_probe(&sdmmc_dev);
 	}
 
 #ifdef ANDROID_SPECIFIC
@@ -279,10 +252,8 @@ static void bcmsdh_sdmmc_remove(struct sdio_func *func)
 
 /* devices we support, null terminated */
 static const struct sdio_device_id bcmsdh_sdmmc_ids[] = {
-	{ SDIO_DEVICE(SDIO_VENDOR_ID_BROADCOM, SDIO_DEVICE_ID_BROADCOM_DEFAULT) },
-	{ SDIO_DEVICE(SDIO_VENDOR_ID_BROADCOM, SDIO_DEVICE_ID_BROADCOM_4325_SDGWB) },
 	{ SDIO_DEVICE(SDIO_VENDOR_ID_BROADCOM, SDIO_DEVICE_ID_BROADCOM_4325) },
-	{ SDIO_DEVICE(SDIO_VENDOR_ID_BROADCOM, SDIO_DEVICE_ID_BROADCOM_4329) },
+	{ SDIO_DEVICE_CLASS(SDIO_CLASS_NONE)		},
 	{ /* end: all zeroes */				},
 };
 
@@ -293,7 +264,6 @@ static struct sdio_driver bcmsdh_sdmmc_driver = {
 	.remove		= bcmsdh_sdmmc_remove,
 	.name		= "bcmsdh_sdmmc",
 	.id_table	= bcmsdh_sdmmc_ids,
-        .drv.pm		= &wifi_pm
 	};
 
 struct sdos_info {
@@ -447,12 +417,10 @@ sdioh_interrupt_set(sdioh_info_t *sd, bool enable)
 	sdos = (struct sdos_info *)sd->sdos_info;
 	ASSERT(sdos);
 
-#if !defined(OOB_INTR_ONLY)
 	if (enable && !(sd->intr_handler && sd->intr_handler_arg)) {
 		sd_err(("%s: no handler registered, will not enable\n", __FUNCTION__));
 		return SDIOH_API_RC_FAIL;
 	}
-#endif /* !defined(OOB_INTR_ONLY) */
 
 	/* Ensure atomicity for enable/disable calls */
 	spin_lock_irqsave(&sdos->lock, flags);
@@ -500,7 +468,7 @@ int sdio_function_init(void)
 {
 	int error = 0;
 	sd_trace(("bcmsdh_sdmmc: %s Enter\n", __FUNCTION__));
-	printk("bcmsdh_sdmmc : %s Enter\n", __FUNCTION__);
+
 #ifdef ANDROID_SPECIFIC    
 	error = gpio_wlan_poweron();
 	if (error)
@@ -511,9 +479,8 @@ int sdio_function_init(void)
 	if (!gInstance)
 		return -ENOMEM;
 
-	bzero(&sdmmc_dev, sizeof(sdmmc_dev));
 	error = sdio_register_driver(&bcmsdh_sdmmc_driver);
-	printk("bcmsdh_sdmmc : register_driver error: %d\n", error);
+
 
 #ifdef BCM_HOSTWAKE
 	dhd_mmc_suspend_ctrl.drv_loaded = TRUE;
@@ -521,13 +488,10 @@ int sdio_function_init(void)
 
 #ifdef CONFIG_BRCM_GPIO_INTR
 	/* HostWake up */
-	printk("bcmsdh_sdmmc : register_hwakeup\n");
 	dhd_register_hwakeup();
 #endif
 	register_mmc_card_pm(&wifi_pm);
-#endif  
-	printk("bcmsdh_sdmmc : return error: %d\n",error);
-
+#endif
 	return error;
 }
 
@@ -650,7 +614,6 @@ dhd_register_hwakeup(void)
 
 	dhd_wifi_sleep->host_wake = GPIO_WLAN_HOST_WAKE;
 
-	printk("dhd_register_hwakeup : start");
 	/* wake lock initialize */
    	wake_lock_init(&wlan_host_wakelock, WAKE_LOCK_SUSPEND, "WLAN_HOST_WAKE");
    	wake_lock_init(&wlan_host_wakelock_resume, WAKE_LOCK_SUSPEND, "WLAN_HOST_WAKE_RESUME");
@@ -670,9 +633,11 @@ dhd_register_hwakeup(void)
 		return 0;
 	}
 #endif
-        /*
+
+	 /*
 	dhd_wifi_sleep->host_wake_irq= gpio_to_irq (dhd_wifi_sleep->host_wake);
-        */
+	*/
+
 	/* External Interrupt Line is 1 for 6410 platform */
 	dhd_wifi_sleep->host_wake_irq= IRQ_EINT(1);
 
@@ -682,7 +647,6 @@ dhd_register_hwakeup(void)
 		return 0;
 	}
 
-	set_irq_type(dhd_wifi_sleep->host_wake_irq, IRQ_TYPE_EDGE_BOTH);
 	ret= request_irq(dhd_wifi_sleep->host_wake_irq, dhd_hostwakeup_isr, IRQF_DISABLED,
 			"wifi_hostwakeup", NULL);
 	if (ret) {
@@ -695,16 +659,13 @@ dhd_register_hwakeup(void)
 		DHD_INFO(("[WiFi] install HostWakeup IRQ \n"));
 	}
 
-	printk("dhd_register_hwakeup : set_irq_type\n");
-//	set_irq_type(dhd_wifi_sleep->host_wake_irq, IRQ_TYPE_EDGE_BOTH);
-//	set_irq_type(dhd_wifi_sleep->host_wake_irq, IRQ_TYPE_EDGE_FALLING);
+	set_irq_type(dhd_wifi_sleep->host_wake_irq, IRQ_TYPE_EDGE_BOTH);
 
 #ifdef BCMHOSTWAKE_IRQ
         dhd_mmc_suspend_ctrl.wifiirq = dhd_wifi_sleep->host_wake_irq;
 
 	disable_irq(dhd_wifi_sleep->host_wake_irq);
 #endif
-	printk("dhd_register_hwakeup : return ret(%d)\n", ret);
 	return ret;
 }
 

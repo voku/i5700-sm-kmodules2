@@ -1,2 +1,2 @@
-kernel//home/ch33kybutt/kernel/m910-kmodules2-cfs/param/param.ko
-kernel//home/ch33kybutt/kernel/m910-kmodules2-cfs/param/crc32.ko
+kernel//home/lars/spica/new_kernel/modules/param/param.ko
+kernel//home/lars/spica/new_kernel/modules/param/crc32.ko

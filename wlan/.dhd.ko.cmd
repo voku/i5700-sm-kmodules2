@@ -1,1 +1,1 @@
-cmd_/home/lars/spica/new_kernel/modules/wlan/dhd.ko := /usr/bin/arm-linux-gnueabihf-ld -EL -r   -o /home/lars/spica/new_kernel/modules/wlan/dhd.ko /home/lars/spica/new_kernel/modules/wlan/dhd.o /home/lars/spica/new_kernel/modules/wlan/dhd.mod.o
+cmd_/home/lars/spica/new_kernel/modules/wlan/dhd.ko := /usr/bin/arm-linux-gnueabi-ld -EL -r   -o /home/lars/spica/new_kernel/modules/wlan/dhd.ko /home/lars/spica/new_kernel/modules/wlan/dhd.o /home/lars/spica/new_kernel/modules/wlan/dhd.mod.o

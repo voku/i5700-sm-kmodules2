@@ -1,1 +1,1 @@
-cmd_/home/ch33kybutt/kernel/m910-kmodules2-cfs/param/param.ko := /opt/ctng/bin/arm-spica-linux-uclibcgnueabi-ld -EL -r   -o /home/ch33kybutt/kernel/m910-kmodules2-cfs/param/param.ko /home/ch33kybutt/kernel/m910-kmodules2-cfs/param/param.o /home/ch33kybutt/kernel/m910-kmodules2-cfs/param/param.mod.o
+cmd_/home/lars/spica/new_kernel/modules/param/param.ko := /usr/bin/arm-linux-gnueabi-ld -EL -r   -o /home/lars/spica/new_kernel/modules/param/param.ko /home/lars/spica/new_kernel/modules/param/param.o /home/lars/spica/new_kernel/modules/param/param.mod.o

@@ -5,22 +5,25 @@
 # VERSION&DATE	: Version 1.00	2006/06/02 (khoonk)
 ##############################################################################
 
+MOD_NAME = dpram
+
+ifneq ($(KERNELRELEASE), )
 
 EXTRA_CFLAGS += -I$(PRJROOT)/modules/include
 
+obj-m := $(MOD_NAME).o
 
-obj-m := dpram.o
-
-#dpram-objs := dpram_module.o
+else
 
 all:
 	@$(MAKE) --no-print-directory -C $(KDIR) \
 		SUBDIRS=$(CURDIR) modules
 
 clean:
-	rm -f *.ko *.mod.c *.mod.o *~ .*.cmd .*.o.cmd Module.symvers modules.order $(obj-m)
+	rm -f *.o *.ko *.mod.c *~ .*.cmd
 
 install:
 	@$(MAKE) --no-print-directory -C $(KDIR) \
 		SUBDIRS=$(CURDIR) modules_install
 
+endif

@@ -33,9 +33,6 @@
 #include <bcmdevs.h>
 #include <hndsoc.h>
 #include <sbchipc.h>
-#if !defined(BCMDONGLEHOST)
-#include <pci_core.h>
-#endif /* !defined(BCMDONGLEHOST) */
 #include <pcicfg.h>
 #include <sbpcmcia.h>
 
@@ -736,14 +733,6 @@ sb_commit(si_t *sih)
 		/* do the buffer registers update */
 		W_REG(sii->osh, &ccregs->broadcastaddress, SB_COMMIT);
 		W_REG(sii->osh, &ccregs->broadcastdata, 0x0);
-#if !defined(BCMDONGLEHOST)
-	} else if (PCI(sii)) {
-		sbpciregs_t *pciregs = (sbpciregs_t *)si_setcore(sih, PCI_CORE_ID, 0);
-
-		/* do the buffer registers update */
-		W_REG(sii->osh, &pciregs->bcastaddr, SB_COMMIT);
-		W_REG(sii->osh, &pciregs->bcastdata, 0x0);
-#endif /* !defined(BCMDONGLEHOST) */
 	} else
 		ASSERT(0);
 

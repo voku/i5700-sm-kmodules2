@@ -20,11 +20,7 @@
 /* This marks the start of a packed structure section. */
 #include <packed_section_start.h>
 
-#ifndef BCMDONGLEHOST
-#include <bcmcrypto/aeskeywrap.h>
-#else
 #define AKW_BLOCK_LEN	8	/* The only def we need here */
-#endif /* BCMDONGLEHOST */
 
 /* EAPOL for 802.3/Ethernet */
 typedef struct {
