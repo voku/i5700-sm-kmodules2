@@ -1,4 +1,4 @@
-cmd_/home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.o := /usr/bin/arm-linux-gnueabi-gcc -Wp,-MD,/home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/.dhd_custom_gpio.o.d  -nostdinc -isystem /usr/lib/gcc/arm-linux-gnueabi/4.6.1/include -Iinclude  -I/home/lars/spica/new_kernel/SM-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O2 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -I/include -I/home/lars/spica/new_kernel/SM-kernel -DBCMDBG -DBCMDBG_MEM -Dlinux -DLINUX -DBDC -DTOE -DBCMDRIVER -DBCMDONGLEHOST -DDHDTHREAD -DBCMWPA2 -DUSE_STOCK_MMC_DRIVER -DDHD_GPL -DDHD_SCHED -DBCMSDIO -DDHD_GPL -DBCMLXSDMMC -DBCMPLATFORM_BUS -DDHD_BCMEVENTS -DSHOW_EVENTS -DDHD_DEBUG -DSRCBASE=\"/home/lars/spica/new_kernel/modules/wlan/src\" -DANDROID_SPECIFIC -DMAX_HDR_LEN=64 -DDHD_FIRSTREAD=64 -DSDIO_ISR_THREAD -DENABLE_DEEP_SLEEP -DWRITE_MACADDR -DCONFIG_BRCM_GPIO_INTR -DBCM_HOSTWAKE -DBCMHOSTWAKE_IRQ -DBCM_PKTFILTER -DBCM_ARPO -DBCMWAPI_WPI -DSOFTAP -I/home/lars/spica/new_kernel/modules/wlan/src/include/ -I/home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/ -I/home/lars/spica/new_kernel/modules/wlan/src/dongle/ -I/home/lars/spica/new_kernel/modules/wlan/src/bcmsdio/sys/ -I/home/lars/spica/new_kernel/modules/wlan/src/wl/sys/ -I/home/lars/spica/new_kernel/modules/wlan/src/shared/ -DMODULE -O3 -mtune=arm1176jzf-s -mfpu=vfp -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(dhd_custom_gpio)"  -D"KBUILD_MODNAME=KBUILD_STR(dhd)"  -c -o /home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.o /home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.c
+cmd_/home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.o := /usr/bin/arm-linux-gnueabi-gcc -Wp,-MD,/home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/.dhd_custom_gpio.o.d  -nostdinc -isystem /usr/lib/gcc/arm-linux-gnueabi/4.6.1/include -Iinclude  -I/home/lars/spica/new_kernel/SM-kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-s3c6400/include -Iarch/arm/mach-s3c6410/include -Iarch/arm/plat-s3c64xx/include -Iarch/arm/plat-s3c/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -O2 -marm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mabi=aapcs-linux -mno-thumb-interwork -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1176jzf-s -msoft-float -Uarm -Wframe-larger-than=1024 -fno-stack-protector -I/modules/include -fno-omit-frame-pointer -fno-optimize-sibling-calls -Wdeclaration-after-statement -Wno-pointer-sign -fwrapv -fno-dwarf2-cfi-asm -I/include -I/home/lars/spica/new_kernel/SM-kernel -DBCMDBG -DBCMDBG_MEM -Dlinux -DLINUX -DBDC -DTOE -DBCMDRIVER -DBCMDONGLEHOST -DDHDTHREAD -DBCMWPA2 -DUSE_STOCK_MMC_DRIVER -DDHD_GPL -DDHD_SCHED -DBCMSDIO -DDHD_GPL -DBCMLXSDMMC -DBCMPLATFORM_BUS -DDHD_BCMEVENTS -DSHOW_EVENTS -DDHD_DEBUG -DSRCBASE=\"/home/lars/spica/new_kernel/modules/wlan/src\" -DANDROID_SPECIFIC -DMAX_HDR_LEN=64 -DDHD_FIRSTREAD=64 -DSDIO_ISR_THREAD -DENABLE_DEEP_SLEEP -DWRITE_MACADDR -DCONFIG_BRCM_GPIO_INTR -DBCM_HOSTWAKE -DBCMHOSTWAKE_IRQ -DBCM_PKTFILTER -DBCM_ARPO -DSOFTAP -I/home/lars/spica/new_kernel/modules/wlan/src/include/ -I/home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/ -I/home/lars/spica/new_kernel/modules/wlan/src/dongle/ -I/home/lars/spica/new_kernel/modules/wlan/src/bcmsdio/sys/ -I/home/lars/spica/new_kernel/modules/wlan/src/wl/sys/ -I/home/lars/spica/new_kernel/modules/wlan/src/shared/ -DMODULE -O2 -marm -mfpu=vfp -march=armv6zk -mtune=arm1176jzf-s  -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(dhd_custom_gpio)"  -D"KBUILD_MODNAME=KBUILD_STR(dhd)"  -c -o /home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.o /home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.c
 
 deps_/home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.o := \
   /home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.c \
@@ -271,29 +271,136 @@ deps_/home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.o := \
   /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/local.h \
   include/asm-generic/local.h \
   /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/module.h \
-  include/linux/mm.h \
-    $(wildcard include/config/sysctl.h) \
-    $(wildcard include/config/stack/growsup.h) \
-    $(wildcard include/config/swap.h) \
-    $(wildcard include/config/shmem.h) \
-    $(wildcard include/config/proc/fs.h) \
-    $(wildcard include/config/debug/pagealloc.h) \
-    $(wildcard include/config/hibernation.h) \
-  include/linux/mmdebug.h \
-    $(wildcard include/config/debug/vm.h) \
-    $(wildcard include/config/debug/virtual.h) \
+  include/linux/sched.h \
+    $(wildcard include/config/sched/debug.h) \
+    $(wildcard include/config/detect/softlockup.h) \
+    $(wildcard include/config/core/dump/default/elf/headers.h) \
+    $(wildcard include/config/bsd/process/acct.h) \
+    $(wildcard include/config/taskstats.h) \
+    $(wildcard include/config/audit.h) \
+    $(wildcard include/config/inotify/user.h) \
+    $(wildcard include/config/epoll.h) \
+    $(wildcard include/config/posix/mqueue.h) \
+    $(wildcard include/config/keys.h) \
+    $(wildcard include/config/user/sched.h) \
+    $(wildcard include/config/schedstats.h) \
+    $(wildcard include/config/task/delay/acct.h) \
+    $(wildcard include/config/fair/group/sched.h) \
+    $(wildcard include/config/rt/group/sched.h) \
+    $(wildcard include/config/blk/dev/io/trace.h) \
+    $(wildcard include/config/cc/stackprotector.h) \
+    $(wildcard include/config/x86/ptrace/bts.h) \
+    $(wildcard include/config/sysvipc.h) \
+    $(wildcard include/config/auditsyscall.h) \
+    $(wildcard include/config/rt/mutexes.h) \
+    $(wildcard include/config/task/xacct.h) \
+    $(wildcard include/config/cpusets.h) \
+    $(wildcard include/config/cgroups.h) \
+    $(wildcard include/config/futex.h) \
+    $(wildcard include/config/fault/injection.h) \
+    $(wildcard include/config/latencytop.h) \
+    $(wildcard include/config/function/graph/tracer.h) \
+    $(wildcard include/config/tracing.h) \
+    $(wildcard include/config/have/unstable/sched/clock.h) \
+    $(wildcard include/config/preempt/bkl.h) \
+    $(wildcard include/config/group/sched.h) \
+    $(wildcard include/config/mm/owner.h) \
+  include/linux/capability.h \
+    $(wildcard include/config/security/file/capabilities.h) \
+  include/linux/timex.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/timex.h \
+  arch/arm/plat-s3c/include/mach/timex.h \
+  include/linux/jiffies.h \
   include/linux/rbtree.h \
-  include/linux/prio_tree.h \
-  include/linux/debug_locks.h \
-    $(wildcard include/config/debug/locking/api/selftests.h) \
   include/linux/mm_types.h \
     $(wildcard include/config/split/ptlock/cpus.h) \
-    $(wildcard include/config/mm/owner.h) \
+    $(wildcard include/config/proc/fs.h) \
     $(wildcard include/config/mmu/notifier.h) \
   include/linux/auxvec.h \
   /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/auxvec.h \
+  include/linux/prio_tree.h \
   /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/mmu.h \
     $(wildcard include/config/cpu/has/asid.h) \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/cputime.h \
+  include/asm-generic/cputime.h \
+  include/linux/sem.h \
+  include/linux/ipc.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/ipcbuf.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/sembuf.h \
+  include/linux/signal.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/signal.h \
+  include/asm-generic/signal.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/sigcontext.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/siginfo.h \
+  include/asm-generic/siginfo.h \
+  include/linux/fs_struct.h \
+  include/linux/path.h \
+  include/linux/pid.h \
+  include/linux/proportions.h \
+  include/linux/percpu_counter.h \
+  include/linux/seccomp.h \
+    $(wildcard include/config/seccomp.h) \
+  include/linux/rtmutex.h \
+    $(wildcard include/config/debug/rt/mutexes.h) \
+  include/linux/plist.h \
+    $(wildcard include/config/debug/pi/list.h) \
+  include/linux/resource.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/resource.h \
+  include/asm-generic/resource.h \
+  include/linux/timer.h \
+    $(wildcard include/config/timer/stats.h) \
+    $(wildcard include/config/debug/objects/timers.h) \
+  include/linux/ktime.h \
+    $(wildcard include/config/ktime/scalar.h) \
+  include/linux/debugobjects.h \
+    $(wildcard include/config/debug/objects/free.h) \
+  include/linux/hrtimer.h \
+    $(wildcard include/config/high/res/timers.h) \
+  include/linux/task_io_accounting.h \
+    $(wildcard include/config/task/io/accounting.h) \
+  include/linux/latencytop.h \
+  include/linux/cred.h \
+    $(wildcard include/config/security.h) \
+  include/linux/key.h \
+    $(wildcard include/config/sysctl.h) \
+  include/linux/sysctl.h \
+  include/linux/aio.h \
+    $(wildcard include/config/aio.h) \
+  include/linux/workqueue.h \
+  include/linux/aio_abi.h \
+  include/linux/uio.h \
+  include/linux/fs.h \
+    $(wildcard include/config/dnotify.h) \
+    $(wildcard include/config/quota.h) \
+    $(wildcard include/config/inotify.h) \
+    $(wildcard include/config/debug/writecount.h) \
+    $(wildcard include/config/file/locking.h) \
+    $(wildcard include/config/block.h) \
+    $(wildcard include/config/fs/xip.h) \
+    $(wildcard include/config/migration.h) \
+  include/linux/limits.h \
+  include/linux/ioctl.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/ioctl.h \
+  include/asm-generic/ioctl.h \
+  include/linux/kdev_t.h \
+  include/linux/dcache.h \
+  include/linux/rculist.h \
+  include/linux/radix-tree.h \
+  include/linux/semaphore.h \
+  include/linux/fiemap.h \
+  include/linux/quota.h \
+  include/linux/dqblk_xfs.h \
+  include/linux/dqblk_v1.h \
+  include/linux/dqblk_v2.h \
+  include/linux/dqblk_qtree.h \
+  include/linux/nfs_fs_i.h \
+  include/linux/nfs.h \
+  include/linux/sunrpc/msg_prot.h \
+  include/linux/fcntl.h \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/fcntl.h \
+  include/asm-generic/fcntl.h \
+  include/linux/err.h \
+  include/linux/mount.h \
   /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/pgtable.h \
   include/asm-generic/4level-fixup.h \
   /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/proc-fns.h \
@@ -319,6 +426,17 @@ deps_/home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.o := \
   arch/arm/plat-s3c/include/mach/vmalloc.h \
   /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/pgtable-hwdef.h \
   include/asm-generic/pgtable.h \
+  include/linux/mm.h \
+    $(wildcard include/config/stack/growsup.h) \
+    $(wildcard include/config/swap.h) \
+    $(wildcard include/config/shmem.h) \
+    $(wildcard include/config/debug/pagealloc.h) \
+    $(wildcard include/config/hibernation.h) \
+  include/linux/mmdebug.h \
+    $(wildcard include/config/debug/vm.h) \
+    $(wildcard include/config/debug/virtual.h) \
+  include/linux/debug_locks.h \
+    $(wildcard include/config/debug/locking/api/selftests.h) \
   include/linux/page-flags.h \
     $(wildcard include/config/pageflags/extended.h) \
     $(wildcard include/config/ia64/uncached/allocator.h) \
@@ -341,7 +459,6 @@ deps_/home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.o := \
   include/linux/klist.h \
   include/linux/pm.h \
     $(wildcard include/config/pm/sleep.h) \
-  include/linux/semaphore.h \
   /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/device.h \
     $(wildcard include/config/dmabounce.h) \
   include/linux/pm_wakeup.h \
@@ -357,7 +474,6 @@ deps_/home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.o := \
   include/linux/dma-mapping.h \
     $(wildcard include/config/has/dma.h) \
     $(wildcard include/config/have/dma/attrs.h) \
-  include/linux/err.h \
   /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/dma-mapping.h \
   include/linux/scatterlist.h \
     $(wildcard include/config/debug/sg.h) \
@@ -418,127 +534,11 @@ deps_/home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.o := \
     $(wildcard include/config/lock/kernel.h) \
   include/linux/ftrace_irq.h \
     $(wildcard include/config/dynamic/ftrace.h) \
-    $(wildcard include/config/function/graph/tracer.h) \
   /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/hardirq.h \
   /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/irq.h \
   arch/arm/mach-s3c6400/include/mach/irqs.h \
   arch/arm/plat-s3c64xx/include/plat/irqs.h \
   include/linux/irq_cpustat.h \
-  include/linux/sched.h \
-    $(wildcard include/config/sched/debug.h) \
-    $(wildcard include/config/detect/softlockup.h) \
-    $(wildcard include/config/core/dump/default/elf/headers.h) \
-    $(wildcard include/config/bsd/process/acct.h) \
-    $(wildcard include/config/taskstats.h) \
-    $(wildcard include/config/audit.h) \
-    $(wildcard include/config/inotify/user.h) \
-    $(wildcard include/config/epoll.h) \
-    $(wildcard include/config/posix/mqueue.h) \
-    $(wildcard include/config/keys.h) \
-    $(wildcard include/config/user/sched.h) \
-    $(wildcard include/config/schedstats.h) \
-    $(wildcard include/config/task/delay/acct.h) \
-    $(wildcard include/config/fair/group/sched.h) \
-    $(wildcard include/config/rt/group/sched.h) \
-    $(wildcard include/config/blk/dev/io/trace.h) \
-    $(wildcard include/config/cc/stackprotector.h) \
-    $(wildcard include/config/x86/ptrace/bts.h) \
-    $(wildcard include/config/sysvipc.h) \
-    $(wildcard include/config/auditsyscall.h) \
-    $(wildcard include/config/rt/mutexes.h) \
-    $(wildcard include/config/task/xacct.h) \
-    $(wildcard include/config/cpusets.h) \
-    $(wildcard include/config/cgroups.h) \
-    $(wildcard include/config/futex.h) \
-    $(wildcard include/config/fault/injection.h) \
-    $(wildcard include/config/latencytop.h) \
-    $(wildcard include/config/tracing.h) \
-    $(wildcard include/config/have/unstable/sched/clock.h) \
-    $(wildcard include/config/preempt/bkl.h) \
-    $(wildcard include/config/group/sched.h) \
-  include/linux/capability.h \
-    $(wildcard include/config/security/file/capabilities.h) \
-  include/linux/timex.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/timex.h \
-  arch/arm/plat-s3c/include/mach/timex.h \
-  include/linux/jiffies.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/cputime.h \
-  include/asm-generic/cputime.h \
-  include/linux/sem.h \
-  include/linux/ipc.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/ipcbuf.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/sembuf.h \
-  include/linux/signal.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/signal.h \
-  include/asm-generic/signal.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/sigcontext.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/siginfo.h \
-  include/asm-generic/siginfo.h \
-  include/linux/fs_struct.h \
-  include/linux/path.h \
-  include/linux/pid.h \
-  include/linux/proportions.h \
-  include/linux/percpu_counter.h \
-  include/linux/seccomp.h \
-    $(wildcard include/config/seccomp.h) \
-  include/linux/rtmutex.h \
-    $(wildcard include/config/debug/rt/mutexes.h) \
-  include/linux/plist.h \
-    $(wildcard include/config/debug/pi/list.h) \
-  include/linux/resource.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/resource.h \
-  include/asm-generic/resource.h \
-  include/linux/timer.h \
-    $(wildcard include/config/timer/stats.h) \
-    $(wildcard include/config/debug/objects/timers.h) \
-  include/linux/ktime.h \
-    $(wildcard include/config/ktime/scalar.h) \
-  include/linux/debugobjects.h \
-    $(wildcard include/config/debug/objects/free.h) \
-  include/linux/hrtimer.h \
-    $(wildcard include/config/high/res/timers.h) \
-  include/linux/task_io_accounting.h \
-    $(wildcard include/config/task/io/accounting.h) \
-  include/linux/latencytop.h \
-  include/linux/cred.h \
-    $(wildcard include/config/security.h) \
-  include/linux/key.h \
-  include/linux/sysctl.h \
-  include/linux/aio.h \
-    $(wildcard include/config/aio.h) \
-  include/linux/workqueue.h \
-  include/linux/aio_abi.h \
-  include/linux/uio.h \
-  include/linux/fs.h \
-    $(wildcard include/config/dnotify.h) \
-    $(wildcard include/config/quota.h) \
-    $(wildcard include/config/inotify.h) \
-    $(wildcard include/config/debug/writecount.h) \
-    $(wildcard include/config/file/locking.h) \
-    $(wildcard include/config/block.h) \
-    $(wildcard include/config/fs/xip.h) \
-    $(wildcard include/config/migration.h) \
-  include/linux/limits.h \
-  include/linux/ioctl.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/ioctl.h \
-  include/asm-generic/ioctl.h \
-  include/linux/kdev_t.h \
-  include/linux/dcache.h \
-  include/linux/rculist.h \
-  include/linux/radix-tree.h \
-  include/linux/fiemap.h \
-  include/linux/quota.h \
-  include/linux/dqblk_xfs.h \
-  include/linux/dqblk_v1.h \
-  include/linux/dqblk_v2.h \
-  include/linux/dqblk_qtree.h \
-  include/linux/nfs_fs_i.h \
-  include/linux/nfs.h \
-  include/linux/sunrpc/msg_prot.h \
-  include/linux/fcntl.h \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/fcntl.h \
-  include/asm-generic/fcntl.h \
-  include/linux/mount.h \
   include/linux/netdevice.h \
     $(wildcard include/config/dcb.h) \
     $(wildcard include/config/wlan/80211.h) \
@@ -628,6 +628,19 @@ deps_/home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.o := \
     $(wildcard include/config/mmc/msm7x00a.h) \
   /home/lars/spica/new_kernel/modules/wlan/src/include/bcmsdh.h \
   /home/lars/spica/new_kernel/modules/wlan/src/include/bcmutils.h \
+  /home/lars/spica/new_kernel/modules/wlan/src/dongle/dngl_stats.h \
+  /home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd.h \
+    $(wildcard include/config/has/wakelock.h) \
+    $(wildcard include/config/pm/sleep1.h) \
+  include/linux/etherdevice.h \
+    $(wildcard include/config/have/efficient/unaligned/access.h) \
+  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/unaligned.h \
+  include/linux/unaligned/le_byteshift.h \
+  include/linux/unaligned/be_byteshift.h \
+  include/linux/unaligned/generic.h \
+  include/linux/ethtool.h \
+  include/linux/wakelock.h \
+    $(wildcard include/config/wakelock/stat.h) \
   /home/lars/spica/new_kernel/modules/wlan/src/include/wlioctl.h \
     $(wildcard include/config/item.h) \
   /home/lars/spica/new_kernel/modules/wlan/src/include/proto/ethernet.h \
@@ -638,21 +651,10 @@ deps_/home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.o := \
   /home/lars/spica/new_kernel/modules/wlan/src/include/proto/802.11.h \
   /home/lars/spica/new_kernel/modules/wlan/src/include/proto/wpa.h \
   /home/lars/spica/new_kernel/modules/wlan/src/include/bcmwifi.h \
+  /home/lars/spica/new_kernel/modules/wlan/src/include/qmath_complex.h \
+  /home/lars/spica/new_kernel/modules/wlan/src/include/qmath.h \
   /home/lars/spica/new_kernel/modules/wlan/src/wl/sys/wl_iw.h \
   include/linux/wireless.h \
-  /home/lars/spica/new_kernel/modules/wlan/src/dongle/dngl_stats.h \
-  /home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd.h \
-  include/linux/etherdevice.h \
-    $(wildcard include/config/have/efficient/unaligned/access.h) \
-  /home/lars/spica/new_kernel/SM-kernel/arch/arm/include/asm/unaligned.h \
-  include/linux/unaligned/le_byteshift.h \
-  include/linux/unaligned/be_byteshift.h \
-  include/linux/unaligned/generic.h \
-  include/linux/ethtool.h \
-  include/linux/wakelock.h \
-    $(wildcard include/config/has/wakelock.h) \
-    $(wildcard include/config/wakelock/stat.h) \
-  /home/lars/spica/new_kernel/modules/wlan/src/include/dhdioctl.h \
   include/net/iw_handler.h \
 
 /home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.o: $(deps_/home/lars/spica/new_kernel/modules/wlan/src/dhd/sys/dhd_custom_gpio.o)

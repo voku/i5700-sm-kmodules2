@@ -1,0 +1,1 @@
+cmd_/home/lukasz/i5700.2/i5700-leshak-kmodules2/mfc2/s3c_mfc.ko := /home/lukasz/ctng/opt/arm-spica-linux-uclibcgnueabi/bin/arm-spica-linux-uclibcgnueabi-ld -EL -r   -o /home/lukasz/i5700.2/i5700-leshak-kmodules2/mfc2/s3c_mfc.ko /home/lukasz/i5700.2/i5700-leshak-kmodules2/mfc2/s3c_mfc.o /home/lukasz/i5700.2/i5700-leshak-kmodules2/mfc2/s3c_mfc.mod.o

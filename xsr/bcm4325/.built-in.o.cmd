@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/bcm4325/built-in.o :=  rm -f drivers/net/wireless/bcm4325/built-in.o; /home/lukasz/ctng/opt/arm-spica-linux-uclibcgnueabi/bin/arm-spica-linux-uclibcgnueabi-ar rcs drivers/net/wireless/bcm4325/built-in.o

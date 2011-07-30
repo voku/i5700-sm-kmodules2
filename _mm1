@@ -1,4 +1,18 @@
 #!/bin/sh
 
-make KDIR=/home/lukasz/i5700.2/kernel/i5700-kernel CFLAGS="-O3 -marm -mfpu=vfp -mtune=arm1176jzf-s"
-cp *.ko /home/lukasz/i5700.2/i5700-initramfs-froyo-2.6.29.6/lib/modules
+make KDIR="/home/lars/spica/new_kernel/SM-kernel/" CFLAGS="-Ofast \
+                -marm \
+                -march=armv6zk \
+                -mtune=arm1176jzf-s \
+                -mfpu=vfp \
+                -mfloat-abi=softfp \
+                -floop-interchange \
+                -floop-strip-mine \
+                -floop-block \
+                -funsafe-loop-optimizations \
+                -funsafe-math-optimizations \
+                --param l1-cache-size=16 \
+                --param l1-cache-line-size=32 \
+                --param simultaneous-prefetches=6 \
+                --param prefetch-latency=400"
+cp *.ko /home/lars/spica/new_kernel/initramfs/lib/modules/

@@ -1,0 +1,5 @@
+0x00000000	gpio_regon_lock_init	/home/lukasz/i5700.2/i5700-leshak-kmodules2/bcm4325/dhd	EXPORT_SYMBOL_GPL
+0x00000000	gpio_wlan_poweron	/home/lukasz/i5700.2/i5700-leshak-kmodules2/bcm4325/dhd	EXPORT_SYMBOL_GPL
+0x00000000	gpio_wlan_poweroff	/home/lukasz/i5700.2/i5700-leshak-kmodules2/bcm4325/dhd	EXPORT_SYMBOL_GPL
+0x00000000	bcmsdh_remove	/home/lukasz/i5700.2/i5700-leshak-kmodules2/bcm4325/dhd	EXPORT_SYMBOL
+0x00000000	bcmsdh_probe	/home/lukasz/i5700.2/i5700-leshak-kmodules2/bcm4325/dhd	EXPORT_SYMBOL
